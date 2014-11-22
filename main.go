@@ -2,8 +2,10 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/codegangsta/cli"
+	"github.com/mitchellh/go-homedir"
 )
 
 func main() {
@@ -13,6 +15,19 @@ func main() {
 	}
 
 	app.Run(os.Args)
+}
+
+func loadConfigFile() *Config {
+	home, err := homedir.Dir()
+	dieIf(err)
+
+	f, err := os.Open(filepath.Join(home, ".config", "blogsync", "config.yaml"))
+	dieIf(err)
+
+	conf, err := LoadConfig(f)
+	dieIf(err)
+
+	return conf
 }
 
 var commandPull = cli.Command{
@@ -25,7 +40,8 @@ var commandPull = cli.Command{
 			os.Exit(1)
 		}
 
-		blogConfig := config.Get(blog)
+		conf := loadConfigFile()
+		blogConfig := conf.Get(blog)
 		if blogConfig == nil {
 			logf("error", "blog not found: %s", blog)
 			os.Exit(1)

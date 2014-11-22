@@ -18,19 +18,6 @@ type BlogConfig struct {
 	Password   string
 }
 
-var config *Config = &Config{
-	Default: &BlogConfig{
-		LocalRoot: "./data",
-	},
-	Blogs: map[string]*BlogConfig{
-		"karimen.hatenablog.com": &BlogConfig{
-			RemoteRoot: "karimen.hatenablog.com",
-			UserName:   "motemen",
-			Password:   "**********",
-		},
-	},
-}
-
 func LoadConfig(r io.Reader) (*Config, error) {
 	bytes, err := ioutil.ReadAll(r)
 	if err != nil {
@@ -63,7 +50,7 @@ func (c *Config) Get(remoteRoot string) *BlogConfig {
 	}
 
 	if conf.LocalRoot == "" {
-		conf.LocalRoot = config.Default.LocalRoot
+		conf.LocalRoot = c.Default.LocalRoot
 	}
 
 	return conf
