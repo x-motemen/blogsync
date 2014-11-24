@@ -14,6 +14,7 @@ type Feed struct {
 }
 
 type Entry struct {
+	ID        string    `xml:"id"`
 	Links     []Link    `xml:"link"`
 	Author    Author    `xml:"author"`
 	Title     string    `xml:"title"`

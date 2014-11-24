@@ -1,0 +1,6 @@
+default:
+  local_root: ./data
+
+karimen.hatenablog.com:
+  username: xxxxxx
+  password: xxxxxxx

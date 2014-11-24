@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/codegangsta/cli"
 	"github.com/mitchellh/go-homedir"
@@ -12,6 +13,7 @@ func main() {
 	app := cli.NewApp()
 	app.Commands = []cli.Command{
 		commandPull,
+		commandPush,
 	}
 
 	app.Run(os.Args)
@@ -59,5 +61,46 @@ var commandPull = cli.Command{
 				dieIf(err)
 			}
 		}
+	},
+}
+
+var commandPush = cli.Command{
+	Name:  "push",
+	Usage: "Push local entries to remote",
+	Action: func(c *cli.Context) {
+		path := c.Args().First()
+		if path == "" {
+			cli.ShowCommandHelp(c, "push")
+			os.Exit(1)
+		}
+
+		path, err := filepath.Abs(path)
+		dieIf(err)
+
+		var blogConfig *BlogConfig
+
+		conf := loadConfigFile()
+		for remoteRoot := range conf.Blogs {
+			bc := conf.Get(remoteRoot)
+			localRoot, err := filepath.Abs(bc.LocalRoot)
+			dieIf(err)
+
+			if strings.HasPrefix(path, localRoot) {
+				blogConfig = bc
+				break
+			}
+		}
+
+		if blogConfig == nil {
+			logf("error", "cannot find blog for %s", path)
+		}
+
+		f, err := os.Open(path)
+		dieIf(err)
+
+		entry, err := EntryFromReader(f)
+		dieIf(err)
+
+		logf("entry", "%#v", entry)
 	},
 }

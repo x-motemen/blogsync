@@ -52,6 +52,7 @@ func (b *Broker) RemoteEntriesFromFeed(feed *atom.Feed) ([]*RemoteEntry, error) 
 
 		remoteEntries[i] = &RemoteEntry{
 			URL:         u,
+			EntryID:     e.ID,
 			Title:       e.Title,
 			Date:        e.Updated,
 			Content:     e.Content.Content,
