@@ -14,13 +14,15 @@ type Feed struct {
 }
 
 type Entry struct {
-	ID        string    `xml:"id"`
+	XMLName   xml.Name  `xml:"entry"`
+	ID        string    `xml:"id,omitempty"`
 	Links     []Link    `xml:"link"`
-	Author    Author    `xml:"author"`
+	Author    Author    `xml:"author,omitempty"`
 	Title     string    `xml:"title"`
 	Updated   time.Time `xml:"updated"`
 	Published time.Time `xml:"published"`
 	Content   Content   `xml:"content"`
+	XMLNs     string    `xml:"xmlns,attr"`
 }
 
 type Link struct {
@@ -33,7 +35,7 @@ type Author struct {
 }
 
 type Content struct {
-	Type    string `xml:"type,attr"`
+	Type    string `xml:"type,attr,omitempty"`
 	Content string `xml:",chardata"`
 }
 

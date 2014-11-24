@@ -82,8 +82,10 @@ var commandPush = cli.Command{
 		conf := loadConfigFile()
 		for remoteRoot := range conf.Blogs {
 			bc := conf.Get(remoteRoot)
-			localRoot, err := filepath.Abs(bc.LocalRoot)
+			localRoot, err := filepath.Abs(filepath.Join(bc.LocalRoot, remoteRoot))
 			dieIf(err)
+
+			logf("compare", "%s - %s", path, localRoot)
 
 			if strings.HasPrefix(path, localRoot) {
 				blogConfig = bc
@@ -93,7 +95,10 @@ var commandPush = cli.Command{
 
 		if blogConfig == nil {
 			logf("error", "cannot find blog for %s", path)
+			os.Exit(1)
 		}
+
+		b := NewBroker(blogConfig)
 
 		f, err := os.Open(path)
 		dieIf(err)
@@ -102,5 +107,6 @@ var commandPush = cli.Command{
 		dieIf(err)
 
 		logf("entry", "%#v", entry)
+		b.Put(entry)
 	},
 }

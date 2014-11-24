@@ -1,12 +1,17 @@
 package main
 
 import (
+	"bytes"
+	"encoding/xml"
 	"fmt"
-	"github.com/motemen/blogsync/atom"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/motemen/blogsync/atom"
 )
 
 type Broker struct {
@@ -19,13 +24,16 @@ func NewBroker(c *BlogConfig) *Broker {
 	}
 }
 
-func (b *Broker) FetchRemoteEntries() ([]*RemoteEntry, error) {
-	c := &WSSEClient{
+func (b *Broker) client() *WSSEClient {
+	return &WSSEClient{
 		Client:   http.DefaultClient,
 		UserName: b.UserName,
 		Password: b.Password,
 	}
-	resp, err := c.Get(fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.UserName, b.RemoteRoot))
+}
+
+func (b *Broker) FetchRemoteEntries() ([]*RemoteEntry, error) {
+	resp, err := b.client().Get(fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.UserName, b.RemoteRoot))
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +73,7 @@ func (b *Broker) RemoteEntriesFromFeed(feed *atom.Feed) ([]*RemoteEntry, error) 
 
 func (b *Broker) LocalHalf(re *RemoteEntry) *LocalEntry {
 	extension := ".md" // TODO regard re.ContentType
-	path := filepath.Join(b.LocalRoot, re.URL.Path+extension)
+	path := filepath.Join(b.LocalRoot, re.URL.Host, re.URL.Path+extension)
 	return &LocalEntry{
 		Path: path,
 	}
@@ -91,4 +99,48 @@ func (b *Broker) Download(re *RemoteEntry, le *LocalEntry) error {
 	}
 
 	return nil
+}
+
+func (b *Broker) Put(e *RemoteEntry) error {
+	var entryXML bytes.Buffer
+
+	atomEntry := atom.Entry{
+		Title: e.Title,
+		Content: atom.Content{
+			Content: e.Content,
+		},
+		Updated: e.Date,
+		XMLNs:   "http://www.w3.org/2005/Atom",
+	}
+
+	entryXML.WriteString(xml.Header)
+	enc := xml.NewEncoder(&entryXML)
+	enc.Indent("", "  ")
+	enc.Encode(atomEntry)
+
+	// XXX workaround
+	parts := strings.Split(e.EntryID, "-")
+	entryID := parts[len(parts)-1]
+
+	putReq, err := http.NewRequest(
+		"PUT",
+		fmt.Sprintf(
+			"https://blog.hatena.ne.jp/%s/%s/atom/entry/%s",
+			b.UserName, b.RemoteRoot, entryID,
+		),
+		&entryXML,
+	)
+	if err != nil {
+		return err
+	}
+
+	logf("xml", "%s", entryXML.String())
+
+	logf("upload", "x -> x")
+	resp, err := b.client().Do(putReq)
+
+	bytes, _ := ioutil.ReadAll(resp.Body)
+	logf("error", "%s", string(bytes))
+
+	return err
 }
