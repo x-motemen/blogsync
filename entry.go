@@ -13,25 +13,22 @@ import (
 
 // RemoteEntry is an entry stored on remote blog providers
 type RemoteEntry struct {
-	URL         *url.URL
-	Title       string
-	Date        time.Time
-	EntryID     string
-	Content     string
-	ContentType string
+	URL          *url.URL
+	Title        string
+	Date         time.Time
+	EditURL      string
+	LastModified time.Time
+	Content      string
+	ContentType  string
 }
 
 func (re *RemoteEntry) HeaderString() string {
 	return strings.Join([]string{
 		"Title:   " + re.Title,
 		"Date:    " + re.Date.Format(timeFormat),
-		"EntryID: " + re.EntryID,
+		"URL:     " + re.URL.String(),
+		"EditURL: " + re.EditURL,
 	}, "\n") + "\n"
-}
-
-func (re *RemoteEntry) LastModified() time.Time {
-	// XXX はてなブログの Atom において lastModified 的なものはない気がする
-	return time.Now()
 }
 
 type LocalEntry struct {
@@ -57,6 +54,8 @@ func EntryFromReader(r_ io.Reader) (*RemoteEntry, error) {
 
 	entry := &RemoteEntry{}
 
+	// TODO LastModified = mtime
+
 	var body bytes.Buffer
 	for {
 		line, err := r.ReadString('\n')
@@ -75,8 +74,7 @@ func EntryFromReader(r_ io.Reader) (*RemoteEntry, error) {
 			break
 		}
 
-		key := m[1]
-		value := m[2]
+		key, value := m[1], m[2]
 		switch key {
 		case "Title":
 			entry.Title = value
@@ -85,8 +83,8 @@ func EntryFromReader(r_ io.Reader) (*RemoteEntry, error) {
 			if err != nil {
 				return nil, err
 			}
-		case "EntryID":
-			entry.EntryID = value
+		case "EditURL":
+			entry.EditURL = value
 		}
 	}
 

@@ -18,7 +18,6 @@ func TestEntryFromReader(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.Equal(t, e.Title, "所内 #2")
-	assert.Equal(t, e.EntryID, "tag:blog.hatena.ne.jp,2013:blog-motemen-6435988827677191912-12921228815728100025")
 
 	assert.True(t, e.Date.Equal(time.Date(2012, 12, 18, 0, 0, 0, 0, jst)))
 }

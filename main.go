@@ -55,8 +55,8 @@ var commandPull = cli.Command{
 
 		for _, re := range remoteEntries {
 			le := b.LocalHalf(re)
-			logf("compare", "remote=%s vs local=%s", re.LastModified(), le.LastModified())
-			if re.LastModified().After(le.LastModified()) {
+			logf("compare", "remote=%s vs local=%s", re.LastModified, le.LastModified())
+			if re.LastModified.After(le.LastModified()) {
 				err := b.Download(re, le)
 				dieIf(err)
 			}

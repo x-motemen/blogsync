@@ -5,6 +5,7 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
@@ -50,32 +51,13 @@ func (c *WSSEClient) Get(url string) (*http.Response, error) {
 	}
 
 	return c.Do(req)
+}
 
-	/*
-		nonce := make([]byte, 12)
-		_, err = rand.Read(nonce)
-		if err != nil {
-			return nil, err
-		}
+func (c *WSSEClient) Put(url string, body io.Reader) (*http.Response, error) {
+	req, err := http.NewRequest("PUT", url, body)
+	if err != nil {
+		return nil, err
+	}
 
-		created := time.Now().Format("2006-01-02T15:04:05Z")
-
-		digest := sha1.New()
-		digest.Write(nonce)
-		digest.Write([]byte(created))
-		digest.Write([]byte(c.Password))
-
-		req.Header.Set(
-			"X-WSSE",
-			fmt.Sprintf(
-				`UsernameToken Username="%s", PasswordDigest="%s", Nonce="%s", Created="%s"`,
-				c.UserName,
-				base64.StdEncoding.EncodeToString(digest.Sum(nil)),
-				base64.StdEncoding.EncodeToString(nonce),
-				created,
-			),
-		)
-
-		return c.Client.Do(req)
-	*/
+	return c.Do(req)
 }

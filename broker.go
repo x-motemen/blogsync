@@ -9,31 +9,28 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/motemen/blogsync/atom"
 )
 
 type Broker struct {
+	client *WSSEClient
 	*BlogConfig
 }
 
 func NewBroker(c *BlogConfig) *Broker {
 	return &Broker{
+		client: &WSSEClient{
+			Client:   http.DefaultClient,
+			UserName: c.UserName,
+			Password: c.Password,
+		},
 		BlogConfig: c,
 	}
 }
 
-func (b *Broker) client() *WSSEClient {
-	return &WSSEClient{
-		Client:   http.DefaultClient,
-		UserName: b.UserName,
-		Password: b.Password,
-	}
-}
-
 func (b *Broker) FetchRemoteEntries() ([]*RemoteEntry, error) {
-	resp, err := b.client().Get(fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.UserName, b.RemoteRoot))
+	resp, err := b.client.Get(fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.UserName, b.RemoteRoot))
 	if err != nil {
 		return nil, err
 	}
@@ -58,13 +55,19 @@ func (b *Broker) RemoteEntriesFromFeed(feed *atom.Feed) ([]*RemoteEntry, error) 
 			return nil, err
 		}
 
+		editLink := atom.FindLink("edit", e.Links)
+		if editLink == nil {
+			return nil, fmt.Errorf("could not find link[rel=edit]")
+		}
+
 		remoteEntries[i] = &RemoteEntry{
-			URL:         u,
-			EntryID:     e.ID,
-			Title:       e.Title,
-			Date:        e.Updated,
-			Content:     e.Content.Content,
-			ContentType: e.Content.Type,
+			URL:          u,
+			EditURL:      editLink.Href,
+			Title:        e.Title,
+			Date:         e.Updated,
+			LastModified: e.Edited,
+			Content:      e.Content.Content,
+			ContentType:  e.Content.Type,
 		}
 	}
 
@@ -98,7 +101,12 @@ func (b *Broker) Download(re *RemoteEntry, le *LocalEntry) error {
 		return err
 	}
 
-	return nil
+	err = f.Close()
+	if err != nil {
+		return err
+	}
+
+	return os.Chtimes(le.Path, re.LastModified, re.LastModified)
 }
 
 func (b *Broker) Put(e *RemoteEntry) error {
@@ -118,26 +126,7 @@ func (b *Broker) Put(e *RemoteEntry) error {
 	enc.Indent("", "  ")
 	enc.Encode(atomEntry)
 
-	// XXX workaround
-	parts := strings.Split(e.EntryID, "-")
-	entryID := parts[len(parts)-1]
-
-	putReq, err := http.NewRequest(
-		"PUT",
-		fmt.Sprintf(
-			"https://blog.hatena.ne.jp/%s/%s/atom/entry/%s",
-			b.UserName, b.RemoteRoot, entryID,
-		),
-		&entryXML,
-	)
-	if err != nil {
-		return err
-	}
-
-	logf("xml", "%s", entryXML.String())
-
-	logf("upload", "x -> x")
-	resp, err := b.client().Do(putReq)
+	resp, err := b.client.Put(e.EditURL, &entryXML)
 
 	bytes, _ := ioutil.ReadAll(resp.Body)
 	logf("error", "%s", string(bytes))

@@ -21,6 +21,7 @@ type Entry struct {
 	Title     string    `xml:"title"`
 	Updated   time.Time `xml:"updated"`
 	Published time.Time `xml:"published"`
+	Edited    time.Time `xml:"edited"`
 	Content   Content   `xml:"content"`
 	XMLNs     string    `xml:"xmlns,attr"`
 }
