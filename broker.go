@@ -128,8 +128,10 @@ func (b *Broker) Put(e *RemoteEntry) error {
 
 	resp, err := b.client.Put(e.EditURL, &entryXML)
 
-	bytes, _ := ioutil.ReadAll(resp.Body)
-	logf("error", "%s", string(bytes))
+	if resp.StatusCode != 200 {
+		bytes, _ := ioutil.ReadAll(resp.Body)
+		logf("error", "got [%s]: %q", resp.Status, string(bytes))
+	}
 
 	return err
 }

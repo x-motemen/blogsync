@@ -49,12 +49,19 @@ const timeFormat = "2006-01-02T15:04:05-07:00"
 
 var rxHeader = regexp.MustCompile(`^(\w+):\s*(.+)`)
 
-func EntryFromReader(r_ io.Reader) (*RemoteEntry, error) {
-	r := bufio.NewReader(r_)
+func EntryFromReader(source io.Reader) (*RemoteEntry, error) {
+	r := bufio.NewReader(source)
 
 	entry := &RemoteEntry{}
 
-	// TODO LastModified = mtime
+	if f, ok := source.(*os.File); ok {
+		fi, err := os.Stat(f.Name())
+		if err != nil {
+			return nil, err
+		}
+
+		entry.LastModified = fi.ModTime()
+	}
 
 	var body bytes.Buffer
 	for {
