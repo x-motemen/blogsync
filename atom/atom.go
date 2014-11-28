@@ -50,6 +50,16 @@ func Parse(r io.Reader) (*Feed, error) {
 	return feed, nil
 }
 
+func ParseEntry(r io.Reader) (*Entry, error) {
+	entry := &Entry{}
+	err := xml.NewDecoder(r).Decode(entry)
+	if err != nil {
+		return nil, err
+	}
+
+	return entry, nil
+}
+
 // utility
 func FindLink(rel string, links []Link) *Link {
 	for _, link := range links {

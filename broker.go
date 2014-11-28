@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/motemen/blogsync/atom"
 )
@@ -29,7 +30,7 @@ func NewBroker(c *BlogConfig) *Broker {
 	}
 }
 
-func (b *Broker) FetchRemoteEntries() ([]*RemoteEntry, error) {
+func (b *Broker) FetchRemoteEntries() ([]*Entry, error) {
 	resp, err := b.client.Get(fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.UserName, b.RemoteRoot))
 	if err != nil {
 		return nil, err
@@ -46,52 +47,76 @@ func (b *Broker) FetchRemoteEntries() ([]*RemoteEntry, error) {
 	return b.RemoteEntriesFromFeed(feed)
 }
 
-func (b *Broker) RemoteEntriesFromFeed(feed *atom.Feed) ([]*RemoteEntry, error) {
-	remoteEntries := make([]*RemoteEntry, len(feed.Entries))
+func entryFromAtom(e *atom.Entry) (*Entry, error) {
+	u, err := url.Parse(atom.FindLink("alternate", e.Links).Href)
+	if err != nil {
+		return nil, err
+	}
+
+	editLink := atom.FindLink("edit", e.Links)
+	if editLink == nil {
+		return nil, fmt.Errorf("could not find link[rel=edit]")
+	}
+
+	return &Entry{
+		URL:          u,
+		EditURL:      editLink.Href,
+		Title:        e.Title,
+		Date:         e.Updated,
+		LastModified: e.Edited,
+		Content:      e.Content.Content,
+		ContentType:  e.Content.Type,
+	}, nil
+}
+
+func (b *Broker) RemoteEntriesFromFeed(feed *atom.Feed) ([]*Entry, error) {
+	remoteEntries := make([]*Entry, len(feed.Entries))
 
 	for i, e := range feed.Entries {
-		u, err := url.Parse(atom.FindLink("alternate", e.Links).Href)
+		re, err := entryFromAtom(&e)
 		if err != nil {
 			return nil, err
 		}
 
-		editLink := atom.FindLink("edit", e.Links)
-		if editLink == nil {
-			return nil, fmt.Errorf("could not find link[rel=edit]")
-		}
-
-		remoteEntries[i] = &RemoteEntry{
-			URL:          u,
-			EditURL:      editLink.Href,
-			Title:        e.Title,
-			Date:         e.Updated,
-			LastModified: e.Edited,
-			Content:      e.Content.Content,
-			ContentType:  e.Content.Type,
-		}
+		remoteEntries[i] = re
 	}
 
 	return remoteEntries, nil
 }
 
-func (b *Broker) LocalHalf(re *RemoteEntry) *LocalEntry {
+func (b *Broker) LocalPath(e *Entry) string {
 	extension := ".md" // TODO regard re.ContentType
-	path := filepath.Join(b.LocalRoot, re.URL.Host, re.URL.Path+extension)
-	return &LocalEntry{
-		Path: path,
-	}
+	return filepath.Join(b.LocalRoot, e.URL.Host, e.URL.Path+extension)
 }
 
-func (b *Broker) Download(re *RemoteEntry, le *LocalEntry) error {
-	logf("download", "%s -> %s", re.URL, le.Path)
+func (b *Broker) Mirror(re *Entry, path string) (bool, error) {
+	var localLastModified time.Time
+	if fi, err := os.Stat(path); err == nil {
+		localLastModified = fi.ModTime()
+	}
 
-	dir, _ := filepath.Split(le.Path)
+	if re.LastModified.After(localLastModified) {
+		logf("fresh", "remote=%s > local=%s", re.LastModified, localLastModified)
+		if err := b.Download(re, path); err != nil {
+			return false, err
+		}
+
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func (b *Broker) Download(re *Entry, path string) error {
+	logf("download", "%s -> %s", re.URL, path)
+
+	dir, _ := filepath.Split(path)
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		return err
 	}
 
-	f, err := os.Create(le.Path)
+	f, err := os.Create(path)
 	if err != nil {
 		return err
 	}
@@ -106,10 +131,31 @@ func (b *Broker) Download(re *RemoteEntry, le *LocalEntry) error {
 		return err
 	}
 
-	return os.Chtimes(le.Path, re.LastModified, re.LastModified)
+	return os.Chtimes(path, re.LastModified, re.LastModified)
 }
 
-func (b *Broker) Put(e *RemoteEntry) error {
+func (b *Broker) Upload(e *Entry) (bool, error) {
+	resp, err := b.client.Get(e.EditURL)
+	if err != nil {
+		return false, err
+	}
+
+	atomEntry, err := atom.ParseEntry(resp.Body)
+	if err != nil {
+		return false, err
+	}
+
+	// TODO Entry でほしい
+	if e.LastModified.After(atomEntry.Edited) == false {
+		return false, nil
+	}
+
+	return true, b.Put(e)
+
+	// TODO put 後にローカル書き換える
+}
+
+func (b *Broker) Put(e *Entry) error {
 	var entryXML bytes.Buffer
 
 	atomEntry := atom.Entry{
@@ -127,11 +173,25 @@ func (b *Broker) Put(e *RemoteEntry) error {
 	enc.Encode(atomEntry)
 
 	resp, err := b.client.Put(e.EditURL, &entryXML)
+	if err != nil {
+		return err
+	}
 
 	if resp.StatusCode != 200 {
 		bytes, _ := ioutil.ReadAll(resp.Body)
-		logf("error", "got [%s]: %q", resp.Status, string(bytes))
+		return fmt.Errorf("got [%s]: %q", resp.Status, string(bytes))
 	}
 
-	return err
+	resultAtomEntry, err := atom.ParseEntry(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	resultEntry, err := entryFromAtom(resultAtomEntry)
+	if err != nil {
+		return err
+	}
+
+	path := b.LocalPath(resultEntry)
+	return b.Download(resultEntry, path)
 }

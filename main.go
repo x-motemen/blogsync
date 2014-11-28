@@ -54,12 +54,12 @@ var commandPull = cli.Command{
 		dieIf(err)
 
 		for _, re := range remoteEntries {
-			le := b.LocalHalf(re)
-			logf("compare", "remote=%s vs local=%s", re.LastModified, le.LastModified())
-			if re.LastModified.After(le.LastModified()) {
-				err := b.Download(re, le)
-				dieIf(err)
+			path := b.LocalPath(re)
+			updated, err := b.Mirror(re, path)
+			if updated {
+				logf("updated", "%s -> %s", re.URL, path)
 			}
+			dieIf(err)
 		}
 	},
 }
@@ -106,7 +106,9 @@ var commandPush = cli.Command{
 		entry, err := EntryFromReader(f)
 		dieIf(err)
 
+		// TODO リモートのと比較
+
 		logf("entry", "%#v", entry)
-		b.Put(entry)
+		b.Upload(entry)
 	},
 }

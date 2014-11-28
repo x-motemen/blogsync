@@ -11,8 +11,8 @@ import (
 	"time"
 )
 
-// RemoteEntry is an entry stored on remote blog providers
-type RemoteEntry struct {
+// Entry is an entry stored on remote blog providers
+type Entry struct {
 	URL          *url.URL
 	Title        string
 	Date         time.Time
@@ -22,7 +22,7 @@ type RemoteEntry struct {
 	ContentType  string
 }
 
-func (re *RemoteEntry) HeaderString() string {
+func (re *Entry) HeaderString() string {
 	return strings.Join([]string{
 		"Title:   " + re.Title,
 		"Date:    " + re.Date.Format(timeFormat),
@@ -49,10 +49,10 @@ const timeFormat = "2006-01-02T15:04:05-07:00"
 
 var rxHeader = regexp.MustCompile(`^(\w+):\s*(.+)`)
 
-func EntryFromReader(source io.Reader) (*RemoteEntry, error) {
+func EntryFromReader(source io.Reader) (*Entry, error) {
 	r := bufio.NewReader(source)
 
-	entry := &RemoteEntry{}
+	entry := &Entry{}
 
 	if f, ok := source.(*os.File); ok {
 		fi, err := os.Stat(f.Name())
