@@ -14,7 +14,7 @@ func TestGetConfig(t *testing.T) {
 		Blogs: map[string]*BlogConfig{
 			"blog.example.com": &BlogConfig{
 				RemoteRoot: "blog.example.com",
-				UserName:   "xxx",
+				Username:   "xxx",
 				Password:   "yyy",
 			},
 		},
@@ -38,6 +38,6 @@ blog2.example.com:
 	conf, err := LoadConfig(r)
 	assert.Nil(t, err)
 	assert.Equal(t, conf.Default.LocalRoot, "./data")
-	assert.Equal(t, conf.Blogs["blog1.example.com"].UserName, "blog1")
+	assert.Equal(t, conf.Blogs["blog1.example.com"].Username, "blog1")
 	assert.Equal(t, conf.Blogs["blog1.example.com"].RemoteRoot, "blog1.example.com")
 }

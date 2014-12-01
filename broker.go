@@ -12,39 +12,55 @@ import (
 	"time"
 
 	"github.com/motemen/blogsync/atom"
+	"github.com/motemen/go-wsse"
 )
 
 type Broker struct {
-	client *WSSEClient
+	client *http.Client
 	*BlogConfig
 }
 
 func NewBroker(c *BlogConfig) *Broker {
 	return &Broker{
-		client: &WSSEClient{
-			Client:   http.DefaultClient,
-			UserName: c.UserName,
-			Password: c.Password,
+		client: &http.Client{
+			Transport: &wsse.Transport{
+				Username: c.Username,
+				Password: c.Password,
+			},
 		},
 		BlogConfig: c,
 	}
 }
 
 func (b *Broker) FetchRemoteEntries() ([]*Entry, error) {
-	resp, err := b.client.Get(fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.UserName, b.RemoteRoot))
-	if err != nil {
-		return nil, err
-	}
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("request not succeeded: got [%s]", resp.Status)
+	entries := []atom.Entry{}
+	url := fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.Username, b.RemoteRoot)
+
+	for {
+		resp, err := b.client.Get(url)
+		if err != nil {
+			return nil, err
+		}
+		if resp.StatusCode != 200 {
+			return nil, fmt.Errorf("request not succeeded: got [%s]", resp.Status)
+		}
+
+		feed, err := atom.Parse(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		entries = append(entries, feed.Entries...)
+
+		nextLink := atom.FindLink("next", feed.Links)
+		if nextLink == nil {
+			break
+		}
+
+		url = nextLink.Href
 	}
 
-	feed, err := atom.Parse(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return b.RemoteEntriesFromFeed(feed)
+	return b.entriesFromAtomEntries(entries)
 }
 
 func entryFromAtom(e *atom.Entry) (*Entry, error) {
@@ -69,10 +85,10 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 	}, nil
 }
 
-func (b *Broker) RemoteEntriesFromFeed(feed *atom.Feed) ([]*Entry, error) {
-	remoteEntries := make([]*Entry, len(feed.Entries))
+func (b *Broker) entriesFromAtomEntries(entries []atom.Entry) ([]*Entry, error) {
+	remoteEntries := make([]*Entry, len(entries))
 
-	for i, e := range feed.Entries {
+	for i, e := range entries {
 		re, err := entryFromAtom(&e)
 		if err != nil {
 			return nil, err
@@ -172,7 +188,12 @@ func (b *Broker) Put(e *Entry) error {
 	enc.Indent("", "  ")
 	enc.Encode(atomEntry)
 
-	resp, err := b.client.Put(e.EditURL, &entryXML)
+	req, err := http.NewRequest("PUT", e.EditURL, &entryXML)
+	if err != nil {
+		return err
+	}
+
+	resp, err := b.client.Do(req)
 	if err != nil {
 		return err
 	}

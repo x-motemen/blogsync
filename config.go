@@ -14,7 +14,7 @@ type Config struct {
 type BlogConfig struct {
 	RemoteRoot string `yaml:"-"`
 	LocalRoot  string `yaml:"local_root"`
-	UserName   string
+	Username   string
 	Password   string
 }
 
