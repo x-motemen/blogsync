@@ -7,7 +7,7 @@ import (
 )
 
 type Feed struct {
-	Links    []Link  `xml:"link"`
+	Links    Links   `xml:"link"`
 	Title    string  `xml:"title"`
 	Subtitle string  `xml:"subtitle"`
 	Entries  []Entry `xml:"entry"`
@@ -16,7 +16,7 @@ type Feed struct {
 type Entry struct {
 	XMLName   xml.Name  `xml:"entry"`
 	ID        string    `xml:"id,omitempty"`
-	Links     []Link    `xml:"link"`
+	Links     Links     `xml:"link"`
 	Author    Author    `xml:"author,omitempty"`
 	Title     string    `xml:"title"`
 	Updated   time.Time `xml:"updated"`
@@ -30,6 +30,8 @@ type Link struct {
 	Rel  string `xml:"rel,attr"`
 	Href string `xml:"href,attr"`
 }
+
+type Links []Link
 
 type Author struct {
 	Name string `xml:"name"`
@@ -60,8 +62,7 @@ func ParseEntry(r io.Reader) (*Entry, error) {
 	return entry, nil
 }
 
-// utility
-func FindLink(rel string, links []Link) *Link {
+func (links Links) Find(rel string) *Link {
 	for _, link := range links {
 		if link.Rel == rel {
 			return &link

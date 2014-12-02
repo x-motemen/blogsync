@@ -52,7 +52,7 @@ func (b *Broker) FetchRemoteEntries() ([]*Entry, error) {
 
 		entries = append(entries, feed.Entries...)
 
-		nextLink := atom.FindLink("next", feed.Links)
+		nextLink := feed.Links.Find("next")
 		if nextLink == nil {
 			break
 		}
@@ -64,12 +64,12 @@ func (b *Broker) FetchRemoteEntries() ([]*Entry, error) {
 }
 
 func entryFromAtom(e *atom.Entry) (*Entry, error) {
-	u, err := url.Parse(atom.FindLink("alternate", e.Links).Href)
+	u, err := url.Parse(e.Links.Find("alternate").Href)
 	if err != nil {
 		return nil, err
 	}
 
-	editLink := atom.FindLink("edit", e.Links)
+	editLink := e.Links.Find("edit")
 	if editLink == nil {
 		return nil, fmt.Errorf("could not find link[rel=edit]")
 	}

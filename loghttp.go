@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/motemen/go-loghttp"
 	_ "github.com/motemen/go-loghttp/global"
-	"net/http"
 )
 
 func init() {

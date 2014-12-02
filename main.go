@@ -55,10 +55,7 @@ var commandPull = cli.Command{
 
 		for _, re := range remoteEntries {
 			path := b.LocalPath(re)
-			updated, err := b.Mirror(re, path)
-			if updated {
-				logf("updated", "%s -> %s", re.URL, path)
-			}
+			_, err := b.Mirror(re, path)
 			dieIf(err)
 		}
 	},
