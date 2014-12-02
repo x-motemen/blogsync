@@ -36,15 +36,7 @@ func (b *Broker) FetchRemoteEntries() ([]*Entry, error) {
 	url := fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.Username, b.RemoteRoot)
 
 	for {
-		resp, err := b.client.Get(url)
-		if err != nil {
-			return nil, err
-		}
-		if resp.StatusCode != 200 {
-			return nil, fmt.Errorf("request not succeeded: got [%s]", resp.Status)
-		}
-
-		feed, err := atom.Parse(resp.Body)
+		feed, err := b.client.GetFeed(url)
 		if err != nil {
 			return nil, err
 		}
@@ -150,12 +142,7 @@ func (b *Broker) Download(re *Entry, path string) error {
 }
 
 func (b *Broker) Upload(e *Entry) (bool, error) {
-	resp, err := b.client.Get(e.EditURL)
-	if err != nil {
-		return false, err
-	}
-
-	atomEntry, err := atom.ParseEntry(resp.Body)
+	atomEntry, err := b.client.GetEntry(e.EditURL)
 	if err != nil {
 		return false, err
 	}
@@ -166,8 +153,6 @@ func (b *Broker) Upload(e *Entry) (bool, error) {
 	}
 
 	return true, b.Put(e)
-
-	// TODO put 後にローカル書き換える
 }
 
 func (b *Broker) Put(e *Entry) error {
