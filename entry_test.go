@@ -14,7 +14,7 @@ func TestEntryFromReader(t *testing.T) {
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	assert.NoError(t, err)
 
-	e, err := EntryFromReader(f)
+	e, err := entryFromReader(f)
 	assert.NoError(t, err)
 
 	assert.Equal(t, e.Title, "所内 #2")

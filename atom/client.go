@@ -53,6 +53,34 @@ func (c *Client) PutEntry(url string, e *Entry) (*Entry, error) {
 	return newEntry, nil
 }
 
+func (c *Client) PostEntry(url string, e *Entry) (*Entry, error) {
+	body, err := entryBody(e)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.http("POST", url, body)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO Handle 201 Created
+
+	return nil, nil
+}
+
+func entryBody(e *Entry) (*bytes.Buffer, error) {
+	body := new(bytes.Buffer)
+
+	body.WriteString(xml.Header)
+	err := xml.NewEncoder(body).Encode(e)
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
+}
+
 func (c *Client) http(method, url string, body io.Reader) (*http.Response, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {

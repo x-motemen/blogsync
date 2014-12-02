@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"time"
@@ -22,8 +21,8 @@ func NewBroker(config *BlogConfig) *Broker {
 		Client: &atom.Client{
 			Client: &http.Client{
 				Transport: &wsse.Transport{
-					Username: c.Username,
-					Password: c.Password,
+					Username: config.Username,
+					Password: config.Password,
 				},
 			},
 		},
@@ -32,7 +31,7 @@ func NewBroker(config *BlogConfig) *Broker {
 }
 
 func (b *Broker) FetchRemoteEntries() ([]*Entry, error) {
-	entries := []atom.Entry{}
+	entries := []*Entry{}
 	url := fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.Username, b.RemoteRoot)
 
 	for {
@@ -41,7 +40,14 @@ func (b *Broker) FetchRemoteEntries() ([]*Entry, error) {
 			return nil, err
 		}
 
-		entries = append(entries, feed.Entries...)
+		for _, ae := range feed.Entries {
+			e, err := entryFromAtom(&ae)
+			if err != nil {
+				return nil, err
+			}
+
+			entries = append(entries, e)
+		}
 
 		nextLink := feed.Links.Find("next")
 		if nextLink == nil {
@@ -51,44 +57,7 @@ func (b *Broker) FetchRemoteEntries() ([]*Entry, error) {
 		url = nextLink.Href
 	}
 
-	return b.entriesFromAtomEntries(entries)
-}
-
-func entryFromAtom(e *atom.Entry) (*Entry, error) {
-	u, err := url.Parse(e.Links.Find("alternate").Href)
-	if err != nil {
-		return nil, err
-	}
-
-	editLink := e.Links.Find("edit")
-	if editLink == nil {
-		return nil, fmt.Errorf("could not find link[rel=edit]")
-	}
-
-	return &Entry{
-		URL:          u,
-		EditURL:      editLink.Href,
-		Title:        e.Title,
-		Date:         e.Updated,
-		LastModified: e.Edited,
-		Content:      e.Content.Content,
-		ContentType:  e.Content.Type,
-	}, nil
-}
-
-func (b *Broker) entriesFromAtomEntries(entries []atom.Entry) ([]*Entry, error) {
-	remoteEntries := make([]*Entry, len(entries))
-
-	for i, e := range entries {
-		re, err := entryFromAtom(&e)
-		if err != nil {
-			return nil, err
-		}
-
-		remoteEntries[i] = re
-	}
-
-	return remoteEntries, nil
+	return entries, nil
 }
 
 func (b *Broker) LocalPath(e *Entry) string {
@@ -114,7 +83,7 @@ func (b *Broker) Mirror(re *Entry, path string) (bool, error) {
 	return false, nil
 }
 
-func (b *Broker) Store(re *Entry, path string) error {
+func (b *Broker) Store(e *Entry, path string) error {
 	logf("store", "%s", path)
 
 	dir, _ := filepath.Split(path)
@@ -128,7 +97,7 @@ func (b *Broker) Store(re *Entry, path string) error {
 		return err
 	}
 
-	_, err = f.WriteString(re.HeaderString() + "\n" + re.Content)
+	_, err = f.WriteString(e.HeaderString() + "\n" + e.Content)
 	if err != nil {
 		return err
 	}
@@ -138,39 +107,34 @@ func (b *Broker) Store(re *Entry, path string) error {
 		return err
 	}
 
-	return os.Chtimes(path, re.LastModified, re.LastModified)
+	return os.Chtimes(path, e.LastModified, e.LastModified)
 }
 
-func (b *Broker) Upload(e *Entry) (bool, error) {
-	atomEntry, err := b.Client.GetEntry(e.EditURL)
+func (b *Broker) UploadFresh(e *Entry) (bool, error) {
+	re, err := asEntry(b.Client.GetEntry(e.EditURL))
 	if err != nil {
 		return false, err
 	}
 
-	// TODO Entry でほしい
-	if e.LastModified.After(atomEntry.Edited) == false {
+	if e.LastModified.After(re.LastModified) == false {
 		return false, nil
 	}
 
-	return true, b.Put(e)
+	return true, b.PutEntry(e)
 }
 
-func (b *Broker) Put(e *Entry) error {
-	atomEntry := atom.Entry{
-		Title: e.Title,
-		Content: atom.Content{
-			Content: e.Content,
-		},
-		Updated: e.Date,
-		XMLNs:   "http://www.w3.org/2005/Atom",
-	}
-
-	newAtomEntry, err := b.Client.PutEntry(e.EditURL, &atomEntry)
+func (b *Broker) PutEntry(e *Entry) error {
+	newEntry, err := asEntry(b.Client.PutEntry(e.EditURL, e.atom()))
 	if err != nil {
 		return err
 	}
 
-	newEntry, err := entryFromAtom(newAtomEntry)
+	path := b.LocalPath(newEntry)
+	return b.Store(newEntry, path)
+}
+
+func (b *Broker) PostEntry(url string, e *Entry) error {
+	newEntry, err := asEntry(b.Client.PostEntry(url, e.atom()))
 	if err != nil {
 		return err
 	}

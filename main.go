@@ -98,11 +98,9 @@ var commandPush = cli.Command{
 		f, err := os.Open(path)
 		dieIf(err)
 
-		entry, err := EntryFromReader(f)
+		entry, err := entryFromReader(f)
 		dieIf(err)
 
-		// TODO リモートのと比較
-
-		b.Upload(entry)
+		b.UploadFresh(entry)
 	},
 }

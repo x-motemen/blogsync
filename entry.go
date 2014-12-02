@@ -3,12 +3,15 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"net/url"
 	"os"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/motemen/blogsync/atom"
 )
 
 // Entry is an entry stored on remote blog providers
@@ -22,34 +25,58 @@ type Entry struct {
 	ContentType  string
 }
 
-func (re *Entry) HeaderString() string {
+func (e *Entry) HeaderString() string {
 	return strings.Join([]string{
-		"Title:   " + re.Title,
-		"Date:    " + re.Date.Format(timeFormat),
-		"URL:     " + re.URL.String(),
-		"EditURL: " + re.EditURL,
+		"Title:   " + e.Title,
+		"Date:    " + e.Date.Format(timeFormat),
+		"URL:     " + e.URL.String(),
+		"EditURL: " + e.EditURL,
 	}, "\n") + "\n"
-}
-
-type LocalEntry struct {
-	Path string
-}
-
-var oldest = time.Unix(0, 0)
-
-func (le *LocalEntry) LastModified() time.Time {
-	fi, err := os.Stat(le.Path)
-	if err != nil {
-		return oldest
-	}
-	return fi.ModTime()
 }
 
 const timeFormat = "2006-01-02T15:04:05-07:00"
 
 var rxHeader = regexp.MustCompile(`^(\w+):\s*(.+)`)
 
-func EntryFromReader(source io.Reader) (*Entry, error) {
+func (e *Entry) atom() *atom.Entry {
+	return &atom.Entry{
+		Title: e.Title,
+		Content: atom.Content{
+			Content: e.Content,
+		},
+		Updated: e.Date,
+		XMLNs:   "http://www.w3.org/2005/Atom",
+	}
+}
+
+func entryFromAtom(e *atom.Entry) (*Entry, error) {
+	alternateLink := e.Links.Find("alternate")
+	if alternateLink == nil {
+		return nil, fmt.Errorf("could not find link[rel=alternate]")
+	}
+
+	u, err := url.Parse(alternateLink.Href)
+	if err != nil {
+		return nil, err
+	}
+
+	editLink := e.Links.Find("edit")
+	if editLink == nil {
+		return nil, fmt.Errorf("could not find link[rel=edit]")
+	}
+
+	return &Entry{
+		URL:          u,
+		EditURL:      editLink.Href,
+		Title:        e.Title,
+		Date:         e.Updated,
+		LastModified: e.Edited,
+		Content:      e.Content.Content,
+		ContentType:  e.Content.Type,
+	}, nil
+}
+
+func entryFromReader(source io.Reader) (*Entry, error) {
 	r := bufio.NewReader(source)
 
 	entry := &Entry{}
@@ -103,4 +130,12 @@ func EntryFromReader(source io.Reader) (*Entry, error) {
 	entry.Content = body.String()
 
 	return entry, nil
+}
+
+func asEntry(atomEntry *atom.Entry, err error) (*Entry, error) {
+	if err != nil {
+		return nil, err
+	}
+
+	return entryFromAtom(atomEntry)
 }
