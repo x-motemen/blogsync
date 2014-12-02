@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bytes"
-	"encoding/xml"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -16,16 +13,18 @@ import (
 )
 
 type Broker struct {
-	client *http.Client
+	client *atom.Client
 	*BlogConfig
 }
 
 func NewBroker(c *BlogConfig) *Broker {
 	return &Broker{
-		client: &http.Client{
-			Transport: &wsse.Transport{
-				Username: c.Username,
-				Password: c.Password,
+		client: &atom.Client{
+			Client: &http.Client{
+				Transport: &wsse.Transport{
+					Username: c.Username,
+					Password: c.Password,
+				},
 			},
 		},
 		BlogConfig: c,
@@ -172,8 +171,6 @@ func (b *Broker) Upload(e *Entry) (bool, error) {
 }
 
 func (b *Broker) Put(e *Entry) error {
-	var entryXML bytes.Buffer
-
 	atomEntry := atom.Entry{
 		Title: e.Title,
 		Content: atom.Content{
@@ -183,36 +180,16 @@ func (b *Broker) Put(e *Entry) error {
 		XMLNs:   "http://www.w3.org/2005/Atom",
 	}
 
-	entryXML.WriteString(xml.Header)
-	enc := xml.NewEncoder(&entryXML)
-	enc.Indent("", "  ")
-	enc.Encode(atomEntry)
-
-	req, err := http.NewRequest("PUT", e.EditURL, &entryXML)
+	newAtomEntry, err := b.client.PutEntry(e.EditURL, &atomEntry)
 	if err != nil {
 		return err
 	}
 
-	resp, err := b.client.Do(req)
+	newEntry, err := entryFromAtom(newAtomEntry)
 	if err != nil {
 		return err
 	}
 
-	if resp.StatusCode != 200 {
-		bytes, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("got [%s]: %q", resp.Status, string(bytes))
-	}
-
-	resultAtomEntry, err := atom.ParseEntry(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	resultEntry, err := entryFromAtom(resultAtomEntry)
-	if err != nil {
-		return err
-	}
-
-	path := b.LocalPath(resultEntry)
-	return b.Download(resultEntry, path)
+	path := b.LocalPath(newEntry)
+	return b.Download(newEntry, path)
 }

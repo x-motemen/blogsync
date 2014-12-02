@@ -82,8 +82,6 @@ var commandPush = cli.Command{
 			localRoot, err := filepath.Abs(filepath.Join(bc.LocalRoot, remoteRoot))
 			dieIf(err)
 
-			logf("compare", "%s - %s", path, localRoot)
-
 			if strings.HasPrefix(path, localRoot) {
 				blogConfig = bc
 				break
@@ -105,7 +103,6 @@ var commandPush = cli.Command{
 
 		// TODO リモートのと比較
 
-		logf("entry", "%#v", entry)
 		b.Upload(entry)
 	},
 }
