@@ -11,7 +11,7 @@ var logger = &colorine.Logger{
 	colorine.Prefixes{
 		"http": colorine.Verbose,
 
-		"download": colorine.Info,
+		"store": colorine.Info,
 
 		"error": colorine.Error,
 

@@ -13,13 +13,13 @@ import (
 )
 
 type Broker struct {
-	client *atom.Client
+	*atom.Client
 	*BlogConfig
 }
 
-func NewBroker(c *BlogConfig) *Broker {
+func NewBroker(config *BlogConfig) *Broker {
 	return &Broker{
-		client: &atom.Client{
+		Client: &atom.Client{
 			Client: &http.Client{
 				Transport: &wsse.Transport{
 					Username: c.Username,
@@ -27,7 +27,7 @@ func NewBroker(c *BlogConfig) *Broker {
 				},
 			},
 		},
-		BlogConfig: c,
+		BlogConfig: config,
 	}
 }
 
@@ -36,7 +36,7 @@ func (b *Broker) FetchRemoteEntries() ([]*Entry, error) {
 	url := fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.Username, b.RemoteRoot)
 
 	for {
-		feed, err := b.client.GetFeed(url)
+		feed, err := b.Client.GetFeed(url)
 		if err != nil {
 			return nil, err
 		}
@@ -104,7 +104,7 @@ func (b *Broker) Mirror(re *Entry, path string) (bool, error) {
 
 	if re.LastModified.After(localLastModified) {
 		logf("fresh", "remote=%s > local=%s", re.LastModified, localLastModified)
-		if err := b.Download(re, path); err != nil {
+		if err := b.Store(re, path); err != nil {
 			return false, err
 		}
 
@@ -114,8 +114,8 @@ func (b *Broker) Mirror(re *Entry, path string) (bool, error) {
 	return false, nil
 }
 
-func (b *Broker) Download(re *Entry, path string) error {
-	logf("download", "%s -> %s", re.URL, path)
+func (b *Broker) Store(re *Entry, path string) error {
+	logf("store", "%s", path)
 
 	dir, _ := filepath.Split(path)
 	err := os.MkdirAll(dir, 0755)
@@ -142,7 +142,7 @@ func (b *Broker) Download(re *Entry, path string) error {
 }
 
 func (b *Broker) Upload(e *Entry) (bool, error) {
-	atomEntry, err := b.client.GetEntry(e.EditURL)
+	atomEntry, err := b.Client.GetEntry(e.EditURL)
 	if err != nil {
 		return false, err
 	}
@@ -165,7 +165,7 @@ func (b *Broker) Put(e *Entry) error {
 		XMLNs:   "http://www.w3.org/2005/Atom",
 	}
 
-	newAtomEntry, err := b.client.PutEntry(e.EditURL, &atomEntry)
+	newAtomEntry, err := b.Client.PutEntry(e.EditURL, &atomEntry)
 	if err != nil {
 		return err
 	}
@@ -176,5 +176,5 @@ func (b *Broker) Put(e *Entry) error {
 	}
 
 	path := b.LocalPath(newEntry)
-	return b.Download(newEntry, path)
+	return b.Store(newEntry, path)
 }
