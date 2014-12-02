@@ -65,15 +65,15 @@ func (b *Broker) LocalPath(e *Entry) string {
 	return filepath.Join(b.LocalRoot, e.URL.Host, e.URL.Path+extension)
 }
 
-func (b *Broker) Mirror(re *Entry, path string) (bool, error) {
+func (b *Broker) StoreFresh(e *Entry, path string) (bool, error) {
 	var localLastModified time.Time
 	if fi, err := os.Stat(path); err == nil {
 		localLastModified = fi.ModTime()
 	}
 
-	if re.LastModified.After(localLastModified) {
-		logf("fresh", "remote=%s > local=%s", re.LastModified, localLastModified)
-		if err := b.Store(re, path); err != nil {
+	if e.LastModified.After(localLastModified) {
+		logf("fresh", "remote=%s > local=%s", e.LastModified, localLastModified)
+		if err := b.Store(e, path); err != nil {
 			return false, err
 		}
 

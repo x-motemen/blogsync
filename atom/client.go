@@ -64,9 +64,12 @@ func (c *Client) PostEntry(url string, e *Entry) (*Entry, error) {
 		return nil, err
 	}
 
-	// TODO Handle 201 Created
+	newEntry, err := ParseEntry(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	return newEntry, nil
 }
 
 func entryBody(e *Entry) (*bytes.Buffer, error) {

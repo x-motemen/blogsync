@@ -55,7 +55,7 @@ var commandPull = cli.Command{
 
 		for _, re := range remoteEntries {
 			path := b.LocalPath(re)
-			_, err := b.Mirror(re, path)
+			_, err := b.StoreFresh(re, path)
 			dieIf(err)
 		}
 	},
