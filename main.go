@@ -14,6 +14,7 @@ func main() {
 	app.Commands = []cli.Command{
 		commandPull,
 		commandPush,
+		commandPost,
 	}
 
 	app.Run(os.Args)
@@ -102,5 +103,31 @@ var commandPush = cli.Command{
 		dieIf(err)
 
 		b.UploadFresh(entry)
+	},
+}
+
+var commandPost = cli.Command{
+	Name:  "post",
+	Usage: "Post a new entry to remote",
+	Action: func(c *cli.Context) {
+		blog := c.Args().First()
+		if blog == "" {
+			cli.ShowCommandHelp(c, "post")
+			os.Exit(1)
+		}
+
+		conf := loadConfigFile()
+		blogConfig := conf.Get(blog)
+		if blogConfig == nil {
+			logf("error", "blog not found: %s", blog)
+			os.Exit(1)
+		}
+
+		entry, err := entryFromReader(os.Stdin)
+		dieIf(err)
+
+		b := NewBroker(blogConfig)
+		err = b.PostEntry(entry)
+		dieIf(err)
 	},
 }

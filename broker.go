@@ -107,7 +107,7 @@ func (b *Broker) Store(e *Entry, path string) error {
 		return err
 	}
 
-	return os.Chtimes(path, e.LastModified, e.LastModified)
+	return os.Chtimes(path, *e.LastModified, *e.LastModified)
 }
 
 func (b *Broker) UploadFresh(e *Entry) (bool, error) {
@@ -116,7 +116,7 @@ func (b *Broker) UploadFresh(e *Entry) (bool, error) {
 		return false, err
 	}
 
-	if e.LastModified.After(re.LastModified) == false {
+	if e.LastModified.After(*re.LastModified) == false {
 		return false, nil
 	}
 
@@ -133,8 +133,9 @@ func (b *Broker) PutEntry(e *Entry) error {
 	return b.Store(newEntry, path)
 }
 
-func (b *Broker) PostEntry(url string, e *Entry) error {
-	newEntry, err := asEntry(b.Client.PostEntry(url, e.atom()))
+func (b *Broker) PostEntry(e *Entry) error {
+	postURL := fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.Username, b.RemoteRoot)
+	newEntry, err := asEntry(b.Client.PostEntry(postURL, e.atom()))
 	if err != nil {
 		return err
 	}

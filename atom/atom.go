@@ -14,16 +14,16 @@ type Feed struct {
 }
 
 type Entry struct {
-	XMLName   xml.Name  `xml:"entry"`
-	ID        string    `xml:"id,omitempty"`
-	Links     Links     `xml:"link"`
-	Author    Author    `xml:"author,omitempty"`
-	Title     string    `xml:"title"`
-	Updated   time.Time `xml:"updated"`
-	Published time.Time `xml:"published"`
-	Edited    time.Time `xml:"edited"`
-	Content   Content   `xml:"content"`
-	XMLNs     string    `xml:"xmlns,attr"`
+	XMLName   xml.Name   `xml:"entry"`
+	ID        string     `xml:"id,omitempty"`
+	Links     Links      `xml:"link"`
+	Author    Author     `xml:"author,omitempty"`
+	Title     string     `xml:"title"`
+	Updated   *time.Time `xml:"updated,omitempty"`
+	Published *time.Time `xml:"published,omitempty"`
+	Edited    *time.Time `xml:"edited,omitempty"`
+	Content   Content    `xml:"content"`
+	XMLNs     string     `xml:"xmlns,attr"`
 }
 
 type Link struct {

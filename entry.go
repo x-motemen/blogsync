@@ -18,9 +18,9 @@ import (
 type Entry struct {
 	URL          *url.URL
 	Title        string
-	Date         time.Time
+	Date         *time.Time
 	EditURL      string
-	LastModified time.Time
+	LastModified *time.Time
 	Content      string
 	ContentType  string
 }
@@ -87,7 +87,8 @@ func entryFromReader(source io.Reader) (*Entry, error) {
 			return nil, err
 		}
 
-		entry.LastModified = fi.ModTime()
+		t := fi.ModTime()
+		entry.LastModified = &t
 	}
 
 	var body bytes.Buffer
@@ -113,10 +114,11 @@ func entryFromReader(source io.Reader) (*Entry, error) {
 		case "Title":
 			entry.Title = value
 		case "Date":
-			entry.Date, err = time.Parse(timeFormat, value)
+			t, err := time.Parse(timeFormat, value)
 			if err != nil {
 				return nil, err
 			}
+			entry.Date = &t
 		case "EditURL":
 			entry.EditURL = value
 		}
