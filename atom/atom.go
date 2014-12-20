@@ -14,7 +14,7 @@ type Feed struct {
 }
 
 type Entry struct {
-	XMLName   xml.Name   `xml:"entry"`
+	XMLName   xml.Name   `xml:"http://www.w3.org/2005/Atom entry"`
 	ID        string     `xml:"id,omitempty"`
 	Links     Links      `xml:"link"`
 	Author    Author     `xml:"author,omitempty"`
@@ -23,7 +23,6 @@ type Entry struct {
 	Published *time.Time `xml:"published,omitempty"`
 	Edited    *time.Time `xml:"edited,omitempty"`
 	Content   Content    `xml:"content"`
-	XMLNs     string     `xml:"xmlns,attr"`
 }
 
 type Link struct {

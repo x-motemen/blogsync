@@ -45,7 +45,6 @@ func (e *Entry) atom() *atom.Entry {
 			Content: e.Content,
 		},
 		Updated: e.Date,
-		XMLNs:   "http://www.w3.org/2005/Atom",
 	}
 }
 
