@@ -130,6 +130,14 @@ var commandPost = cli.Command{
 		entry, err := entryFromReader(os.Stdin)
 		dieIf(err)
 
+		if c.Bool("draft") {
+			entry.IsDraft = true
+		}
+
+		if title := c.String("title"); title != "" {
+			entry.Title = title
+		}
+
 		b := NewBroker(blogConfig)
 		err = b.PostEntry(entry)
 		dieIf(err)
