@@ -23,6 +23,7 @@ type Entry struct {
 	LastModified *time.Time
 	Content      string
 	ContentType  string
+	IsDraft      bool
 }
 
 func (e *Entry) HeaderString() string {
@@ -39,13 +40,21 @@ const timeFormat = "2006-01-02T15:04:05-07:00"
 var rxHeader = regexp.MustCompile(`^(\w+):\s*(.+)`)
 
 func (e *Entry) atom() *atom.Entry {
-	return &atom.Entry{
+	atomEntry := &atom.Entry{
 		Title: e.Title,
 		Content: atom.Content{
 			Content: e.Content,
 		},
 		Updated: e.Date,
 	}
+
+	if e.IsDraft {
+		atomEntry.Control = &atom.Control{
+			Draft: "yes",
+		}
+	}
+
+	return atomEntry
 }
 
 func entryFromAtom(e *atom.Entry) (*Entry, error) {
@@ -64,7 +73,7 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 		return nil, fmt.Errorf("could not find link[rel=edit]")
 	}
 
-	return &Entry{
+	entry := &Entry{
 		URL:          u,
 		EditURL:      editLink.Href,
 		Title:        e.Title,
@@ -72,7 +81,13 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 		LastModified: e.Edited,
 		Content:      e.Content.Content,
 		ContentType:  e.Content.Type,
-	}, nil
+	}
+
+	if e.Control != nil && e.Control.Draft == "yes" {
+		entry.IsDraft = true
+	}
+
+	return entry, nil
 }
 
 func entryFromReader(source io.Reader) (*Entry, error) {
@@ -120,6 +135,8 @@ func entryFromReader(source io.Reader) (*Entry, error) {
 			entry.Date = &t
 		case "EditURL":
 			entry.EditURL = value
+		case "Draft":
+			entry.IsDraft = (value == "yes" || value == "true")
 		}
 	}
 

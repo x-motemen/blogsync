@@ -23,6 +23,7 @@ type Entry struct {
 	Published *time.Time `xml:"published,omitempty"`
 	Edited    *time.Time `xml:"edited,omitempty"`
 	Content   Content    `xml:"content"`
+	Control   *Control   `xml:"http://www.w3.org/2007/app control,omitempty"`
 }
 
 type Link struct {
@@ -39,6 +40,10 @@ type Author struct {
 type Content struct {
 	Type    string `xml:"type,attr,omitempty"`
 	Content string `xml:",chardata"`
+}
+
+type Control struct {
+	Draft string `xml:"http://www.w3.org/2007/app draft"`
 }
 
 func Parse(r io.Reader) (*Feed, error) {
