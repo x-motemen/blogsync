@@ -109,6 +109,10 @@ var commandPush = cli.Command{
 var commandPost = cli.Command{
 	Name:  "post",
 	Usage: "Post a new entry to remote",
+	Flags: []cli.Flag{
+		cli.BoolFlag{Name: "draft"},
+		cli.StringFlag{Name: "title"},
+	},
 	Action: func(c *cli.Context) {
 		blog := c.Args().First()
 		if blog == "" {

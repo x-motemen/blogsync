@@ -27,17 +27,21 @@ type Entry struct {
 }
 
 func (e *Entry) HeaderString() string {
-	return strings.Join([]string{
-		"Title:   " + e.Title,
-		"Date:    " + e.Date.Format(timeFormat),
-		"URL:     " + e.URL.String(),
-		"EditURL: " + e.EditURL,
-	}, "\n") + "\n"
+	headers := []string{
+		"- Title:   " + e.Title,
+		"- Date:    " + e.Date.Format(timeFormat),
+		"- URL:     " + e.URL.String(),
+		"- EditURL: " + e.EditURL,
+	}
+	if e.IsDraft {
+		headers = append(headers, "- Draft:   yes")
+	}
+	return strings.Join(headers, "\n") + "\n"
 }
 
 const timeFormat = "2006-01-02T15:04:05-07:00"
 
-var rxHeader = regexp.MustCompile(`^(\w+):\s*(.+)`)
+var rxHeader = regexp.MustCompile(`^(?:\s*[*-]\s*)?(\w+):\s*(.+)`)
 
 func (e *Entry) atom() *atom.Entry {
 	atomEntry := &atom.Entry{
