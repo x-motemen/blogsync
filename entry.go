@@ -35,10 +35,19 @@ func (e *Entry) HeaderString() string {
 		"EditURL: " + e.EditURL,
 	}
 	if e.IsDraft {
-		headers = append(headers, "- Draft:   yes")
+		headers = append(headers, "Draft:   yes")
 	}
 	headers = append(headers, "---")
 	return strings.Join(headers, "\n") + "\n"
+}
+
+func (e *Entry) fullContent() string {
+	c := e.HeaderString() + e.Content
+	if !strings.HasSuffix(c, "\n") {
+		// fill newline for suppressing diff "No newline at end of file"
+		c += "\n"
+	}
+	return c
 }
 
 const timeFormat = "2006-01-02T15:04:05-07:00"
@@ -145,6 +154,12 @@ func entryFromReader(source io.Reader) (*Entry, error) {
 			entry.EditURL = value
 		case "Draft":
 			entry.IsDraft = (value == "yes" || value == "true")
+		case "URL":
+			u, err := url.Parse(value)
+			if err != nil {
+				return nil, err
+			}
+			entry.URL = u
 		}
 	}
 

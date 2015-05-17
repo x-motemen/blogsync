@@ -97,7 +97,7 @@ func (b *Broker) Store(e *Entry, path string) error {
 		return err
 	}
 
-	_, err = f.WriteString(e.HeaderString() + "\n" + e.Content)
+	_, err = f.WriteString(e.fullContent())
 	if err != nil {
 		return err
 	}
