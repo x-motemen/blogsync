@@ -28,14 +28,16 @@ type Entry struct {
 
 func (e *Entry) HeaderString() string {
 	headers := []string{
-		"- Title:   " + e.Title,
-		"- Date:    " + e.Date.Format(timeFormat),
-		"- URL:     " + e.URL.String(),
-		"- EditURL: " + e.EditURL,
+		"---",
+		"Title:   " + e.Title,
+		"Date:    " + e.Date.Format(timeFormat),
+		"URL:     " + e.URL.String(),
+		"EditURL: " + e.EditURL,
 	}
 	if e.IsDraft {
 		headers = append(headers, "- Draft:   yes")
 	}
+	headers = append(headers, "---")
 	return strings.Join(headers, "\n") + "\n"
 }
 
@@ -110,19 +112,21 @@ func entryFromReader(source io.Reader) (*Entry, error) {
 	}
 
 	var body bytes.Buffer
+	lineNum := 0
 	for {
 		line, err := r.ReadString('\n')
 		if err != nil {
 			return nil, err
 		}
-
-		body.WriteString(line)
+		lineNum++
+		if line == "---\n" && lineNum == 1 {
+			continue
+		}
 
 		m := rxHeader.FindStringSubmatch(line)
 		if m == nil {
-			if line == "\n" {
-				// Discard lines so far because they are valid headers
-				body.Reset()
+			if line != "\n" && line != "---\n" {
+				body.WriteString(line)
 			}
 			break
 		}
