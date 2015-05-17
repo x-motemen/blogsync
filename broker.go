@@ -62,7 +62,7 @@ func (b *Broker) FetchRemoteEntries() ([]*Entry, error) {
 
 func (b *Broker) LocalPath(e *Entry) string {
 	extension := ".md" // TODO regard re.ContentType
-	return filepath.Join(b.LocalRoot, e.URL.Host, e.URL.Path+extension)
+	return filepath.Join(b.LocalRoot, b.RemoteRoot, e.URL.Path+extension)
 }
 
 func (b *Broker) StoreFresh(e *Entry, path string) (bool, error) {
