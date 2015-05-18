@@ -18,25 +18,52 @@ import (
 
 const timeFormat = "2006-01-02T15:04:05-07:00"
 
-type EntryHeader struct {
-	URL     *url.URL
-	Title   string
-	Date    *time.Time
-	EditURL string
-	IsDraft bool
+type EntryTime struct {
+	*time.Time
 }
 
-func (eh *EntryHeader) MarshalYAML() (interface{}, error) {
-	m := map[string]interface{}{
-		"Title":   eh.Title,
-		"Date":    eh.Date.Format(timeFormat),
-		"URL":     eh.URL.String(),
-		"EditURL": eh.EditURL,
+type EntryURL struct {
+	*url.URL
+}
+
+type EntryHeader struct {
+	Title   string     `yaml:"Title"`
+	Date    *EntryTime `yaml:"Date"`
+	URL     *EntryURL  `yaml:"URL"`
+	EditURL string     `yaml:"EditURL"`
+	IsDraft bool       `yaml:"Draft,omitempty"`
+}
+
+func (eu *EntryURL) MarshalYAML() (interface{}, error) {
+	return eu.String(), nil
+}
+
+func (et *EntryTime) MarshalYAML() (interface{}, error) {
+	return et.Format(timeFormat), nil
+}
+
+func (eu *EntryURL) UnmarshalYAML(unmarshal func(v interface{}) error) error {
+	var s string
+	err := unmarshal(&s)
+	if err != nil {
+		return err
 	}
-	if eh.IsDraft {
-		m["Draft"] = eh.IsDraft
+	u, err := url.Parse(s)
+	if err != nil {
+		return err
 	}
-	return m, nil
+	eu.URL = u
+	return nil
+}
+
+func (et *EntryTime) UnmarshalYAML(unmarshal func(v interface{}) error) error {
+	var t time.Time
+	err := unmarshal(&t)
+	if err != nil {
+		return err
+	}
+	et.Time = &t
+	return nil
 }
 
 // Entry is an entry stored on remote blog providers
@@ -76,7 +103,7 @@ func (e *Entry) atom() *atom.Entry {
 		Content: atom.Content{
 			Content: e.Content,
 		},
-		Updated: e.Date,
+		Updated: e.Date.Time,
 	}
 
 	if e.IsDraft {
@@ -106,10 +133,10 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 
 	entry := &Entry{
 		EntryHeader: &EntryHeader{
-			URL:     u,
+			URL:     &EntryURL{u},
 			EditURL: editLink.Href,
 			Title:   e.Title,
-			Date:    e.Updated,
+			Date:    &EntryTime{e.Updated},
 		},
 		LastModified: e.Edited,
 		Content:      e.Content.Content,
@@ -135,7 +162,6 @@ func entryFromReader(source io.Reader) (*Entry, error) {
 		if err != nil {
 			return nil, err
 		}
-
 		t := fi.ModTime()
 		entry.LastModified = &t
 	}
@@ -169,7 +195,7 @@ func entryFromReader(source io.Reader) (*Entry, error) {
 			if err != nil {
 				return nil, err
 			}
-			entry.Date = &t
+			entry.Date = &EntryTime{&t}
 		case "EditURL":
 			entry.EditURL = value
 		case "Draft":
@@ -179,7 +205,7 @@ func entryFromReader(source io.Reader) (*Entry, error) {
 			if err != nil {
 				return nil, err
 			}
-			entry.URL = u
+			entry.URL = &EntryURL{u}
 		}
 	}
 

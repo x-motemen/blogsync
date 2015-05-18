@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v2"
 )
 
 func TestEntryFromReader(t *testing.T) {
@@ -26,10 +27,10 @@ func TestEntryFromReader(t *testing.T) {
 }
 
 var content = `---
-Date: 2012-12-19T00:00:00+09:00
-EditURL: http://hatenablog.example.com/1/edit
 Title: 所内 #3
+Date: 2012-12-19T00:00:00+09:00
 URL: http://hatenablog.example.com/1
+EditURL: http://hatenablog.example.com/1/edit
 ---
 test
 test2
@@ -42,10 +43,10 @@ func TestFullContent(t *testing.T) {
 
 	e := &Entry{
 		EntryHeader: &EntryHeader{
-			URL:     u,
+			URL:     &EntryURL{u},
 			EditURL: u.String() + "/edit",
 			Title:   "所内 #3",
-			Date:    &d,
+			Date:    &EntryTime{&d},
 		},
 		LastModified: &d,
 		Content:      "test\ntest2",
@@ -67,11 +68,11 @@ func TestFrontmatterEntryFromReader(t *testing.T) {
 }
 
 var draftContent = `---
-Date: 2012-12-20T00:00:00+09:00
-Draft: true
-EditURL: http://hatenablog.example.com/2/edit
 Title: 所内 #4
+Date: 2012-12-20T00:00:00+09:00
 URL: http://hatenablog.example.com/2
+EditURL: http://hatenablog.example.com/2/edit
+Draft: true
 ---
 下書き
 `
@@ -83,10 +84,10 @@ func TestDraftFullContent(t *testing.T) {
 
 	e := &Entry{
 		EntryHeader: &EntryHeader{
-			URL:     u,
+			URL:     &EntryURL{u},
 			EditURL: u.String() + "/edit",
 			Title:   "所内 #4",
-			Date:    &d,
+			Date:    &EntryTime{&d},
 			IsDraft: true,
 		},
 		LastModified: &d,
@@ -107,4 +108,27 @@ func TestFrontmatterDraftEntryFromReader(t *testing.T) {
 	assert.Equal(t, e.EditURL, "http://hatenablog.example.com/2/edit")
 	assert.True(t, e.IsDraft)
 	assert.Equal(t, e.Content, "下書き\n")
+}
+
+func TestUnmarshalYAML(t *testing.T) {
+	u, _ := url.Parse("http://hatenablog.example.com/2")
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	d := time.Date(2012, 12, 20, 0, 0, 0, 0, jst)
+
+	eh := &EntryHeader{
+		URL:     &EntryURL{u},
+		EditURL: u.String() + "/edit",
+		Title:   "所内",
+		Date:    &EntryTime{&d},
+	}
+	ya, _ := yaml.Marshal(eh)
+	assert.Equal(t, `Title: 所内 #4
+Date: 2012-12-20T00:00:00+09:00
+URL: http://hatenablog.example.com/2
+EditURL: http://hatenablog.example.com/2/edit
+`, string(ya))
+
+	eh2 := EntryHeader{}
+	yaml.Unmarshal(ya, &eh2)
+	assert.Equal(t, "所内", eh2.Title)
 }
