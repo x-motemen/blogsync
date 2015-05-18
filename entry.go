@@ -14,12 +14,19 @@ import (
 	"github.com/motemen/blogsync/atom"
 )
 
+const timeFormat = "2006-01-02T15:04:05-07:00"
+
+type EntryHeader struct {
+	URL     *url.URL
+	Title   string
+	Date    *time.Time
+	EditURL string
+	Draft   bool
+}
+
 // Entry is an entry stored on remote blog providers
 type Entry struct {
-	URL          *url.URL
-	Title        string
-	Date         *time.Time
-	EditURL      string
+	*EntryHeader
 	LastModified *time.Time
 	Content      string
 	ContentType  string
@@ -49,8 +56,6 @@ func (e *Entry) fullContent() string {
 	}
 	return c
 }
-
-const timeFormat = "2006-01-02T15:04:05-07:00"
 
 var rxHeader = regexp.MustCompile(`^(?:\s*[*-]\s*)?(\w+):\s*(.+)`)
 
@@ -89,10 +94,12 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 	}
 
 	entry := &Entry{
-		URL:          u,
-		EditURL:      editLink.Href,
-		Title:        e.Title,
-		Date:         e.Updated,
+		EntryHeader: &EntryHeader{
+			URL:     u,
+			EditURL: editLink.Href,
+			Title:   e.Title,
+			Date:    e.Updated,
+		},
 		LastModified: e.Edited,
 		Content:      e.Content.Content,
 		ContentType:  e.Content.Type,
@@ -108,7 +115,9 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 func entryFromReader(source io.Reader) (*Entry, error) {
 	r := bufio.NewReader(source)
 
-	entry := &Entry{}
+	entry := &Entry{
+		EntryHeader: &EntryHeader{},
+	}
 
 	if f, ok := source.(*os.File); ok {
 		fi, err := os.Stat(f.Name())

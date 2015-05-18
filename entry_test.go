@@ -41,10 +41,12 @@ func TestFullContent(t *testing.T) {
 	d := time.Date(2012, 12, 19, 0, 0, 0, 0, jst)
 
 	e := &Entry{
-		URL:          u,
-		EditURL:      u.String() + "/edit",
-		Title:        "所内 #3",
-		Date:         &d,
+		EntryHeader: &EntryHeader{
+			URL:     u,
+			EditURL: u.String() + "/edit",
+			Title:   "所内 #3",
+			Date:    &d,
+		},
 		LastModified: &d,
 		Content:      "test\ntest2",
 	}
@@ -80,10 +82,12 @@ func TestDraftFullContent(t *testing.T) {
 	d := time.Date(2012, 12, 20, 0, 0, 0, 0, jst)
 
 	e := &Entry{
-		URL:          u,
-		EditURL:      u.String() + "/edit",
-		Title:        "所内 #4",
-		Date:         &d,
+		EntryHeader: &EntryHeader{
+			URL:     u,
+			EditURL: u.String() + "/edit",
+			Title:   "所内 #4",
+			Date:    &d,
+		},
 		LastModified: &d,
 		IsDraft:      true,
 		Content:      "下書き\n",
