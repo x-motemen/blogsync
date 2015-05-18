@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"net/url"
 	"os"
 	"regexp"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/motemen/blogsync/atom"
+	"gopkg.in/yaml.v2"
 )
 
 const timeFormat = "2006-01-02T15:04:05-07:00"
@@ -21,7 +23,20 @@ type EntryHeader struct {
 	Title   string
 	Date    *time.Time
 	EditURL string
-	Draft   bool
+	IsDraft bool
+}
+
+func (eh *EntryHeader) MarshalYAML() (interface{}, error) {
+	m := map[string]interface{}{
+		"Title":   eh.Title,
+		"Date":    eh.Date.Format(timeFormat),
+		"URL":     eh.URL.String(),
+		"EditURL": eh.EditURL,
+	}
+	if eh.IsDraft {
+		m["Draft"] = eh.IsDraft
+	}
+	return m, nil
 }
 
 // Entry is an entry stored on remote blog providers
@@ -30,22 +45,18 @@ type Entry struct {
 	LastModified *time.Time
 	Content      string
 	ContentType  string
-	IsDraft      bool
 }
 
 func (e *Entry) HeaderString() string {
+	d, err := yaml.Marshal(e.EntryHeader)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
 	headers := []string{
 		"---",
-		"Title:   " + e.Title,
-		"Date:    " + e.Date.Format(timeFormat),
-		"URL:     " + e.URL.String(),
-		"EditURL: " + e.EditURL,
+		string(d),
 	}
-	if e.IsDraft {
-		headers = append(headers, "Draft:   yes")
-	}
-	headers = append(headers, "---")
-	return strings.Join(headers, "\n") + "\n"
+	return strings.Join(headers, "\n") + "---\n"
 }
 
 func (e *Entry) fullContent() string {

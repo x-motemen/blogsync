@@ -26,10 +26,10 @@ func TestEntryFromReader(t *testing.T) {
 }
 
 var content = `---
-Title:   所内 #3
-Date:    2012-12-19T00:00:00+09:00
-URL:     http://hatenablog.example.com/1
+Date: 2012-12-19T00:00:00+09:00
 EditURL: http://hatenablog.example.com/1/edit
+Title: 所内 #3
+URL: http://hatenablog.example.com/1
 ---
 test
 test2
@@ -67,11 +67,11 @@ func TestFrontmatterEntryFromReader(t *testing.T) {
 }
 
 var draftContent = `---
-Title:   所内 #4
-Date:    2012-12-20T00:00:00+09:00
-URL:     http://hatenablog.example.com/2
+Date: 2012-12-20T00:00:00+09:00
+Draft: true
 EditURL: http://hatenablog.example.com/2/edit
-Draft:   yes
+Title: 所内 #4
+URL: http://hatenablog.example.com/2
 ---
 下書き
 `
@@ -87,9 +87,9 @@ func TestDraftFullContent(t *testing.T) {
 			EditURL: u.String() + "/edit",
 			Title:   "所内 #4",
 			Date:    &d,
+			IsDraft: true,
 		},
 		LastModified: &d,
-		IsDraft:      true,
 		Content:      "下書き\n",
 	}
 	assert.Equal(t, e.fullContent(), draftContent)
