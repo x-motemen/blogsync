@@ -149,27 +149,28 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 
 var delimReg = regexp.MustCompile(`---\n+`)
 
-func entryFromReader(source io.Reader) (*Entry, error) {
+func entryFromReader(source io.Reader, isNew bool) (*Entry, error) {
 	b, err := ioutil.ReadAll(source)
 	if err != nil {
 		return nil, err
 	}
-	fullContent := string(b)
-
-	c := delimReg.Split(fullContent, 3)
-	if len(c) != 3 || c[0] != "" {
-		return nil, fmt.Errorf("entry format is invalid")
-	}
-
+	content := string(b)
 	eh := EntryHeader{}
-	err = yaml.Unmarshal([]byte(c[1]), &eh)
-	if err != nil {
-		return nil, err
-	}
+	if !isNew {
+		c := delimReg.Split(content, 3)
+		if len(c) != 3 || c[0] != "" {
+			return nil, fmt.Errorf("entry format is invalid")
+		}
 
+		err = yaml.Unmarshal([]byte(c[1]), &eh)
+		if err != nil {
+			return nil, err
+		}
+		content = c[2]
+	}
 	entry := &Entry{
 		EntryHeader: &eh,
-		Content:     c[2],
+		Content:     content,
 	}
 
 	if f, ok := source.(*os.File); ok {

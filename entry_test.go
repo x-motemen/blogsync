@@ -18,7 +18,7 @@ func TestEntryFromReader(t *testing.T) {
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	assert.NoError(t, err)
 
-	e, err := entryFromReader(f)
+	e, err := entryFromReader(f, false)
 	assert.NoError(t, err)
 
 	assert.Equal(t, e.Title, "所内#2")
@@ -58,7 +58,7 @@ func TestFullContent(t *testing.T) {
 func TestFrontmatterEntryFromReader(t *testing.T) {
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 
-	e, err := entryFromReader(strings.NewReader(content))
+	e, err := entryFromReader(strings.NewReader(content), false)
 	assert.NoError(t, err)
 
 	assert.Equal(t, e.Title, "所内#3")
@@ -101,7 +101,7 @@ func TestDraftFullContent(t *testing.T) {
 func TestFrontmatterDraftEntryFromReader(t *testing.T) {
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 
-	e, err := entryFromReader(strings.NewReader(draftContent))
+	e, err := entryFromReader(strings.NewReader(draftContent), false)
 	assert.NoError(t, err)
 
 	assert.Equal(t, e.Title, "所内#4")
