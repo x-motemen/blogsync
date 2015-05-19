@@ -1,10 +1,9 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
@@ -95,8 +94,6 @@ func (e *Entry) fullContent() string {
 	return c
 }
 
-var rxHeader = regexp.MustCompile(`^(?:\s*[*-]\s*)?(\w+):\s*(.+)`)
-
 func (e *Entry) atom() *atom.Entry {
 	atomEntry := &atom.Entry{
 		Title: e.Title,
@@ -150,11 +147,29 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 	return entry, nil
 }
 
+var delimReg = regexp.MustCompile(`---\n+`)
+
 func entryFromReader(source io.Reader) (*Entry, error) {
-	r := bufio.NewReader(source)
+	b, err := ioutil.ReadAll(source)
+	if err != nil {
+		return nil, err
+	}
+	fullContent := string(b)
+
+	c := delimReg.Split(fullContent, 3)
+	if len(c) != 3 || c[0] != "" {
+		return nil, fmt.Errorf("entry format is invalid")
+	}
+
+	eh := EntryHeader{}
+	err = yaml.Unmarshal([]byte(c[1]), &eh)
+	if err != nil {
+		return nil, err
+	}
 
 	entry := &Entry{
-		EntryHeader: &EntryHeader{},
+		EntryHeader: &eh,
+		Content:     c[2],
 	}
 
 	if f, ok := source.(*os.File); ok {
@@ -165,56 +180,6 @@ func entryFromReader(source io.Reader) (*Entry, error) {
 		t := fi.ModTime()
 		entry.LastModified = &t
 	}
-
-	var body bytes.Buffer
-	lineNum := 0
-	for {
-		line, err := r.ReadString('\n')
-		if err != nil {
-			return nil, err
-		}
-		lineNum++
-		if line == "---\n" && lineNum == 1 {
-			continue
-		}
-
-		m := rxHeader.FindStringSubmatch(line)
-		if m == nil {
-			if line != "\n" && line != "---\n" {
-				body.WriteString(line)
-			}
-			break
-		}
-
-		key, value := m[1], m[2]
-		switch key {
-		case "Title":
-			entry.Title = value
-		case "Date":
-			t, err := time.Parse(timeFormat, value)
-			if err != nil {
-				return nil, err
-			}
-			entry.Date = &EntryTime{&t}
-		case "EditURL":
-			entry.EditURL = value
-		case "Draft":
-			entry.IsDraft = (value == "yes" || value == "true")
-		case "URL":
-			u, err := url.Parse(value)
-			if err != nil {
-				return nil, err
-			}
-			entry.URL = &EntryURL{u}
-		}
-	}
-
-	_, err := io.Copy(&body, r)
-	if err != nil {
-		return nil, err
-	}
-
-	entry.Content = body.String()
 
 	return entry, nil
 }

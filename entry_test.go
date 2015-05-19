@@ -21,13 +21,13 @@ func TestEntryFromReader(t *testing.T) {
 	e, err := entryFromReader(f)
 	assert.NoError(t, err)
 
-	assert.Equal(t, e.Title, "所内 #2")
+	assert.Equal(t, e.Title, "所内#2")
 
 	assert.True(t, e.Date.Equal(time.Date(2012, 12, 18, 0, 0, 0, 0, jst)))
 }
 
 var content = `---
-Title: 所内 #3
+Title: 所内#3
 Date: 2012-12-19T00:00:00+09:00
 URL: http://hatenablog.example.com/1
 EditURL: http://hatenablog.example.com/1/edit
@@ -45,7 +45,7 @@ func TestFullContent(t *testing.T) {
 		EntryHeader: &EntryHeader{
 			URL:     &EntryURL{u},
 			EditURL: u.String() + "/edit",
-			Title:   "所内 #3",
+			Title:   "所内#3",
 			Date:    &EntryTime{&d},
 		},
 		LastModified: &d,
@@ -60,7 +60,7 @@ func TestFrontmatterEntryFromReader(t *testing.T) {
 	e, err := entryFromReader(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	assert.Equal(t, e.Title, "所内 #3")
+	assert.Equal(t, e.Title, "所内#3")
 	assert.True(t, e.Date.Equal(time.Date(2012, 12, 19, 0, 0, 0, 0, jst)))
 	assert.Equal(t, e.URL.String(), "http://hatenablog.example.com/1")
 	assert.Equal(t, e.EditURL, "http://hatenablog.example.com/1/edit")
@@ -68,7 +68,7 @@ func TestFrontmatterEntryFromReader(t *testing.T) {
 }
 
 var draftContent = `---
-Title: 所内 #4
+Title: 所内#4
 Date: 2012-12-20T00:00:00+09:00
 URL: http://hatenablog.example.com/2
 EditURL: http://hatenablog.example.com/2/edit
@@ -86,7 +86,7 @@ func TestDraftFullContent(t *testing.T) {
 		EntryHeader: &EntryHeader{
 			URL:     &EntryURL{u},
 			EditURL: u.String() + "/edit",
-			Title:   "所内 #4",
+			Title:   "所内#4",
 			Date:    &EntryTime{&d},
 			IsDraft: true,
 		},
@@ -102,7 +102,7 @@ func TestFrontmatterDraftEntryFromReader(t *testing.T) {
 	e, err := entryFromReader(strings.NewReader(draftContent))
 	assert.NoError(t, err)
 
-	assert.Equal(t, e.Title, "所内 #4")
+	assert.Equal(t, e.Title, "所内#4")
 	assert.True(t, e.Date.Equal(time.Date(2012, 12, 20, 0, 0, 0, 0, jst)))
 	assert.Equal(t, e.URL.String(), "http://hatenablog.example.com/2")
 	assert.Equal(t, e.EditURL, "http://hatenablog.example.com/2/edit")
@@ -122,7 +122,7 @@ func TestUnmarshalYAML(t *testing.T) {
 		Date:    &EntryTime{&d},
 	}
 	ya, _ := yaml.Marshal(eh)
-	assert.Equal(t, `Title: 所内 #4
+	assert.Equal(t, `Title: 所内
 Date: 2012-12-20T00:00:00+09:00
 URL: http://hatenablog.example.com/2
 EditURL: http://hatenablog.example.com/2/edit
