@@ -82,7 +82,7 @@ func (e *Entry) HeaderString() string {
 		"---",
 		string(d),
 	}
-	return strings.Join(headers, "\n") + "---\n"
+	return strings.Join(headers, "\n") + "---\n\n"
 }
 
 func (e *Entry) fullContent() string {

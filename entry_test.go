@@ -32,6 +32,7 @@ Date: 2012-12-19T00:00:00+09:00
 URL: http://hatenablog.example.com/1
 EditURL: http://hatenablog.example.com/1/edit
 ---
+
 test
 test2
 `
@@ -74,6 +75,7 @@ URL: http://hatenablog.example.com/2
 EditURL: http://hatenablog.example.com/2/edit
 Draft: true
 ---
+
 下書き
 `
 
