@@ -99,7 +99,7 @@ var commandPush = cli.Command{
 		f, err := os.Open(path)
 		dieIf(err)
 
-		entry, err := entryFromReader(f)
+		entry, err := entryFromReader(f, false)
 		dieIf(err)
 
 		b.UploadFresh(entry)
@@ -127,7 +127,7 @@ var commandPost = cli.Command{
 			os.Exit(1)
 		}
 
-		entry, err := entryFromReader(os.Stdin)
+		entry, err := entryFromReader(os.Stdin, true)
 		dieIf(err)
 
 		if c.Bool("draft") {
