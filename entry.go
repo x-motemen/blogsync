@@ -100,7 +100,9 @@ func (e *Entry) atom() *atom.Entry {
 		Content: atom.Content{
 			Content: e.Content,
 		},
-		Updated: e.Date.Time,
+	}
+	if e.Date != nil {
+		atomEntry.Updated = e.Date.Time
 	}
 
 	if e.IsDraft {
