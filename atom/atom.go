@@ -24,6 +24,7 @@ type Entry struct {
 	Edited    *time.Time `xml:"edited,omitempty"`
 	Content   Content    `xml:"content"`
 	Control   *Control   `xml:"http://www.w3.org/2007/app control,omitempty"`
+	CustomURL string     `xml:"http://www.hatena.ne.jp/info/xmlns#hatenablog custom-url,omitempty"`
 }
 
 type Link struct {

@@ -26,11 +26,12 @@ type EntryURL struct {
 }
 
 type EntryHeader struct {
-	Title   string     `yaml:"Title"`
-	Date    *EntryTime `yaml:"Date"`
-	URL     *EntryURL  `yaml:"URL"`
-	EditURL string     `yaml:"EditURL"`
-	IsDraft bool       `yaml:"Draft,omitempty"`
+	Title      string     `yaml:"Title"`
+	Date       *EntryTime `yaml:"Date"`
+	URL        *EntryURL  `yaml:"URL"`
+	EditURL    string     `yaml:"EditURL"`
+	IsDraft    bool       `yaml:"Draft,omitempty"`
+	CustomPath string     `yaml:"CustomPath,omitempty"`
 }
 
 func (eu *EntryURL) MarshalYAML() (interface{}, error) {
@@ -109,6 +110,9 @@ func (e *Entry) atom() *atom.Entry {
 		atomEntry.Control = &atom.Control{
 			Draft: "yes",
 		}
+	}
+	if e.CustomPath != "" {
+		atomEntry.CustomURL = e.CustomPath
 	}
 
 	return atomEntry
