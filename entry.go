@@ -155,12 +155,13 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 
 var delimReg = regexp.MustCompile(`---\n+`)
 
-func entryFromReader(source io.Reader, isNew bool) (*Entry, error) {
+func entryFromReader(source io.Reader) (*Entry, error) {
 	b, err := ioutil.ReadAll(source)
 	if err != nil {
 		return nil, err
 	}
 	content := string(b)
+	isNew := !strings.HasPrefix(content, "---\n")
 	eh := EntryHeader{}
 	if !isNew {
 		c := delimReg.Split(content, 3)
