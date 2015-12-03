@@ -112,6 +112,7 @@ var commandPost = cli.Command{
 	Flags: []cli.Flag{
 		cli.BoolFlag{Name: "draft"},
 		cli.StringFlag{Name: "title"},
+		cli.StringFlag{Name: "custom-path"},
 	},
 	Action: func(c *cli.Context) {
 		blog := c.Args().First()
@@ -132,6 +133,10 @@ var commandPost = cli.Command{
 
 		if c.Bool("draft") {
 			entry.IsDraft = true
+		}
+
+		if path := c.String("custom-path"); path != "" {
+			entry.CustomPath = path
 		}
 
 		if title := c.String("title"); title != "" {
