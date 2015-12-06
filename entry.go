@@ -26,11 +26,12 @@ type EntryURL struct {
 }
 
 type EntryHeader struct {
-	Title   string     `yaml:"Title"`
-	Date    *EntryTime `yaml:"Date"`
-	URL     *EntryURL  `yaml:"URL"`
-	EditURL string     `yaml:"EditURL"`
-	IsDraft bool       `yaml:"Draft,omitempty"`
+	Title      string     `yaml:"Title"`
+	Date       *EntryTime `yaml:"Date"`
+	URL        *EntryURL  `yaml:"URL"`
+	EditURL    string     `yaml:"EditURL"`
+	IsDraft    bool       `yaml:"Draft,omitempty"`
+	CustomPath string     `yaml:"CustomPath,omitempty"`
 }
 
 func (eu *EntryURL) MarshalYAML() (interface{}, error) {
@@ -110,6 +111,9 @@ func (e *Entry) atom() *atom.Entry {
 			Draft: "yes",
 		}
 	}
+	if e.CustomPath != "" {
+		atomEntry.CustomURL = e.CustomPath
+	}
 
 	return atomEntry
 }
@@ -151,12 +155,13 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 
 var delimReg = regexp.MustCompile(`---\n+`)
 
-func entryFromReader(source io.Reader, isNew bool) (*Entry, error) {
+func entryFromReader(source io.Reader) (*Entry, error) {
 	b, err := ioutil.ReadAll(source)
 	if err != nil {
 		return nil, err
 	}
 	content := string(b)
+	isNew := !strings.HasPrefix(content, "---\n")
 	eh := EntryHeader{}
 	if !isNew {
 		c := delimReg.Split(content, 3)

@@ -99,7 +99,7 @@ var commandPush = cli.Command{
 		f, err := os.Open(path)
 		dieIf(err)
 
-		entry, err := entryFromReader(f, false)
+		entry, err := entryFromReader(f)
 		dieIf(err)
 
 		b.UploadFresh(entry)
@@ -112,6 +112,7 @@ var commandPost = cli.Command{
 	Flags: []cli.Flag{
 		cli.BoolFlag{Name: "draft"},
 		cli.StringFlag{Name: "title"},
+		cli.StringFlag{Name: "custom-path"},
 	},
 	Action: func(c *cli.Context) {
 		blog := c.Args().First()
@@ -127,11 +128,15 @@ var commandPost = cli.Command{
 			os.Exit(1)
 		}
 
-		entry, err := entryFromReader(os.Stdin, true)
+		entry, err := entryFromReader(os.Stdin)
 		dieIf(err)
 
 		if c.Bool("draft") {
 			entry.IsDraft = true
+		}
+
+		if path := c.String("custom-path"); path != "" {
+			entry.CustomPath = path
 		}
 
 		if title := c.String("title"); title != "" {

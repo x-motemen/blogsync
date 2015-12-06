@@ -128,6 +128,9 @@ func (b *Broker) PutEntry(e *Entry) error {
 	if err != nil {
 		return err
 	}
+	if e.CustomPath != "" {
+		newEntry.CustomPath = e.CustomPath
+	}
 
 	path := b.LocalPath(newEntry)
 	return b.Store(newEntry, path)
@@ -138,6 +141,9 @@ func (b *Broker) PostEntry(e *Entry) error {
 	newEntry, err := asEntry(b.Client.PostEntry(postURL, e.atom()))
 	if err != nil {
 		return err
+	}
+	if e.CustomPath != "" {
+		newEntry.CustomPath = e.CustomPath
 	}
 
 	path := b.LocalPath(newEntry)
