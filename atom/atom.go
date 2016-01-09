@@ -23,6 +23,7 @@ type Entry struct {
 	Published *time.Time `xml:"published,omitempty"`
 	Edited    *time.Time `xml:"edited,omitempty"`
 	Content   Content    `xml:"content"`
+	Category  []Category `xml:"category,omitempty"`
 	Control   *Control   `xml:"http://www.w3.org/2007/app control,omitempty"`
 	CustomURL string     `xml:"http://www.hatena.ne.jp/info/xmlns#hatenablog custom-url,omitempty"`
 }
@@ -41,6 +42,10 @@ type Author struct {
 type Content struct {
 	Type    string `xml:"type,attr,omitempty"`
 	Content string `xml:",chardata"`
+}
+
+type Category struct {
+	Term string `xml:"term,attr"`
 }
 
 type Control struct {

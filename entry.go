@@ -27,6 +27,7 @@ type EntryURL struct {
 
 type EntryHeader struct {
 	Title      string     `yaml:"Title"`
+	Category   []string   `yaml:"Category,omitempty"`
 	Date       *EntryTime `yaml:"Date"`
 	URL        *EntryURL  `yaml:"URL"`
 	EditURL    string     `yaml:"EditURL"`
@@ -102,6 +103,13 @@ func (e *Entry) atom() *atom.Entry {
 			Content: e.Content,
 		},
 	}
+
+	categories := make([]atom.Category, 0)
+	for _, c := range e.Category {
+		categories = append(categories, atom.Category{c})
+	}
+	atomEntry.Category = categories
+
 	if e.Date != nil {
 		atomEntry.Updated = e.Date.Time
 	}
@@ -111,6 +119,7 @@ func (e *Entry) atom() *atom.Entry {
 			Draft: "yes",
 		}
 	}
+
 	if e.CustomPath != "" {
 		atomEntry.CustomURL = e.CustomPath
 	}
@@ -134,12 +143,18 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 		return nil, fmt.Errorf("could not find link[rel=edit]")
 	}
 
+	categories := make([]string, 0)
+	for _, c := range e.Category {
+		categories = append(categories, c.Term)
+	}
+
 	entry := &Entry{
 		EntryHeader: &EntryHeader{
-			URL:     &EntryURL{u},
-			EditURL: editLink.Href,
-			Title:   e.Title,
-			Date:    &EntryTime{e.Updated},
+			URL:      &EntryURL{u},
+			EditURL:  editLink.Href,
+			Title:    e.Title,
+			Category: categories,
+			Date:     &EntryTime{e.Updated},
 		},
 		LastModified: e.Edited,
 		Content:      e.Content.Content,
