@@ -112,19 +112,29 @@ func TestFrontmatterDraftEntryFromReader(t *testing.T) {
 	assert.Equal(t, e.Content, "下書き\n")
 }
 
+var noCategory = `Title: 所内
+Date: 2012-12-20T00:00:00+09:00
+URL: http://hatenablog.example.com/2
+EditURL: http://hatenablog.example.com/2/edit
+`
+
 func TestUnmarshalYAML(t *testing.T) {
 	u, _ := url.Parse("http://hatenablog.example.com/2")
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	d := time.Date(2012, 12, 20, 0, 0, 0, 0, jst)
 
 	eh := &EntryHeader{
-		URL:     &EntryURL{u},
-		EditURL: u.String() + "/edit",
-		Title:   "所内",
-		Date:    &EntryTime{&d},
+		URL:      &EntryURL{u},
+		EditURL:  u.String() + "/edit",
+		Title:    "所内",
+		Category: []string{"foo", "bar"},
+		Date:     &EntryTime{&d},
 	}
 	ya, _ := yaml.Marshal(eh)
 	assert.Equal(t, `Title: 所内
+Category:
+- foo
+- bar
 Date: 2012-12-20T00:00:00+09:00
 URL: http://hatenablog.example.com/2
 EditURL: http://hatenablog.example.com/2/edit
@@ -133,4 +143,8 @@ EditURL: http://hatenablog.example.com/2/edit
 	eh2 := EntryHeader{}
 	yaml.Unmarshal(ya, &eh2)
 	assert.Equal(t, "所内", eh2.Title)
+
+	eh3 := EntryHeader{}
+	yaml.Unmarshal([]byte(noCategory), &eh3)
+	assert.Nil(t, eh3.Category)
 }
