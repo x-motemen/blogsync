@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/codegangsta/cli"
 	"github.com/mitchellh/go-homedir"
+	"github.com/urfave/cli"
 )
 
 func main() {
@@ -44,7 +44,7 @@ func loadConfigFile() *Config {
 var commandPull = cli.Command{
 	Name:  "pull",
 	Usage: "Pull entries from remote",
-	Action: func(c *cli.Context) {
+	Action: func(c *cli.Context) error {
 		blog := c.Args().First()
 		if blog == "" {
 			cli.ShowCommandHelp(c, "pull")
@@ -67,13 +67,14 @@ var commandPull = cli.Command{
 			_, err := b.StoreFresh(re, path)
 			dieIf(err)
 		}
+		return nil
 	},
 }
 
 var commandPush = cli.Command{
 	Name:  "push",
 	Usage: "Push local entries to remote",
-	Action: func(c *cli.Context) {
+	Action: func(c *cli.Context) error {
 		path := c.Args().First()
 		if path == "" {
 			cli.ShowCommandHelp(c, "push")
@@ -111,6 +112,7 @@ var commandPush = cli.Command{
 		dieIf(err)
 
 		b.UploadFresh(entry)
+		return nil
 	},
 }
 
@@ -122,7 +124,7 @@ var commandPost = cli.Command{
 		cli.StringFlag{Name: "title"},
 		cli.StringFlag{Name: "custom-path"},
 	},
-	Action: func(c *cli.Context) {
+	Action: func(c *cli.Context) error {
 		blog := c.Args().First()
 		if blog == "" {
 			cli.ShowCommandHelp(c, "post")
@@ -154,5 +156,7 @@ var commandPost = cli.Command{
 		b := NewBroker(blogConfig)
 		err = b.PostEntry(entry)
 		dieIf(err)
+
+		return nil
 	},
 }
