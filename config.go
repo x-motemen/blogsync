@@ -1,9 +1,10 @@
 package main
 
 import (
-	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
@@ -39,7 +40,6 @@ func LoadConfig(r io.Reader) (*Config, error) {
 	for key, b := range blogs {
 		b.RemoteRoot = key
 	}
-
 	return config, nil
 }
 
@@ -54,4 +54,24 @@ func (c *Config) Get(remoteRoot string) *BlogConfig {
 	}
 
 	return conf
+}
+
+func mergeConfig(c1, c2 *Config) *Config {
+	if c1 == nil {
+		c1 = &Config{
+			Blogs: make(map[string]*BlogConfig),
+		}
+	}
+	if c2 == nil {
+		return c1
+	}
+	if c1.Default == nil {
+		c1.Default = c2.Default
+	}
+	for k, bc := range c2.Blogs {
+		if _, ok := c1.Blogs[k]; !ok {
+			c1.Blogs[k] = bc
+		}
+	}
+	return c1
 }
