@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,28 +24,44 @@ func main() {
 	}
 }
 
+func loadSingleConfigFile(fname string) (*Config, error) {
+	if _, err := os.Stat(fname); err != nil {
+		return nil, nil
+	}
+	f, err := os.Open(fname)
+	if err != nil {
+		return nil, err
+	}
+	return LoadConfig(f)
+}
+
 func loadConfigFile() (*Config, error) {
-	var configFileName string
+	var conf *Config
 
 	pwd, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
-	curFname := filepath.Join(pwd, "blogsync.yaml")
-	if _, err := os.Stat(curFname); err == nil {
-		configFileName = curFname
-	} else {
-		home, err := homedir.Dir()
-		if err != nil {
-			return nil, err
-		}
-		configFileName = filepath.Join(home, ".config", "blogsync", "config.yaml")
-	}
-	f, err := os.Open(configFileName)
+	conf, err = loadSingleConfigFile(filepath.Join(pwd, "blogsync.yaml"))
 	if err != nil {
 		return nil, err
 	}
-	return LoadConfig(f)
+
+	home, err := homedir.Dir()
+	if err != nil && conf == nil {
+		return nil, err
+	}
+	if err == nil {
+		homeConf, err := loadSingleConfigFile(filepath.Join(home, ".config", "blogsync", "config.yaml"))
+		if err != nil {
+			return nil, err
+		}
+		conf = mergeConfig(conf, homeConf)
+	}
+	if conf == nil {
+		return nil, fmt.Errorf("no config files found")
+	}
+	return conf, nil
 }
 
 var commandPull = cli.Command{
