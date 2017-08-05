@@ -16,29 +16,35 @@ func main() {
 		commandPush,
 		commandPost,
 	}
-
-	app.Run(os.Args)
+	err := app.Run(os.Args)
+	if err != nil {
+		logf("error", "%s", err)
+		os.Exit(1)
+	}
 }
 
-func loadConfigFile() *Config {
-	var f *os.File
+func loadConfigFile() (*Config, error) {
+	var configFileName string
 
 	pwd, err := os.Getwd()
-	dieIf(err)
+	if err != nil {
+		return nil, err
+	}
 	curFname := filepath.Join(pwd, "blogsync.yaml")
 	if _, err := os.Stat(curFname); err == nil {
-		f, err = os.Open(curFname)
-		dieIf(err)
+		configFileName = curFname
 	} else {
 		home, err := homedir.Dir()
-		dieIf(err)
-		f, err = os.Open(filepath.Join(home, ".config", "blogsync", "config.yaml"))
-		dieIf(err)
+		if err != nil {
+			return nil, err
+		}
+		configFileName = filepath.Join(home, ".config", "blogsync", "config.yaml")
 	}
-	conf, err := LoadConfig(f)
-	dieIf(err)
-
-	return conf
+	f, err := os.Open(configFileName)
+	if err != nil {
+		return nil, err
+	}
+	return LoadConfig(f)
 }
 
 var commandPull = cli.Command{
@@ -51,7 +57,10 @@ var commandPull = cli.Command{
 			os.Exit(1)
 		}
 
-		conf := loadConfigFile()
+		conf, err := loadConfigFile()
+		if err != nil {
+			return err
+		}
 		blogConfig := conf.Get(blog)
 		if blogConfig == nil {
 			logf("error", "blog not found: %s", blog)
@@ -60,12 +69,16 @@ var commandPull = cli.Command{
 
 		b := NewBroker(blogConfig)
 		remoteEntries, err := b.FetchRemoteEntries()
-		dieIf(err)
+		if err != nil {
+			return err
+		}
 
 		for _, re := range remoteEntries {
 			path := b.LocalPath(re)
 			_, err := b.StoreFresh(re, path)
-			dieIf(err)
+			if err != nil {
+				return err
+			}
 		}
 		return nil
 	},
@@ -82,15 +95,22 @@ var commandPush = cli.Command{
 		}
 
 		path, err := filepath.Abs(path)
-		dieIf(err)
+		if err != nil {
+			return err
+		}
 
 		var blogConfig *BlogConfig
 
-		conf := loadConfigFile()
+		conf, err := loadConfigFile()
+		if err != nil {
+			return err
+		}
 		for remoteRoot := range conf.Blogs {
 			bc := conf.Get(remoteRoot)
 			localRoot, err := filepath.Abs(filepath.Join(bc.LocalRoot, remoteRoot))
-			dieIf(err)
+			if err != nil {
+				return err
+			}
 
 			if strings.HasPrefix(path, localRoot) {
 				blogConfig = bc
@@ -106,10 +126,14 @@ var commandPush = cli.Command{
 		b := NewBroker(blogConfig)
 
 		f, err := os.Open(path)
-		dieIf(err)
+		if err != nil {
+			return err
+		}
 
 		entry, err := entryFromReader(f)
-		dieIf(err)
+		if err != nil {
+			return err
+		}
 
 		b.UploadFresh(entry)
 		return nil
@@ -131,7 +155,10 @@ var commandPost = cli.Command{
 			os.Exit(1)
 		}
 
-		conf := loadConfigFile()
+		conf, err := loadConfigFile()
+		if err != nil {
+			return err
+		}
 		blogConfig := conf.Get(blog)
 		if blogConfig == nil {
 			logf("error", "blog not found: %s", blog)
@@ -139,7 +166,9 @@ var commandPost = cli.Command{
 		}
 
 		entry, err := entryFromReader(os.Stdin)
-		dieIf(err)
+		if err != nil {
+			return err
+		}
 
 		if c.Bool("draft") {
 			entry.IsDraft = true
@@ -155,8 +184,9 @@ var commandPost = cli.Command{
 
 		b := NewBroker(blogConfig)
 		err = b.PostEntry(entry)
-		dieIf(err)
-
+		if err != nil {
+			return err
+		}
 		return nil
 	},
 }
