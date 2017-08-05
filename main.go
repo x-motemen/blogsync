@@ -21,16 +21,20 @@ func main() {
 }
 
 func loadConfigFile() *Config {
-	home, err := homedir.Dir()
-	dieIf(err)
+	var f *os.File
 
-	f, err := os.Open(filepath.Join(home, ".config", "blogsync", "config.yaml"))
-	if err != nil {
-		pwd, _ := os.Getwd()
-		f, err = os.Open(filepath.Join(pwd, ".config", "blogsync", "config.yaml"))
+	pwd, err := os.Getwd()
+	dieIf(err)
+	curFname := filepath.Join(pwd, "blogsync.yaml")
+	if _, err := os.Stat(curFname); err == nil {
+		f, err = os.Open(curFname)
+		dieIf(err)
+	} else {
+		home, err := homedir.Dir()
+		dieIf(err)
+		f, err = os.Open(filepath.Join(home, ".config", "blogsync", "config.yaml"))
+		dieIf(err)
 	}
-	dieIf(err)
-
 	conf, err := LoadConfig(f)
 	dieIf(err)
 
