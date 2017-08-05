@@ -25,6 +25,10 @@ func loadConfigFile() *Config {
 	dieIf(err)
 
 	f, err := os.Open(filepath.Join(home, ".config", "blogsync", "config.yaml"))
+	if err != nil {
+		pwd, _ := os.Getwd()
+		f, err = os.Open(filepath.Join(pwd, ".config", "blogsync", "config.yaml"))
+	}
 	dieIf(err)
 
 	conf, err := LoadConfig(f)
