@@ -16,7 +16,7 @@ type broker struct {
 	*BlogConfig
 }
 
-func NewBroker(config *BlogConfig) *broker {
+func newBroker(config *BlogConfig) *broker {
 	return &broker{
 		Client: &atom.Client{
 			Client: &http.Client{

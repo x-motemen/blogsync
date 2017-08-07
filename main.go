@@ -88,7 +88,7 @@ var commandPull = cli.Command{
 			return fmt.Errorf("blog not found: %s", blog)
 		}
 
-		b := NewBroker(blogConfig)
+		b := newBroker(blogConfig)
 		remoteEntries, err := b.FetchRemoteEntries()
 		if err != nil {
 			return err
@@ -143,7 +143,7 @@ var commandPush = cli.Command{
 			return fmt.Errorf("cannot find blog for %s", path)
 		}
 
-		b := NewBroker(blogConfig)
+		b := newBroker(blogConfig)
 
 		f, err := os.Open(path)
 		if err != nil {
@@ -202,7 +202,7 @@ var commandPost = cli.Command{
 			entry.Title = title
 		}
 
-		b := NewBroker(blogConfig)
+		b := newBroker(blogConfig)
 		err = b.PostEntry(entry)
 		if err != nil {
 			return err
