@@ -14,6 +14,7 @@ import (
 func TestEntryFromReader(t *testing.T) {
 	f, err := os.Open("example/data/karimen.hatenablog.com/entry/2012/12/18/000000.md")
 	assert.NoError(t, err)
+	defer f.Close()
 
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	assert.NoError(t, err)

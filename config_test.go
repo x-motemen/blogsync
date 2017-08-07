@@ -13,7 +13,7 @@ func TestGetConfig(t *testing.T) {
 			LocalRoot: "./data",
 		},
 		Blogs: map[string]*BlogConfig{
-			"blog.example.com": &BlogConfig{
+			"blog.example.com": {
 				RemoteRoot: "blog.example.com",
 				Username:   "xxx",
 				Password:   "yyy",
