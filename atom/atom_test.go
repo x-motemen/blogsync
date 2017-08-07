@@ -10,6 +10,7 @@ import (
 func TestParse(t *testing.T) {
 	f, err := os.Open("../example/hatenablog.xml")
 	assert.NoError(t, err)
+	defer f.Close()
 
 	feed, err := Parse(f)
 	assert.NoError(t, err)

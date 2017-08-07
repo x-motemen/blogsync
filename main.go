@@ -32,6 +32,7 @@ func loadSingleConfigFile(fname string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 	return LoadConfig(f)
 }
 
@@ -146,6 +147,7 @@ var commandPush = cli.Command{
 		if err != nil {
 			return err
 		}
+		defer f.Close()
 
 		entry, err := entryFromReader(f)
 		if err != nil {
