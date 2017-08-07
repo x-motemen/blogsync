@@ -10,6 +10,8 @@ import (
 	"github.com/urfave/cli"
 )
 
+var errCommandHelp = fmt.Errorf("command help shown")
+
 func main() {
 	app := cli.NewApp()
 	app.Commands = []cli.Command{
@@ -19,7 +21,9 @@ func main() {
 	}
 	err := app.Run(os.Args)
 	if err != nil {
-		logf("error", "%s", err)
+		if err != errCommandHelp {
+			logf("error", "%s", err)
+		}
 		os.Exit(1)
 	}
 }
@@ -72,7 +76,7 @@ var commandPull = cli.Command{
 		blog := c.Args().First()
 		if blog == "" {
 			cli.ShowCommandHelp(c, "pull")
-			os.Exit(1)
+			return errCommandHelp
 		}
 
 		conf, err := loadConfigFile()
@@ -81,8 +85,7 @@ var commandPull = cli.Command{
 		}
 		blogConfig := conf.Get(blog)
 		if blogConfig == nil {
-			logf("error", "blog not found: %s", blog)
-			os.Exit(1)
+			return fmt.Errorf("blog not found: %s", blog)
 		}
 
 		b := NewBroker(blogConfig)
@@ -109,7 +112,7 @@ var commandPush = cli.Command{
 		path := c.Args().First()
 		if path == "" {
 			cli.ShowCommandHelp(c, "push")
-			os.Exit(1)
+			return errCommandHelp
 		}
 
 		path, err := filepath.Abs(path)
@@ -137,8 +140,7 @@ var commandPush = cli.Command{
 		}
 
 		if blogConfig == nil {
-			logf("error", "cannot find blog for %s", path)
-			os.Exit(1)
+			return fmt.Errorf("cannot find blog for %s", path)
 		}
 
 		b := NewBroker(blogConfig)
@@ -171,7 +173,7 @@ var commandPost = cli.Command{
 		blog := c.Args().First()
 		if blog == "" {
 			cli.ShowCommandHelp(c, "post")
-			os.Exit(1)
+			return errCommandHelp
 		}
 
 		conf, err := loadConfigFile()
@@ -180,8 +182,7 @@ var commandPost = cli.Command{
 		}
 		blogConfig := conf.Get(blog)
 		if blogConfig == nil {
-			logf("error", "blog not found: %s", blog)
-			os.Exit(1)
+			return fmt.Errorf("blog not found: %s", blog)
 		}
 
 		entry, err := entryFromReader(os.Stdin)
