@@ -11,13 +11,13 @@ import (
 	"github.com/motemen/go-wsse"
 )
 
-type Broker struct {
+type broker struct {
 	*atom.Client
 	*BlogConfig
 }
 
-func NewBroker(config *BlogConfig) *Broker {
-	return &Broker{
+func NewBroker(config *BlogConfig) *broker {
+	return &broker{
 		Client: &atom.Client{
 			Client: &http.Client{
 				Transport: &wsse.Transport{
@@ -30,7 +30,7 @@ func NewBroker(config *BlogConfig) *Broker {
 	}
 }
 
-func (b *Broker) FetchRemoteEntries() ([]*Entry, error) {
+func (b *broker) FetchRemoteEntries() ([]*Entry, error) {
 	entries := []*Entry{}
 	url := fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.Username, b.RemoteRoot)
 
@@ -60,12 +60,12 @@ func (b *Broker) FetchRemoteEntries() ([]*Entry, error) {
 	return entries, nil
 }
 
-func (b *Broker) LocalPath(e *Entry) string {
+func (b *broker) LocalPath(e *Entry) string {
 	extension := ".md" // TODO regard re.ContentType
 	return filepath.Join(b.LocalRoot, b.RemoteRoot, e.URL.Path+extension)
 }
 
-func (b *Broker) StoreFresh(e *Entry, path string) (bool, error) {
+func (b *broker) StoreFresh(e *Entry, path string) (bool, error) {
 	var localLastModified time.Time
 	if fi, err := os.Stat(path); err == nil {
 		localLastModified = fi.ModTime()
@@ -83,7 +83,7 @@ func (b *Broker) StoreFresh(e *Entry, path string) (bool, error) {
 	return false, nil
 }
 
-func (b *Broker) Store(e *Entry, path string) error {
+func (b *broker) Store(e *Entry, path string) error {
 	logf("store", "%s", path)
 
 	dir, _ := filepath.Split(path)
@@ -110,7 +110,7 @@ func (b *Broker) Store(e *Entry, path string) error {
 	return os.Chtimes(path, *e.LastModified, *e.LastModified)
 }
 
-func (b *Broker) UploadFresh(e *Entry) (bool, error) {
+func (b *broker) UploadFresh(e *Entry) (bool, error) {
 	re, err := asEntry(b.Client.GetEntry(e.EditURL))
 	if err != nil {
 		return false, err
@@ -123,7 +123,7 @@ func (b *Broker) UploadFresh(e *Entry) (bool, error) {
 	return true, b.PutEntry(e)
 }
 
-func (b *Broker) PutEntry(e *Entry) error {
+func (b *broker) PutEntry(e *Entry) error {
 	newEntry, err := asEntry(b.Client.PutEntry(e.EditURL, e.atom()))
 	if err != nil {
 		return err
@@ -136,7 +136,7 @@ func (b *Broker) PutEntry(e *Entry) error {
 	return b.Store(newEntry, path)
 }
 
-func (b *Broker) PostEntry(e *Entry) error {
+func (b *broker) PostEntry(e *Entry) error {
 	postURL := fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.Username, b.RemoteRoot)
 	newEntry, err := asEntry(b.Client.PostEntry(postURL, e.atom()))
 	if err != nil {
