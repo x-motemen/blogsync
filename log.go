@@ -7,7 +7,7 @@ import (
 )
 
 var logger = &colorine.Logger{
-	colorine.Prefixes{
+	Prefixes: colorine.Prefixes{
 		"http":  colorine.Verbose,
 		"store": colorine.Info,
 		"error": colorine.Error,

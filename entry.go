@@ -106,7 +106,7 @@ func (e *Entry) atom() *atom.Entry {
 
 	categories := make([]atom.Category, 0)
 	for _, c := range e.Category {
-		categories = append(categories, atom.Category{c})
+		categories = append(categories, atom.Category{Term: c})
 	}
 	atomEntry.Category = categories
 
