@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Feed represents atom feed
 type Feed struct {
 	Links    Links   `xml:"link"`
 	Title    string  `xml:"title"`
@@ -13,6 +14,7 @@ type Feed struct {
 	Entries  []Entry `xml:"entry"`
 }
 
+// Entry represents atom entry
 type Entry struct {
 	XMLName   xml.Name   `xml:"http://www.w3.org/2005/Atom entry"`
 	ID        string     `xml:"id,omitempty"`
@@ -28,30 +30,37 @@ type Entry struct {
 	CustomURL string     `xml:"http://www.hatena.ne.jp/info/xmlns#hatenablog custom-url,omitempty"`
 }
 
+// Link represents atom link
 type Link struct {
 	Rel  string `xml:"rel,attr"`
 	Href string `xml:"href,attr"`
 }
 
+// Links represents atom links
 type Links []Link
 
+// Author represents atom author
 type Author struct {
 	Name string `xml:"name"`
 }
 
+// Content represents atom content
 type Content struct {
 	Type    string `xml:"type,attr,omitempty"`
 	Content string `xml:",chardata"`
 }
 
+// Category represents atom category
 type Category struct {
 	Term string `xml:"term,attr"`
 }
 
+// Control represents atom control
 type Control struct {
 	Draft string `xml:"http://www.w3.org/2007/app draft"`
 }
 
+// Parse parses an atom xml from r and returns Feed
 func Parse(r io.Reader) (*Feed, error) {
 	feed := &Feed{}
 	err := xml.NewDecoder(r).Decode(feed)
@@ -62,6 +71,7 @@ func Parse(r io.Reader) (*Feed, error) {
 	return feed, nil
 }
 
+// ParseEntry parses an atom xml from r and returns Entry
 func ParseEntry(r io.Reader) (*Entry, error) {
 	entry := &Entry{}
 	err := xml.NewDecoder(r).Decode(entry)
@@ -72,6 +82,7 @@ func ParseEntry(r io.Reader) (*Entry, error) {
 	return entry, nil
 }
 
+// Find finds the Link from links by a specified string argument
 func (links Links) Find(rel string) *Link {
 	for _, link := range links {
 		if link.Rel == rel {

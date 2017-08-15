@@ -28,7 +28,7 @@ func main() {
 	}
 }
 
-func loadSingleConfigFile(fname string) (*Config, error) {
+func loadSingleConfigFile(fname string) (*config, error) {
 	if _, err := os.Stat(fname); err != nil {
 		return nil, nil
 	}
@@ -37,11 +37,11 @@ func loadSingleConfigFile(fname string) (*Config, error) {
 		return nil, err
 	}
 	defer f.Close()
-	return LoadConfig(f)
+	return loadConfig(f)
 }
 
-func loadConfigFile() (*Config, error) {
-	var conf *Config
+func loadConfigFile() (*config, error) {
+	var conf *config
 
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -88,7 +88,7 @@ var commandPull = cli.Command{
 			return fmt.Errorf("blog not found: %s", blog)
 		}
 
-		b := NewBroker(blogConfig)
+		b := newBroker(blogConfig)
 		remoteEntries, err := b.FetchRemoteEntries()
 		if err != nil {
 			return err
@@ -120,7 +120,7 @@ var commandPush = cli.Command{
 			return err
 		}
 
-		var blogConfig *BlogConfig
+		var blogConfig *blogConfig
 
 		conf, err := loadConfigFile()
 		if err != nil {
@@ -143,7 +143,7 @@ var commandPush = cli.Command{
 			return fmt.Errorf("cannot find blog for %s", path)
 		}
 
-		b := NewBroker(blogConfig)
+		b := newBroker(blogConfig)
 
 		f, err := os.Open(path)
 		if err != nil {
@@ -202,7 +202,7 @@ var commandPost = cli.Command{
 			entry.Title = title
 		}
 
-		b := NewBroker(blogConfig)
+		b := newBroker(blogConfig)
 		err = b.PostEntry(entry)
 		if err != nil {
 			return err

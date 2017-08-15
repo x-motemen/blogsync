@@ -9,10 +9,12 @@ import (
 	"net/http"
 )
 
+// Client wrapped *http.Client and some methods for accessing atom feed are added
 type Client struct {
 	*http.Client
 }
 
+// GetFeed gets the blog feed
 func (c *Client) GetFeed(url string) (*Feed, error) {
 	resp, err := c.http("GET", url, nil)
 	if err != nil {
@@ -22,6 +24,7 @@ func (c *Client) GetFeed(url string) (*Feed, error) {
 	return Parse(resp.Body)
 }
 
+// GetEntry gets the blog entry
 func (c *Client) GetEntry(url string) (*Entry, error) {
 	resp, err := c.http("GET", url, nil)
 	if err != nil {
@@ -31,6 +34,7 @@ func (c *Client) GetEntry(url string) (*Entry, error) {
 	return ParseEntry(resp.Body)
 }
 
+// PutEntry puts the blog entry
 func (c *Client) PutEntry(url string, e *Entry) (*Entry, error) {
 	body := new(bytes.Buffer)
 
@@ -53,6 +57,7 @@ func (c *Client) PutEntry(url string, e *Entry) (*Entry, error) {
 	return newEntry, nil
 }
 
+// PostEntry posts the blog entry
 func (c *Client) PostEntry(url string, e *Entry) (*Entry, error) {
 	body, err := entryBody(e)
 	if err != nil {

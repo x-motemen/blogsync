@@ -17,33 +17,33 @@ import (
 
 const timeFormat = "2006-01-02T15:04:05-07:00"
 
-type EntryTime struct {
+type entryTime struct {
 	*time.Time
 }
 
-type EntryURL struct {
+type entryURL struct {
 	*url.URL
 }
 
-type EntryHeader struct {
+type entryHeader struct {
 	Title      string     `yaml:"Title"`
 	Category   []string   `yaml:"Category,omitempty"`
-	Date       *EntryTime `yaml:"Date"`
-	URL        *EntryURL  `yaml:"URL"`
+	Date       *entryTime `yaml:"Date"`
+	URL        *entryURL  `yaml:"URL"`
 	EditURL    string     `yaml:"EditURL"`
 	IsDraft    bool       `yaml:"Draft,omitempty"`
 	CustomPath string     `yaml:"CustomPath,omitempty"`
 }
 
-func (eu *EntryURL) MarshalYAML() (interface{}, error) {
+func (eu *entryURL) MarshalYAML() (interface{}, error) {
 	return eu.String(), nil
 }
 
-func (et *EntryTime) MarshalYAML() (interface{}, error) {
+func (et *entryTime) MarshalYAML() (interface{}, error) {
 	return et.Format(timeFormat), nil
 }
 
-func (eu *EntryURL) UnmarshalYAML(unmarshal func(v interface{}) error) error {
+func (eu *entryURL) UnmarshalYAML(unmarshal func(v interface{}) error) error {
 	var s string
 	err := unmarshal(&s)
 	if err != nil {
@@ -57,7 +57,7 @@ func (eu *EntryURL) UnmarshalYAML(unmarshal func(v interface{}) error) error {
 	return nil
 }
 
-func (et *EntryTime) UnmarshalYAML(unmarshal func(v interface{}) error) error {
+func (et *entryTime) UnmarshalYAML(unmarshal func(v interface{}) error) error {
 	var t time.Time
 	err := unmarshal(&t)
 	if err != nil {
@@ -68,15 +68,15 @@ func (et *EntryTime) UnmarshalYAML(unmarshal func(v interface{}) error) error {
 }
 
 // Entry is an entry stored on remote blog providers
-type Entry struct {
-	*EntryHeader
+type entry struct {
+	*entryHeader
 	LastModified *time.Time
 	Content      string
 	ContentType  string
 }
 
-func (e *Entry) HeaderString() string {
-	d, err := yaml.Marshal(e.EntryHeader)
+func (e *entry) HeaderString() string {
+	d, err := yaml.Marshal(e.entryHeader)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
@@ -87,7 +87,7 @@ func (e *Entry) HeaderString() string {
 	return strings.Join(headers, "\n") + "---\n\n"
 }
 
-func (e *Entry) fullContent() string {
+func (e *entry) fullContent() string {
 	c := e.HeaderString() + e.Content
 	if !strings.HasSuffix(c, "\n") {
 		// fill newline for suppressing diff "No newline at end of file"
@@ -96,7 +96,7 @@ func (e *Entry) fullContent() string {
 	return c
 }
 
-func (e *Entry) atom() *atom.Entry {
+func (e *entry) atom() *atom.Entry {
 	atomEntry := &atom.Entry{
 		Title: e.Title,
 		Content: atom.Content{
@@ -127,7 +127,7 @@ func (e *Entry) atom() *atom.Entry {
 	return atomEntry
 }
 
-func entryFromAtom(e *atom.Entry) (*Entry, error) {
+func entryFromAtom(e *atom.Entry) (*entry, error) {
 	alternateLink := e.Links.Find("alternate")
 	if alternateLink == nil {
 		return nil, fmt.Errorf("could not find link[rel=alternate]")
@@ -148,13 +148,13 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 		categories = append(categories, c.Term)
 	}
 
-	entry := &Entry{
-		EntryHeader: &EntryHeader{
-			URL:      &EntryURL{u},
+	entry := &entry{
+		entryHeader: &entryHeader{
+			URL:      &entryURL{u},
 			EditURL:  editLink.Href,
 			Title:    e.Title,
 			Category: categories,
-			Date:     &EntryTime{e.Updated},
+			Date:     &entryTime{e.Updated},
 		},
 		LastModified: e.Edited,
 		Content:      e.Content.Content,
@@ -170,14 +170,14 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 
 var delimReg = regexp.MustCompile(`---\n+`)
 
-func entryFromReader(source io.Reader) (*Entry, error) {
+func entryFromReader(source io.Reader) (*entry, error) {
 	b, err := ioutil.ReadAll(source)
 	if err != nil {
 		return nil, err
 	}
 	content := string(b)
 	isNew := !strings.HasPrefix(content, "---\n")
-	eh := EntryHeader{}
+	eh := entryHeader{}
 	if !isNew {
 		c := delimReg.Split(content, 3)
 		if len(c) != 3 || c[0] != "" {
@@ -190,8 +190,8 @@ func entryFromReader(source io.Reader) (*Entry, error) {
 		}
 		content = c[2]
 	}
-	entry := &Entry{
-		EntryHeader: &eh,
+	entry := &entry{
+		entryHeader: &eh,
 		Content:     content,
 	}
 
@@ -207,7 +207,7 @@ func entryFromReader(source io.Reader) (*Entry, error) {
 	return entry, nil
 }
 
-func asEntry(atomEntry *atom.Entry, err error) (*Entry, error) {
+func asEntry(atomEntry *atom.Entry, err error) (*entry, error) {
 	if err != nil {
 		return nil, err
 	}
