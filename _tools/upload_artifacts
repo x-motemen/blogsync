@@ -3,4 +3,4 @@ set -e
 
 ver=v$(gobump show -r)
 make crossbuild
-ghr $ver dist/$ver
+ghr -u motemen $ver dist/$ver
