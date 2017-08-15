@@ -44,7 +44,7 @@ func TestFullContent(t *testing.T) {
 	d := time.Date(2012, 12, 19, 0, 0, 0, 0, jst)
 
 	e := &Entry{
-		EntryHeader: &EntryHeader{
+		entryHeader: &entryHeader{
 			URL:     &entryURL{u},
 			EditURL: u.String() + "/edit",
 			Title:   "所内#3",
@@ -86,7 +86,7 @@ func TestDraftFullContent(t *testing.T) {
 	d := time.Date(2012, 12, 20, 0, 0, 0, 0, jst)
 
 	e := &Entry{
-		EntryHeader: &EntryHeader{
+		entryHeader: &entryHeader{
 			URL:     &entryURL{u},
 			EditURL: u.String() + "/edit",
 			Title:   "所内#4",
@@ -124,7 +124,7 @@ func TestUnmarshalYAML(t *testing.T) {
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	d := time.Date(2012, 12, 20, 0, 0, 0, 0, jst)
 
-	eh := &EntryHeader{
+	eh := &entryHeader{
 		URL:      &entryURL{u},
 		EditURL:  u.String() + "/edit",
 		Title:    "所内",
@@ -141,11 +141,11 @@ URL: http://hatenablog.example.com/2
 EditURL: http://hatenablog.example.com/2/edit
 `, string(ya))
 
-	eh2 := EntryHeader{}
+	eh2 := entryHeader{}
 	yaml.Unmarshal(ya, &eh2)
 	assert.Equal(t, "所内", eh2.Title)
 
-	eh3 := EntryHeader{}
+	eh3 := entryHeader{}
 	yaml.Unmarshal([]byte(noCategory), &eh3)
 	assert.Nil(t, eh3.Category)
 }

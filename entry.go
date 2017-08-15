@@ -25,7 +25,7 @@ type entryURL struct {
 	*url.URL
 }
 
-type EntryHeader struct {
+type entryHeader struct {
 	Title      string     `yaml:"Title"`
 	Category   []string   `yaml:"Category,omitempty"`
 	Date       *entryTime `yaml:"Date"`
@@ -69,14 +69,14 @@ func (et *entryTime) UnmarshalYAML(unmarshal func(v interface{}) error) error {
 
 // Entry is an entry stored on remote blog providers
 type Entry struct {
-	*EntryHeader
+	*entryHeader
 	LastModified *time.Time
 	Content      string
 	ContentType  string
 }
 
 func (e *Entry) HeaderString() string {
-	d, err := yaml.Marshal(e.EntryHeader)
+	d, err := yaml.Marshal(e.entryHeader)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
@@ -149,7 +149,7 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 	}
 
 	entry := &Entry{
-		EntryHeader: &EntryHeader{
+		entryHeader: &entryHeader{
 			URL:      &entryURL{u},
 			EditURL:  editLink.Href,
 			Title:    e.Title,
@@ -177,7 +177,7 @@ func entryFromReader(source io.Reader) (*Entry, error) {
 	}
 	content := string(b)
 	isNew := !strings.HasPrefix(content, "---\n")
-	eh := EntryHeader{}
+	eh := entryHeader{}
 	if !isNew {
 		c := delimReg.Split(content, 3)
 		if len(c) != 3 || c[0] != "" {
@@ -191,7 +191,7 @@ func entryFromReader(source io.Reader) (*Entry, error) {
 		content = c[2]
 	}
 	entry := &Entry{
-		EntryHeader: &eh,
+		entryHeader: &eh,
 		Content:     content,
 	}
 
