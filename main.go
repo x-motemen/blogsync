@@ -28,7 +28,7 @@ func main() {
 	}
 }
 
-func loadSingleConfigFile(fname string) (*Config, error) {
+func loadSingleConfigFile(fname string) (*config, error) {
 	if _, err := os.Stat(fname); err != nil {
 		return nil, nil
 	}
@@ -40,8 +40,8 @@ func loadSingleConfigFile(fname string) (*Config, error) {
 	return LoadConfig(f)
 }
 
-func loadConfigFile() (*Config, error) {
-	var conf *Config
+func loadConfigFile() (*config, error) {
+	var conf *config
 
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -120,7 +120,7 @@ var commandPush = cli.Command{
 			return err
 		}
 
-		var blogConfig *BlogConfig
+		var blogConfig *blogConfig
 
 		conf, err := loadConfigFile()
 		if err != nil {

@@ -13,20 +13,20 @@ import (
 
 type broker struct {
 	*atom.Client
-	*BlogConfig
+	*blogConfig
 }
 
-func newBroker(config *BlogConfig) *broker {
+func newBroker(bc *blogConfig) *broker {
 	return &broker{
 		Client: &atom.Client{
 			Client: &http.Client{
 				Transport: &wsse.Transport{
-					Username: config.Username,
-					Password: config.Password,
+					Username: bc.Username,
+					Password: bc.Password,
 				},
 			},
 		},
-		BlogConfig: config,
+		blogConfig: bc,
 	}
 }
 
