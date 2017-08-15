@@ -17,6 +17,7 @@ devel-deps: test-deps
 	go get ${u} github.com/motemen/gobump
 	go get ${u} github.com/laher/goxc
 	go get ${u} github.com/Songmu/ghch
+	go get ${u} github.com/tcnksm/ghr
 
 test: test-deps
 	go test ./...
