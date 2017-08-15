@@ -43,7 +43,7 @@ func TestFullContent(t *testing.T) {
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	d := time.Date(2012, 12, 19, 0, 0, 0, 0, jst)
 
-	e := &Entry{
+	e := &entry{
 		entryHeader: &entryHeader{
 			URL:     &entryURL{u},
 			EditURL: u.String() + "/edit",
@@ -85,7 +85,7 @@ func TestDraftFullContent(t *testing.T) {
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	d := time.Date(2012, 12, 20, 0, 0, 0, 0, jst)
 
-	e := &Entry{
+	e := &entry{
 		entryHeader: &entryHeader{
 			URL:     &entryURL{u},
 			EditURL: u.String() + "/edit",
