@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.0.1](https://github.com/motemen/blogsync/compare/...v0.0.1) (2017-08-16)
+## [v0.0.1](https://github.com/motemen/blogsync/compare/acc350d...v0.0.1) (2017-08-16)
 
 * add releng related files [#16](https://github.com/motemen/blogsync/pull/16) ([Songmu](https://github.com/Songmu))
 * add Makefilea and .travis.yml [#15](https://github.com/motemen/blogsync/pull/15) ([Songmu](https://github.com/Songmu))
