@@ -19,7 +19,7 @@ type blogConfig struct {
 	Password   string
 }
 
-func LoadConfig(r io.Reader) (*config, error) {
+func loadConfig(r io.Reader) (*config, error) {
 	bytes, err := ioutil.ReadAll(r)
 	if err != nil {
 		return nil, err

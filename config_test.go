@@ -36,7 +36,7 @@ blog1.example.com:
 blog2.example.com:
   local_root: ./blog2`,
 	))
-	c, err := LoadConfig(r)
+	c, err := loadConfig(r)
 	assert.Nil(t, err)
 	assert.Equal(t, c.Default.LocalRoot, "./data")
 	assert.Equal(t, c.Blogs["blog1.example.com"].Username, "blog1")
