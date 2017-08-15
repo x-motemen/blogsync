@@ -45,7 +45,7 @@ func TestFullContent(t *testing.T) {
 
 	e := &Entry{
 		EntryHeader: &EntryHeader{
-			URL:     &EntryURL{u},
+			URL:     &entryURL{u},
 			EditURL: u.String() + "/edit",
 			Title:   "所内#3",
 			Date:    &entryTime{&d},
@@ -87,7 +87,7 @@ func TestDraftFullContent(t *testing.T) {
 
 	e := &Entry{
 		EntryHeader: &EntryHeader{
-			URL:     &EntryURL{u},
+			URL:     &entryURL{u},
 			EditURL: u.String() + "/edit",
 			Title:   "所内#4",
 			Date:    &entryTime{&d},
@@ -125,7 +125,7 @@ func TestUnmarshalYAML(t *testing.T) {
 	d := time.Date(2012, 12, 20, 0, 0, 0, 0, jst)
 
 	eh := &EntryHeader{
-		URL:      &EntryURL{u},
+		URL:      &entryURL{u},
 		EditURL:  u.String() + "/edit",
 		Title:    "所内",
 		Category: []string{"foo", "bar"},

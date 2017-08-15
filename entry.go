@@ -21,7 +21,7 @@ type entryTime struct {
 	*time.Time
 }
 
-type EntryURL struct {
+type entryURL struct {
 	*url.URL
 }
 
@@ -29,13 +29,13 @@ type EntryHeader struct {
 	Title      string     `yaml:"Title"`
 	Category   []string   `yaml:"Category,omitempty"`
 	Date       *entryTime `yaml:"Date"`
-	URL        *EntryURL  `yaml:"URL"`
+	URL        *entryURL  `yaml:"URL"`
 	EditURL    string     `yaml:"EditURL"`
 	IsDraft    bool       `yaml:"Draft,omitempty"`
 	CustomPath string     `yaml:"CustomPath,omitempty"`
 }
 
-func (eu *EntryURL) MarshalYAML() (interface{}, error) {
+func (eu *entryURL) MarshalYAML() (interface{}, error) {
 	return eu.String(), nil
 }
 
@@ -43,7 +43,7 @@ func (et *entryTime) MarshalYAML() (interface{}, error) {
 	return et.Format(timeFormat), nil
 }
 
-func (eu *EntryURL) UnmarshalYAML(unmarshal func(v interface{}) error) error {
+func (eu *entryURL) UnmarshalYAML(unmarshal func(v interface{}) error) error {
 	var s string
 	err := unmarshal(&s)
 	if err != nil {
@@ -150,7 +150,7 @@ func entryFromAtom(e *atom.Entry) (*Entry, error) {
 
 	entry := &Entry{
 		EntryHeader: &EntryHeader{
-			URL:      &EntryURL{u},
+			URL:      &entryURL{u},
 			EditURL:  editLink.Href,
 			Title:    e.Title,
 			Category: categories,
