@@ -1,0 +1,7 @@
+go:
+- tip
+script:
+- make lint
+- make cover
+after_script:
+- goveralls -coverprofile=coverage.out
