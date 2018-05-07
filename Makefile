@@ -39,7 +39,7 @@ bump: devel-deps
 	_tools/releng
 
 upload:
-	ghr $(VERSION) dist/$(VERSION)
+	ghr v$(VERSION) dist/v$(VERSION)
 
 release: bump crossbuild upload
 
