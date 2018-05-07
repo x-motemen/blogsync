@@ -15,5 +15,5 @@ func TestParse(t *testing.T) {
 	feed, err := Parse(f)
 	assert.NoError(t, err)
 
-	assert.Equal(t, feed.Entries[0].Edited.UTC().String(), "2014-11-20 14:48:59 +0000 UTC")
+	assert.Equal(t, "2014-11-20 14:48:59 +0000 UTC", feed.Entries[0].Edited.UTC().String())
 }
