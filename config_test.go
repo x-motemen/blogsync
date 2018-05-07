@@ -23,7 +23,7 @@ func TestGetConfig(t *testing.T) {
 
 	bc := c.Get("blog.example.com")
 	assert.NotNil(t, bc)
-	assert.Equal(t, bc.LocalRoot, "./data")
+	assert.Equal(t, "./data", bc.LocalRoot)
 }
 
 func TestLoadConfig(t *testing.T) {
@@ -38,7 +38,7 @@ blog2.example.com:
 	))
 	c, err := loadConfig(r)
 	assert.Nil(t, err)
-	assert.Equal(t, c.Default.LocalRoot, "./data")
-	assert.Equal(t, c.Blogs["blog1.example.com"].Username, "blog1")
-	assert.Equal(t, c.Blogs["blog1.example.com"].RemoteRoot, "blog1.example.com")
+	assert.Equal(t, "./data", c.Default.LocalRoot)
+	assert.Equal(t, "blog1", c.Blogs["blog1.example.com"].Username)
+	assert.Equal(t, "blog1.example.com", c.Blogs["blog1.example.com"].RemoteRoot)
 }

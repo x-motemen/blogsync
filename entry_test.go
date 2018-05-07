@@ -22,7 +22,7 @@ func TestEntryFromReader(t *testing.T) {
 	e, err := entryFromReader(f)
 	assert.NoError(t, err)
 
-	assert.Equal(t, e.Title, "所内#2")
+	assert.Equal(t, "所内#2", e.Title)
 
 	assert.True(t, e.Date.Equal(time.Date(2012, 12, 18, 0, 0, 0, 0, jst)))
 }
@@ -53,7 +53,7 @@ func TestFullContent(t *testing.T) {
 		LastModified: &d,
 		Content:      "test\ntest2",
 	}
-	assert.Equal(t, e.fullContent(), content)
+	assert.Equal(t, content, e.fullContent())
 }
 
 func TestFrontmatterEntryFromReader(t *testing.T) {
@@ -62,11 +62,11 @@ func TestFrontmatterEntryFromReader(t *testing.T) {
 	e, err := entryFromReader(strings.NewReader(content))
 	assert.NoError(t, err)
 
-	assert.Equal(t, e.Title, "所内#3")
+	assert.Equal(t, "所内#3", e.Title)
 	assert.True(t, e.Date.Equal(time.Date(2012, 12, 19, 0, 0, 0, 0, jst)))
-	assert.Equal(t, e.URL.String(), "http://hatenablog.example.com/1")
-	assert.Equal(t, e.EditURL, "http://hatenablog.example.com/1/edit")
-	assert.Equal(t, e.Content, "test\ntest2\n")
+	assert.Equal(t, "http://hatenablog.example.com/1", e.URL.String())
+	assert.Equal(t, "http://hatenablog.example.com/1/edit", e.EditURL)
+	assert.Equal(t, "test\ntest2\n", e.Content)
 }
 
 var draftContent = `---
@@ -96,7 +96,7 @@ func TestDraftFullContent(t *testing.T) {
 		LastModified: &d,
 		Content:      "下書き\n",
 	}
-	assert.Equal(t, e.fullContent(), draftContent)
+	assert.Equal(t, draftContent, e.fullContent())
 }
 
 func TestFrontmatterDraftEntryFromReader(t *testing.T) {
@@ -105,12 +105,12 @@ func TestFrontmatterDraftEntryFromReader(t *testing.T) {
 	e, err := entryFromReader(strings.NewReader(draftContent))
 	assert.NoError(t, err)
 
-	assert.Equal(t, e.Title, "所内#4")
+	assert.Equal(t, "所内#4", e.Title)
 	assert.True(t, e.Date.Equal(time.Date(2012, 12, 20, 0, 0, 0, 0, jst)))
-	assert.Equal(t, e.URL.String(), "http://hatenablog.example.com/2")
-	assert.Equal(t, e.EditURL, "http://hatenablog.example.com/2/edit")
+	assert.Equal(t, "http://hatenablog.example.com/2", e.URL.String())
+	assert.Equal(t, "http://hatenablog.example.com/2/edit", e.EditURL)
 	assert.True(t, e.IsDraft)
-	assert.Equal(t, e.Content, "下書き\n")
+	assert.Equal(t, "下書き\n", e.Content)
 }
 
 var noCategory = `Title: 所内
