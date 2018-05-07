@@ -48,7 +48,7 @@ func TestFullContent(t *testing.T) {
 			URL:     &entryURL{u},
 			EditURL: u.String() + "/edit",
 			Title:   "所内#3",
-			Date:    &entryTime{&d},
+			Date:    &d,
 		},
 		LastModified: &d,
 		Content:      "test\ntest2",
@@ -90,7 +90,7 @@ func TestDraftFullContent(t *testing.T) {
 			URL:     &entryURL{u},
 			EditURL: u.String() + "/edit",
 			Title:   "所内#4",
-			Date:    &entryTime{&d},
+			Date:    &d,
 			IsDraft: true,
 		},
 		LastModified: &d,
@@ -129,7 +129,7 @@ func TestUnmarshalYAML(t *testing.T) {
 		EditURL:  u.String() + "/edit",
 		Title:    "所内",
 		Category: []string{"foo", "bar"},
-		Date:     &entryTime{&d},
+		Date:     &d,
 	}
 	ya, _ := yaml.Marshal(eh)
 	assert.Equal(t, `Title: 所内
