@@ -1,3 +1,4 @@
+VERSION = $(shell gobump show -r)
 CURRENT_REVISION = $(shell git rev-parse --short HEAD)
 BUILD_LDFLAGS = "-X main.revision=$(CURRENT_REVISION)"
 ifdef update
@@ -31,12 +32,15 @@ build: deps
 	go build -ldflags=$(BUILD_LDFLAGS)
 
 crossbuild: devel-deps
-	$(eval ver = $(shell gobump show -r))
-	goxz -pv=v$(ver) -build-ldflags=$(BUILD_LDFLAGS) \
-	  -os=linux,darwin,windows -arch=amd64 -d=./dist/v$(ver)
+	goxz -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) \
+	  -os=linux,darwin,windows -arch=amd64 -d=./dist/v$(VERSION)
 
-release: devel-deps
+bump: devel-deps
 	_tools/releng
-	_tools/upload_artifacts
 
-.PHONY: deps devel-deps test lint cover build crossbuild release
+upload:
+	ghr $(VERSION) dist/$(VERSION)
+
+release: bump crossbuild upload
+
+.PHONY: deps devel-deps test lint cover build crossbuild bump upload release
