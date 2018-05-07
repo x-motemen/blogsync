@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.1.0](https://github.com/motemen/blogsync/compare/v0.0.1...v0.1.0) (2018-05-08)
+
+* introduce dep [#19](https://github.com/motemen/blogsync/pull/19) ([Songmu](https://github.com/Songmu))
+* drop entryTime and use *time.Time directly [#18](https://github.com/motemen/blogsync/pull/18) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.1](https://github.com/motemen/blogsync/compare/acc350d...v0.0.1) (2017-08-16)
 
 * add releng related files [#16](https://github.com/motemen/blogsync/pull/16) ([Songmu](https://github.com/Songmu))
