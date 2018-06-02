@@ -67,8 +67,13 @@ func (b *broker) LocalPath(e *entry) string {
 
 func (b *broker) StoreFresh(e *entry, path string) (bool, error) {
 	var localLastModified time.Time
-	if fi, err := os.Stat(path); err == nil {
-		localLastModified = fi.ModTime()
+
+	if fi, err := os.Open(path); err == nil {
+		entry, err := entryFromReader(fi)
+		if err != nil {
+			return false, err
+		}
+		localLastModified = *entry.Date
 	}
 
 	if e.LastModified.After(localLastModified) {
