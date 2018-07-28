@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.9.1](https://github.com/motemen/blogsync/compare/v0.9.0...v0.9.1) (2018-07-29)
+
+* allow nil config, which config values are cascaded from the default config [#26](https://github.com/motemen/blogsync/pull/26) ([Songmu](https://github.com/Songmu))
+
 ## [v0.9.0](https://github.com/motemen/blogsync/compare/v0.1.0...v0.9.0) (2018-07-29)
 
 * update deps [#25](https://github.com/motemen/blogsync/pull/25) ([Songmu](https://github.com/Songmu))
