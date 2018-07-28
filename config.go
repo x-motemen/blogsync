@@ -39,6 +39,10 @@ func loadConfig(r io.Reader) (*config, error) {
 
 	delete(blogs, "default")
 	for key, b := range blogs {
+		if b == nil {
+			b = &blogConfig{}
+			blogs[key] = b
+		}
 		b.RemoteRoot = key
 	}
 	return c, nil
