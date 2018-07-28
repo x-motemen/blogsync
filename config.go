@@ -17,7 +17,7 @@ type blogConfig struct {
 	LocalRoot  string `yaml:"local_root"`
 	Username   string
 	Password   string
-	OmitDomain bool `yaml:"omit_domain"`
+	OmitDomain *bool `yaml:"omit_domain"`
 }
 
 func loadConfig(r io.Reader) (*config, error) {
@@ -57,6 +57,31 @@ func (c *config) Get(remoteRoot string) *blogConfig {
 	return bc
 }
 
+func mergeBlogConfig(b1, b2 *blogConfig) *blogConfig {
+	if b1 == nil {
+		if b2 != nil {
+			return b2
+		}
+		b1 = &blogConfig{}
+	}
+	if b2 == nil {
+		return b1
+	}
+	if b1.LocalRoot == "" && b2.LocalRoot != "" {
+		b1.LocalRoot = b2.LocalRoot
+	}
+	if b1.Username == "" && b2.Username != "" {
+		b1.Username = b2.Username
+	}
+	if b1.Password == "" && b2.Password != "" {
+		b1.Password = b2.Password
+	}
+	if b1.OmitDomain == nil && b2.OmitDomain != nil {
+		b1.OmitDomain = b2.OmitDomain
+	}
+	return b1
+}
+
 func mergeConfig(c1, c2 *config) *config {
 	if c1 == nil {
 		c1 = &config{
@@ -66,13 +91,10 @@ func mergeConfig(c1, c2 *config) *config {
 	if c2 == nil {
 		return c1
 	}
-	if c1.Default == nil {
-		c1.Default = c2.Default
-	}
+
+	c1.Default = mergeBlogConfig(c1.Default, c2.Default)
 	for k, bc := range c2.Blogs {
-		if _, ok := c1.Blogs[k]; !ok {
-			c1.Blogs[k] = bc
-		}
+		c1.Blogs[k] = mergeBlogConfig(c1.Blogs[k], bc)
 	}
 	return c1
 }
