@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.9.0](https://github.com/motemen/blogsync/compare/v0.1.0...v0.9.0) (2018-07-29)
+
+* update deps [#25](https://github.com/motemen/blogsync/pull/25) ([Songmu](https://github.com/Songmu))
+* fill the default values if the configuration value is empty when getting blogConfig [#24](https://github.com/motemen/blogsync/pull/24) ([Songmu](https://github.com/Songmu))
+* mergeBlogConfig [#23](https://github.com/motemen/blogsync/pull/23) ([Songmu](https://github.com/Songmu))
+* add config.OmitDomain [#22](https://github.com/motemen/blogsync/pull/22) ([Songmu](https://github.com/Songmu))
+* refine `commandPush` [#21](https://github.com/motemen/blogsync/pull/21) ([Songmu](https://github.com/Songmu))
+
 ## [v0.1.0](https://github.com/motemen/blogsync/compare/v0.0.1...v0.1.0) (2018-05-08)
 
 * introduce dep [#19](https://github.com/motemen/blogsync/pull/19) ([Songmu](https://github.com/Songmu))
