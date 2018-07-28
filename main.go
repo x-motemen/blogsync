@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/urfave/cli"
@@ -116,36 +115,6 @@ var commandPush = cli.Command{
 			return errCommandHelp
 		}
 
-		path, err := filepath.Abs(path)
-		if err != nil {
-			return err
-		}
-
-		var blogConfig *blogConfig
-
-		conf, err := loadConfigFile()
-		if err != nil {
-			return err
-		}
-		for remoteRoot := range conf.Blogs {
-			bc := conf.Get(remoteRoot)
-			localRoot, err := filepath.Abs(filepath.Join(bc.LocalRoot, remoteRoot))
-			if err != nil {
-				return err
-			}
-
-			if strings.HasPrefix(path, localRoot) {
-				blogConfig = bc
-				break
-			}
-		}
-
-		if blogConfig == nil {
-			return fmt.Errorf("cannot find blog for %s", path)
-		}
-
-		b := newBroker(blogConfig)
-
 		f, err := os.Open(path)
 		if err != nil {
 			return err
@@ -157,8 +126,23 @@ var commandPush = cli.Command{
 			return err
 		}
 
-		b.UploadFresh(entry)
-		return nil
+		remoteRoot, err := entry.remoteRoot()
+		if err != nil {
+			return err
+		}
+
+		conf, err := loadConfigFile()
+		if err != nil {
+			return err
+		}
+
+		bc := conf.Get(remoteRoot)
+		if bc == nil {
+			return fmt.Errorf("cannot find blog for %s", path)
+		}
+
+		_, err = newBroker(bc).UploadFresh(entry)
+		return err
 	},
 }
 

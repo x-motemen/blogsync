@@ -49,6 +49,16 @@ func (eu *entryURL) UnmarshalYAML(unmarshal func(v interface{}) error) error {
 	return nil
 }
 
+func (eh *entryHeader) remoteRoot() (string, error) {
+	// EditURL: https://blog.hatena.ne.jp/Songmu/songmu.hateblog.jp/atom/entry/...
+	// "songmu.hateblog.jp" is remote root in above case.
+	paths := strings.Split(eh.EditURL, "/")
+	if len(paths) < 5 {
+		return "", fmt.Errorf("failed to get remoteRoot form EditURL: %s", eh.EditURL)
+	}
+	return paths[4], nil
+}
+
 // Entry is an entry stored on remote blog providers
 type entry struct {
 	*entryHeader
