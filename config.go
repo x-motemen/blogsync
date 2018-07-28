@@ -49,12 +49,7 @@ func (c *config) Get(remoteRoot string) *blogConfig {
 	if !ok {
 		return nil
 	}
-
-	if bc.LocalRoot == "" {
-		bc.LocalRoot = c.Default.LocalRoot
-	}
-
-	return bc
+	return mergeBlogConfig(bc, c.Default)
 }
 
 func mergeBlogConfig(b1, b2 *blogConfig) *blogConfig {
@@ -67,16 +62,16 @@ func mergeBlogConfig(b1, b2 *blogConfig) *blogConfig {
 	if b2 == nil {
 		return b1
 	}
-	if b1.LocalRoot == "" && b2.LocalRoot != "" {
+	if b1.LocalRoot == "" {
 		b1.LocalRoot = b2.LocalRoot
 	}
-	if b1.Username == "" && b2.Username != "" {
+	if b1.Username == "" {
 		b1.Username = b2.Username
 	}
-	if b1.Password == "" && b2.Password != "" {
+	if b1.Password == "" {
 		b1.Password = b2.Password
 	}
-	if b1.OmitDomain == nil && b2.OmitDomain != nil {
+	if b1.OmitDomain == nil {
 		b1.OmitDomain = b2.OmitDomain
 	}
 	return b1
