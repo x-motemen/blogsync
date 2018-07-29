@@ -62,6 +62,9 @@ func TestLoadConfigFiles(t *testing.T) {
 	pstr := func(str string) *string {
 		return &str
 	}
+	pbool := func(b bool) *bool {
+		return &b
+	}
 	testCases := []struct {
 		name       string
 		localConf  *string
@@ -74,10 +77,9 @@ func TestLoadConfigFiles(t *testing.T) {
 			name:      "simple",
 			localConf: nil,
 			globalConf: pstr(`---
-              default:
-                local_root: ./data
               blog1.example.com:
                 username: blog1
+                local_root: ./data
               blog2.example.com:
                 local_root: ./blog2`),
 			blogKey: "blog1.example.com",
@@ -85,6 +87,94 @@ func TestLoadConfigFiles(t *testing.T) {
 				RemoteRoot: "blog1.example.com",
 				LocalRoot:  "./data",
 				Username:   "blog1",
+			},
+		},
+		{
+			name:      "default.local_root",
+			localConf: nil,
+			globalConf: pstr(`---
+              default:
+                local_root: ./data
+              blog1.example.com:
+                username: blog1`),
+			blogKey: "blog1.example.com",
+			expect: blogConfig{
+				RemoteRoot: "blog1.example.com",
+				LocalRoot:  "./data",
+				Username:   "blog1",
+			},
+		},
+		{
+			name:      "inherit default config",
+			localConf: nil,
+			globalConf: pstr(`---
+              default:
+                username: hoge
+                password: fuga
+                local_root: ./data
+                omit_domain: false
+              blog2.example.com:
+                local_root: ./blog2`),
+			blogKey: "blog2.example.com",
+			expect: blogConfig{
+				RemoteRoot: "blog2.example.com",
+				LocalRoot:  "./blog2",
+				Username:   "hoge",
+				Password:   "fuga",
+				OmitDomain: pbool(false),
+			},
+		},
+		{
+			name: "localConf only",
+			localConf: pstr(`---
+              blog1.example.com:
+                username: blog1
+                local_root: ./data
+              blog2.example.com:
+                local_root: ./blog2`),
+			globalConf: nil,
+			blogKey:    "blog1.example.com",
+			expect: blogConfig{
+				RemoteRoot: "blog1.example.com",
+				LocalRoot:  "./data",
+				Username:   "blog1",
+			},
+		},
+		{
+			name: "merge config and local conf has priority",
+			localConf: pstr(`---
+              blog1.example.com:
+                username: blog1
+                local_root: .`),
+			globalConf: pstr(`---
+              blog1.example.com:
+                password: pww
+                local_root: ./data`),
+			blogKey: "blog1.example.com",
+			expect: blogConfig{
+				RemoteRoot: "blog1.example.com",
+				LocalRoot:  ".",
+				Username:   "blog1",
+				Password:   "pww",
+			},
+		},
+		{
+			name: "empty configuration",
+			localConf: pstr(`---
+              default:
+                local_root: ddd
+              blog1.example.com:`),
+			globalConf: pstr(`---
+              default:
+                username: mmm
+                password: pww
+                local_root: ./data`),
+			blogKey: "blog1.example.com",
+			expect: blogConfig{
+				RemoteRoot: "blog1.example.com",
+				LocalRoot:  "ddd",
+				Username:   "mmm",
+				Password:   "pww",
 			},
 		},
 	}
