@@ -40,14 +40,16 @@ func loadSingleConfigFile(fname string) (*config, error) {
 	return loadConfig(f)
 }
 
-func loadConfigFile() (*config, error) {
-	var conf *config
-
+func loadConfiguration() (*config, error) {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
-	conf, err = loadSingleConfigFile(filepath.Join(pwd, "blogsync.yaml"))
+	return loadConfigFiles(pwd)
+}
+
+func loadConfigFiles(pwd string) (*config, error) {
+	conf, err := loadSingleConfigFile(filepath.Join(pwd, "blogsync.yaml"))
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +81,7 @@ var commandPull = cli.Command{
 			return errCommandHelp
 		}
 
-		conf, err := loadConfigFile()
+		conf, err := loadConfiguration()
 		if err != nil {
 			return err
 		}
@@ -131,7 +133,7 @@ var commandPush = cli.Command{
 			return err
 		}
 
-		conf, err := loadConfigFile()
+		conf, err := loadConfiguration()
 		if err != nil {
 			return err
 		}
@@ -161,7 +163,7 @@ var commandPost = cli.Command{
 			return errCommandHelp
 		}
 
-		conf, err := loadConfigFile()
+		conf, err := loadConfiguration()
 		if err != nil {
 			return err
 		}
