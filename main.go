@@ -17,6 +17,7 @@ func main() {
 		commandPull,
 		commandPush,
 		commandPost,
+		commandList,
 	}
 	app.Version = fmt.Sprintf("%s (%s)", version, revision)
 	err := app.Run(os.Args)
@@ -193,6 +194,21 @@ var commandPost = cli.Command{
 		err = b.PostEntry(entry)
 		if err != nil {
 			return err
+		}
+		return nil
+	},
+}
+
+var commandList = cli.Command{
+	Name:  "list",
+	Usage: "List local blogs",
+	Action: func(c *cli.Context) error {
+		conf, err := loadConfiguration()
+		if err != nil {
+			return err
+		}
+		for remoteRoot := range conf.Blogs {
+			fmt.Println(remoteRoot)
 		}
 		return nil
 	},
