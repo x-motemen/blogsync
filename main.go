@@ -202,13 +202,26 @@ var commandPost = cli.Command{
 var commandList = cli.Command{
 	Name:  "list",
 	Usage: "List local blogs",
+	Flags: []cli.Flag{
+		cli.BoolFlag{Name: "full-path, p", Usage: "Print full paths"},
+	},
 	Action: func(c *cli.Context) error {
 		conf, err := loadConfiguration()
 		if err != nil {
 			return err
 		}
+		fullPath := c.Bool("full-path")
 		for remoteRoot := range conf.Blogs {
-			fmt.Println(remoteRoot)
+			if fullPath {
+				blogConfig := conf.Get(remoteRoot)
+				if blogConfig.OmitDomain == nil || !*blogConfig.OmitDomain {
+					fmt.Println(filepath.Join(blogConfig.LocalRoot, blogConfig.RemoteRoot))
+				} else {
+					fmt.Println(blogConfig.LocalRoot)
+				}
+			} else {
+				fmt.Println(remoteRoot)
+			}
 		}
 		return nil
 	},
