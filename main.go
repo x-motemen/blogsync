@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/urfave/cli"
@@ -202,27 +204,38 @@ var commandPost = cli.Command{
 var commandList = cli.Command{
 	Name:  "list",
 	Usage: "List local blogs",
-	Flags: []cli.Flag{
-		cli.BoolFlag{Name: "full-path, p", Usage: "Print full paths"},
-	},
 	Action: func(c *cli.Context) error {
 		conf, err := loadConfiguration()
 		if err != nil {
 			return err
 		}
-		fullPath := c.Bool("full-path")
+
+		blogs := make([]*struct{ url, fullPath string }, 0, len(conf.Blogs))
+
+		maxURLLen := 0
 		for remoteRoot := range conf.Blogs {
-			if fullPath {
-				blogConfig := conf.Get(remoteRoot)
-				if blogConfig.OmitDomain == nil || !*blogConfig.OmitDomain {
-					fmt.Println(filepath.Join(blogConfig.LocalRoot, blogConfig.RemoteRoot))
-				} else {
-					fmt.Println(blogConfig.LocalRoot)
-				}
-			} else {
-				fmt.Println(remoteRoot)
+			urlLen := len(remoteRoot)
+			if urlLen > maxURLLen {
+				maxURLLen = urlLen
 			}
+
+			blogConfig := conf.Get(remoteRoot)
+			var fullPath string
+			if blogConfig.OmitDomain == nil || !*blogConfig.OmitDomain {
+				fullPath = filepath.Join(blogConfig.LocalRoot, blogConfig.RemoteRoot)
+			} else {
+				fullPath = blogConfig.LocalRoot
+			}
+			blogs = append(blogs, &struct{ url, fullPath string }{remoteRoot, fullPath})
 		}
+
+		sort.Slice(blogs, func(i, j int) bool { return blogs[i].url < blogs[j].url })
+
+		for _, blog := range blogs {
+			del := strings.Repeat(" ", maxURLLen-len(blog.url)+1)
+			fmt.Printf("%s%s%s\n", blog.url, del, blog.fullPath)
+		}
+
 		return nil
 	},
 }
