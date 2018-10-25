@@ -2,77 +2,108 @@
 
 
 [[projects]]
+  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
-  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
-  version = "v1.1.0"
+  pruneopts = "UT"
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
 
 [[projects]]
+  digest = "1:e921c3d4324ffdcb4fd39d5f47a832f2112d44731a5f21d8ae0ccfe82e608711"
   name = "github.com/daviddengcn/go-colortext"
   packages = ["."]
+  pruneopts = "UT"
   revision = "17e75f6184bc9e727756cd0d82e0af58b1fc7191"
   version = "1.0.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:78bbb1ba5b7c3f2ed0ea1eab57bdd3859aec7e177811563edc41198a760b06af"
   name = "github.com/mitchellh/go-homedir"
   packages = ["."]
-  revision = "3864e76763d94a6df2f9960b16a20a33da9f9a66"
+  pruneopts = "UT"
+  revision = "ae18d6b8b3205b561c79e8e5f69bff09736185f4"
 
 [[projects]]
   branch = "master"
+  digest = "1:47f36358a1582a6682434bbd8e69816fff42c19513dab805a572af079c851ac2"
   name = "github.com/motemen/go-colorine"
   packages = ["."]
-  revision = "49ff36b8fa42db28092361cd20dcefd0b03b1472"
+  pruneopts = "UT"
+  revision = "45d19169413a019e4e2be69629dde5c7d92f8706"
 
 [[projects]]
   branch = "master"
+  digest = "1:0e92b2422f6a25d108749e1a48db22340ad0cabd2a0db6b26877a77b3f2ee9a1"
   name = "github.com/motemen/go-loghttp"
   packages = [
     ".",
-    "global"
+    "global",
   ]
+  pruneopts = "UT"
   revision = "974ac5ceac271576caabe1c0bddf2b7eed471f67"
 
 [[projects]]
   branch = "master"
+  digest = "1:f93e122deddbcccde41740ced394baf737f023a8179cb15e201d1ab5ab29204a"
   name = "github.com/motemen/go-nuts"
   packages = ["roundtime"]
+  pruneopts = "UT"
   revision = "42c35bdb11c20ff50bb14ef05750e8dcdfc75ea5"
 
 [[projects]]
   branch = "master"
+  digest = "1:86675273eba16604016c0ac1f05b40bf239796280a99247a305c2018c9414d83"
   name = "github.com/motemen/go-wsse"
   packages = ["."]
+  pruneopts = "UT"
   revision = "13a083a10e321fd56eeb80a9f89d33caf1a6b72a"
 
 [[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
+  pruneopts = "UT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:73b1ad32a3a4f137684d3b16eb2ef86f6348d60903c3893bfff88b46ff9a0bdc"
   name = "github.com/stretchr/testify"
   packages = ["assert"]
-  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
-  version = "v1.2.2"
+  pruneopts = "UT"
+  revision = "04af85275a5c7ac09d16bb3b9b2e751ed45154e5"
 
 [[projects]]
   branch = "master"
+  digest = "1:3fb803863fd713550106aa42c4545b428401c6aad1002de19b1e634339e9cef6"
   name = "github.com/urfave/cli"
   packages = ["."]
-  revision = "8e01ec4cd3e2d84ab2fe90d8210528ffbb06d8ff"
+  pruneopts = "UT"
+  revision = "934abfb2f102315b5794e15ebc7949e4ca253920"
 
 [[projects]]
+  digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
+  pruneopts = "UT"
   revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
   version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "aa3b48c1cb2bd6c93bd9392e64d92a92187198e80c6642f430e9cc4366d677a1"
+  input-imports = [
+    "github.com/mitchellh/go-homedir",
+    "github.com/motemen/go-colorine",
+    "github.com/motemen/go-loghttp",
+    "github.com/motemen/go-loghttp/global",
+    "github.com/motemen/go-wsse",
+    "github.com/stretchr/testify/assert",
+    "github.com/urfave/cli",
+    "gopkg.in/yaml.v2",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
