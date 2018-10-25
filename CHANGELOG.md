@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.10.0](https://github.com/motemen/blogsync/compare/v0.9.1...v0.10.0) (2018-10-26)
+
+* update deps [#32](https://github.com/motemen/blogsync/pull/32) ([Songmu](https://github.com/Songmu))
+* Add list command [#29](https://github.com/motemen/blogsync/pull/29) ([autopp](https://github.com/autopp))
+* fix path of golint [#31](https://github.com/motemen/blogsync/pull/31) ([autopp](https://github.com/autopp))
+* enhance testing around loading configuration [#27](https://github.com/motemen/blogsync/pull/27) ([Songmu](https://github.com/Songmu))
+
 ## [v0.9.1](https://github.com/motemen/blogsync/compare/v0.9.0...v0.9.1) (2018-07-29)
 
 * allow nil config, which config values are cascaded from the default config [#26](https://github.com/motemen/blogsync/pull/26) ([Songmu](https://github.com/Songmu))
