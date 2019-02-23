@@ -1,21 +1,22 @@
-VERSION = $(shell gobump show -r)
+VERSION = $(shell godzil show-version)
 CURRENT_REVISION = $(shell git rev-parse --short HEAD)
-BUILD_LDFLAGS = "-X main.revision=$(CURRENT_REVISION)"
+BUILD_LDFLAGS = "-s -w -X main.revision=$(CURRENT_REVISION)"
 ifdef update
   u=-u
 endif
 
+export GO111MODULE=on
+
 deps:
-	go get ${u} github.com/golang/dep/cmd/dep
-	dep ensure
+	go get ${u} -d -v
 
 devel-deps: deps
-	go get ${u} golang.org/x/lint/golint \
-	  github.com/haya14busa/goverage          \
-	  github.com/mattn/goveralls              \
-	  github.com/motemen/gobump               \
-	  github.com/Songmu/goxz/cmd/goxz         \
-	  github.com/Songmu/ghch                  \
+	GO111MODULE=off go get ${u} \
+	  ${u} golang.org/x/lint/golint       \
+	  github.com/haya14busa/goverage      \
+	  github.com/mattn/goveralls          \
+	  github.com/Songmu/goxz/cmd/goxz     \
+	  github.com/Songmu/godzil/cmd/godzil \
 	  github.com/tcnksm/ghr
 
 test: deps
@@ -23,7 +24,7 @@ test: deps
 
 lint: devel-deps
 	go vet ./...
-	go list ./... | xargs golint -set_exit_status
+	golint -set_exit_status ./...
 
 cover: devel-deps
 	goverage -v -race -covermode=atomic ./...
@@ -36,7 +37,7 @@ crossbuild: devel-deps
 	  -os=linux,darwin,windows -arch=amd64 -d=./dist/v$(VERSION)
 
 bump: devel-deps
-	_tools/releng
+	godzil release
 
 upload:
 	ghr v$(VERSION) dist/v$(VERSION)
