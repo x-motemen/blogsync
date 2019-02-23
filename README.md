@@ -16,7 +16,13 @@ blogsync
 
 ## Installation
 
-    % go get github.com/motemen/blogsync
+```console
+% brew install Songmu/tap/blogsync
+```
+
+https://github.com/motemen/blogsync/releases から実行ファイルを直接取得できます。
+
+HEADを使いたい場合は `go get github.com/motemne/blogsync` してください。
 
 ## Usage
 
