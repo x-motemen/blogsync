@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.1](https://github.com/motemen/blogsync/compare/v0.10.0...0.10.1) (2019-02-23)
+
+* introduce go modules and Songmu/godzil [#34](https://github.com/motemen/blogsync/pull/34) ([Songmu](https://github.com/Songmu))
+
 ## [v0.10.0](https://github.com/motemen/blogsync/compare/v0.9.1...v0.10.0) (2018-10-26)
 
 * update deps [#32](https://github.com/motemen/blogsync/pull/32) ([Songmu](https://github.com/Songmu))
