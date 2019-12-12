@@ -7,6 +7,7 @@ export GO111MODULE=on
 
 deps:
 	go get ${u} -d -v
+	go mod tidy
 
 devel-deps: deps
 	sh -c '\
