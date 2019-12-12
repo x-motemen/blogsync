@@ -1,9 +1,7 @@
 VERSION = $(shell godzil show-version)
 CURRENT_REVISION = $(shell git rev-parse --short HEAD)
 BUILD_LDFLAGS = "-s -w -X main.revision=$(CURRENT_REVISION)"
-ifdef update
-  u=-u
-endif
+u := $(if $(update),-u)
 
 export GO111MODULE=on
 
@@ -24,7 +22,6 @@ test: deps
 	go test ./...
 
 lint: devel-deps
-	go vet ./...
 	golint -set_exit_status ./...
 
 cover: devel-deps
