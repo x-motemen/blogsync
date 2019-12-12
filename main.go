@@ -7,7 +7,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/urfave/cli"
 )
 
@@ -57,7 +56,7 @@ func loadConfigFiles(pwd string) (*config, error) {
 		return nil, err
 	}
 
-	home, err := homedir.Dir()
+	home, err := os.UserHomeDir()
 	if err != nil && conf == nil {
 		return nil, err
 	}

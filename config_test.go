@@ -6,17 +6,9 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
-
-	homedir "github.com/mitchellh/go-homedir"
 )
 
 func TestLoadConfigFiles(t *testing.T) {
-	orig := homedir.DisableCache
-	homedir.DisableCache = true
-	defer func() {
-		homedir.DisableCache = orig
-	}()
-
 	setup := func(t *testing.T, localConf, globalConf *string) (string, func()) {
 		tempdir, err := ioutil.TempDir("", "blogsync-test")
 		if err != nil {
