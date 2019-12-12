@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.10.2](https://github.com/motemen/blogsync/compare/v0.10.1...v0.10.2) (2019-12-12)
+
+* update deps [#38](https://github.com/motemen/blogsync/pull/38) ([Songmu](https://github.com/Songmu))
+* [maint] update toolchains [#37](https://github.com/motemen/blogsync/pull/37) ([Songmu](https://github.com/Songmu))
+* remove github.com/mitchellh/go-homedir dependency [#36](https://github.com/motemen/blogsync/pull/36) ([itchyny](https://github.com/itchyny))
+* Fix: Typo [#35](https://github.com/motemen/blogsync/pull/35) ([codeout](https://github.com/codeout))
+
 ## [v0.10.1](https://github.com/motemen/blogsync/compare/v0.10.0...v0.10.1) (2019-02-23)
 
 * introduce go modules and Songmu/godzil [#34](https://github.com/motemen/blogsync/pull/34) ([Songmu](https://github.com/Songmu))
