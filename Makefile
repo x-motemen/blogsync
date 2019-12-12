@@ -14,8 +14,6 @@ devel-deps: deps
 	  cd $$tmpdir; \
 	  go get ${u} \
 	    golang.org/x/lint/golint            \
-	    github.com/haya14busa/goverage      \
-	    github.com/mattn/goveralls          \
 	    github.com/Songmu/godzil/cmd/godzil \
 	    github.com/tcnksm/ghr;              \
 	  rm -rf $$tmpdir'
@@ -25,9 +23,6 @@ test: deps
 
 lint: devel-deps
 	golint -set_exit_status ./...
-
-cover: devel-deps
-	goverage -v -race -covermode=atomic ./...
 
 build: deps
 	go build -ldflags=$(BUILD_LDFLAGS)
