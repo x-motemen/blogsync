@@ -11,13 +11,14 @@ deps:
 	go get ${u} -d -v
 
 devel-deps: deps
-	GO111MODULE=off go get ${u} \
-	  ${u} golang.org/x/lint/golint       \
-	  github.com/haya14busa/goverage      \
-	  github.com/mattn/goveralls          \
-	  github.com/Songmu/goxz/cmd/goxz     \
-	  github.com/Songmu/godzil/cmd/godzil \
-	  github.com/tcnksm/ghr
+	sh -c '\
+      tmpdir=$$(mktemp -d); \
+	  cd $$tmpdir; \
+	  go get ${u} \
+	    golang.org/x/lint/golint            \
+	    github.com/Songmu/godzil/cmd/godzil \
+	    github.com/tcnksm/ghr;              \
+	  rm -rf $$tmpdir'
 
 test: deps
 	go test ./...
@@ -33,7 +34,7 @@ build: deps
 	go build -ldflags=$(BUILD_LDFLAGS)
 
 crossbuild: devel-deps
-	goxz -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) \
+	godzil crossbuild -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) \
 	  -os=linux,darwin,windows -arch=amd64 -d=./dist/v$(VERSION)
 
 bump: devel-deps
