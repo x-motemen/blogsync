@@ -33,6 +33,9 @@ cover: devel-deps
 build: deps
 	go build -ldflags=$(BUILD_LDFLAGS)
 
+CREDITS: deps devel-deps go.sum
+	godzil credits -w
+
 crossbuild: devel-deps
 	godzil crossbuild -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) \
 	  -os=linux,darwin,windows -arch=amd64 -d=./dist/v$(VERSION)
