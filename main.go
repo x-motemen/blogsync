@@ -154,9 +154,9 @@ var commandPost = cli.Command{
 	Name:  "post",
 	Usage: "Post a new entry to remote",
 	Flags: []cli.Flag{
-		cli.BoolFlag{Name: "draft"},
-		cli.StringFlag{Name: "title"},
-		cli.StringFlag{Name: "custom-path"},
+		&cli.BoolFlag{Name: "draft"},
+		&cli.StringFlag{Name: "title"},
+		&cli.StringFlag{Name: "custom-path"},
 	},
 	Action: func(c *cli.Context) error {
 		blog := c.Args().First()
