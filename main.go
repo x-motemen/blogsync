@@ -7,14 +7,14 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var errCommandHelp = fmt.Errorf("command help shown")
 
 func main() {
 	app := cli.NewApp()
-	app.Commands = []cli.Command{
+	app.Commands = []*cli.Command{
 		commandPull,
 		commandPush,
 		commandPost,
@@ -73,7 +73,7 @@ func loadConfigFiles(pwd string) (*config, error) {
 	return conf, nil
 }
 
-var commandPull = cli.Command{
+var commandPull = &cli.Command{
 	Name:  "pull",
 	Usage: "Pull entries from remote",
 	Action: func(c *cli.Context) error {
@@ -109,7 +109,7 @@ var commandPull = cli.Command{
 	},
 }
 
-var commandPush = cli.Command{
+var commandPush = &cli.Command{
 	Name:  "push",
 	Usage: "Push local entries to remote",
 	Action: func(c *cli.Context) error {
@@ -150,7 +150,7 @@ var commandPush = cli.Command{
 	},
 }
 
-var commandPost = cli.Command{
+var commandPost = &cli.Command{
 	Name:  "post",
 	Usage: "Post a new entry to remote",
 	Flags: []cli.Flag{
@@ -200,7 +200,7 @@ var commandPost = cli.Command{
 	},
 }
 
-var commandList = cli.Command{
+var commandList = &cli.Command{
 	Name:  "list",
 	Usage: "List local blogs",
 	Action: func(c *cli.Context) error {

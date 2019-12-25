@@ -11,7 +11,7 @@ require (
 	github.com/motemen/go-nuts v0.0.0-20190725124253-1d2432db96b0 // indirect
 	github.com/motemen/go-wsse v0.0.0-20141201105324-13a083a10e32
 	github.com/stretchr/testify v1.4.0
-	github.com/urfave/cli v1.22.2
+	github.com/urfave/cli/v2 v2.1.0
 	gopkg.in/yaml.v2 v2.2.7
 )
 
