@@ -113,26 +113,10 @@ var commandPush = &cli.Command{
 	Name:  "push",
 	Usage: "Push local entries to remote",
 	Action: func(c *cli.Context) error {
-		path := c.Args().First()
-		if path == "" {
+		first := c.Args().First()
+		if first == "" {
 			cli.ShowCommandHelp(c, "push")
 			return errCommandHelp
-		}
-
-		f, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-
-		entry, err := entryFromReader(f)
-		if err != nil {
-			return err
-		}
-
-		remoteRoot, err := entry.remoteRoot()
-		if err != nil {
-			return err
 		}
 
 		conf, err := loadConfiguration()
@@ -140,13 +124,34 @@ var commandPush = &cli.Command{
 			return err
 		}
 
-		bc := conf.Get(remoteRoot)
-		if bc == nil {
-			return fmt.Errorf("cannot find blog for %s", path)
-		}
+		for _, path := range c.Args().Slice() {
+			f, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			defer f.Close()
 
-		_, err = newBroker(bc).UploadFresh(entry)
-		return err
+			entry, err := entryFromReader(f)
+			if err != nil {
+				return err
+			}
+
+			remoteRoot, err := entry.remoteRoot()
+			if err != nil {
+				return err
+			}
+
+			bc := conf.Get(remoteRoot)
+			if bc == nil {
+				return fmt.Errorf("cannot find blog for %s", path)
+			}
+
+			_, err = newBroker(bc).UploadFresh(entry)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	},
 }
 
