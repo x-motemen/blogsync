@@ -5,10 +5,12 @@ u := $(if $(update),-u)
 
 export GO111MODULE=on
 
+.PHONY: deps
 deps:
 	go get ${u} -d -v
 	go mod tidy
 
+.PHONY: devel-deps
 devel-deps: deps
 	sh -c '\
       tmpdir=$$(mktemp -d); \
@@ -19,28 +21,31 @@ devel-deps: deps
 	    github.com/tcnksm/ghr;              \
 	  rm -rf $$tmpdir'
 
+.PHONY: test
 test: deps
 	go test ./...
 
+.PHONY: lint
 lint: devel-deps
 	golint -set_exit_status ./...
 
+.PHONY: build
 build: deps
 	go build -ldflags=$(BUILD_LDFLAGS)
 
+.PHONY: release
+release: devel-deps
+	godzil release
+
+.PHONY: CREDITS
 CREDITS: deps devel-deps go.sum
 	godzil credits -w
 
+.PHONY: crossbuild
 crossbuild: devel-deps
 	godzil crossbuild -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) \
 	  -os=linux,darwin,windows -arch=amd64 -d=./dist/v$(VERSION)
 
-bump: devel-deps
-	godzil release
-
+.PHONY: upload
 upload:
 	ghr v$(VERSION) dist/v$(VERSION)
-
-release: bump crossbuild upload
-
-.PHONY: deps devel-deps test lint cover build crossbuild bump upload release
