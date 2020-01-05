@@ -1,11 +1,11 @@
 blogsync
 =======
 
-[![Build Status](https://travis-ci.org/motemen/blogsync.png?branch=master)][travis]
+[![Build Status](https://github.com/motemen/ghq/workflows/test/badge.svg?branch=master)][actions]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 [![GoDoc](https://godoc.org/github.com/motemen/blogsync?status.svg)](godoc)
 
-[travis]: https://travis-ci.org/motemen/blogsync
+[actions]: https://github.com/motemen/blogsync/actions?workflow=test
 [coveralls]: https://coveralls.io/r/motemen/blogsync?branch=master
 [license]: https://github.com/motemen/blogsync/blob/master/LICENSE
 [godoc]: https://godoc.org/github.com/motemen/blogsync
