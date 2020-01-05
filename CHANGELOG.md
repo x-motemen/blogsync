@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.10.3](https://github.com/motemen/blogsync/compare/v0.10.2...v0.10.3) (2020-01-05)
+
+* introduce GitHub actions [#43](https://github.com/motemen/blogsync/pull/43) ([Songmu](https://github.com/Songmu))
+* push subcommand pushes entr"ies" [#42](https://github.com/motemen/blogsync/pull/42) ([kiririmode](https://github.com/kiririmode))
+* update urfave/cli to v2 [#41](https://github.com/motemen/blogsync/pull/41) ([Songmu](https://github.com/Songmu))
+* follow urfave/cli's change [#40](https://github.com/motemen/blogsync/pull/40) ([Songmu](https://github.com/Songmu))
+
 ## [v0.10.2](https://github.com/motemen/blogsync/compare/v0.10.1...v0.10.2) (2019-12-12)
 
 * update deps [#38](https://github.com/motemen/blogsync/pull/38) ([Songmu](https://github.com/Songmu))
