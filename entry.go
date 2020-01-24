@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/motemen/blogsync/atom"
+	"github.com/x-motemen/blogsync/atom"
 	"gopkg.in/yaml.v2"
 )
 
