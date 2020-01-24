@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.11.0](https://github.com/x-motemen/blogsync/compare/v0.10.3...v0.11.0) (2020-01-24)
+
+* change module name to github.com/x-motemen/blogsync [#44](https://github.com/x-motemen/blogsync/pull/44) ([Songmu](https://github.com/Songmu))
+
 ## [v0.10.3](https://github.com/motemen/blogsync/compare/v0.10.2...v0.10.3) (2020-01-05)
 
 * introduce GitHub actions [#43](https://github.com/motemen/blogsync/pull/43) ([Songmu](https://github.com/Songmu))
