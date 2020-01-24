@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/motemen/blogsync/atom"
 	"github.com/motemen/go-wsse"
+	"github.com/x-motemen/blogsync/atom"
 )
 
 type broker struct {
