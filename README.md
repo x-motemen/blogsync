@@ -1,14 +1,14 @@
 blogsync
 =======
 
-[![Build Status](https://github.com/motemen/ghq/workflows/test/badge.svg?branch=master)][actions]
+[![Build Status](https://github.com/x-motemen/blogsync/workflows/test/badge.svg?branch=master)][actions]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
-[![GoDoc](https://godoc.org/github.com/motemen/blogsync?status.svg)](godoc)
+[![GoDoc](https://godoc.org/github.com/x-motemen/blogsync?status.svg)](godoc)
 
-[actions]: https://github.com/motemen/blogsync/actions?workflow=test
-[coveralls]: https://coveralls.io/r/motemen/blogsync?branch=master
-[license]: https://github.com/motemen/blogsync/blob/master/LICENSE
-[godoc]: https://godoc.org/github.com/motemen/blogsync
+[actions]: https://github.com/x-motemen/blogsync/actions?workflow=test
+[coveralls]: https://coveralls.io/r/x-motemen/blogsync?branch=master
+[license]: https://github.com/x-motemen/blogsync/blob/master/LICENSE
+[godoc]: https://godoc.org/github.com/x-motemen/blogsync
 
 ## Description
 
@@ -20,9 +20,9 @@ blogsync
 % brew install Songmu/tap/blogsync
 ```
 
-https://github.com/motemen/blogsync/releases から実行ファイルを直接取得できます。
+https://github.com/x-motemen/blogsync/releases から実行ファイルを直接取得できます。
 
-HEADを使いたい場合は `go get github.com/motemen/blogsync` してください。
+HEADを使いたい場合は `go get github.com/x-motemen/blogsync` してください。
 
 ## Usage
 
