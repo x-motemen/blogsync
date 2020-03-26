@@ -1,7 +1,7 @@
 blogsync
 =======
 
-[![Build Status](https://github.com/motemen/ghq/workflows/test/badge.svg?branch=master)][actions]
+[![Build Status](https://github.com/motemen/blogsync/workflows/test/badge.svg?branch=master)][actions]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 [![GoDoc](https://godoc.org/github.com/motemen/blogsync?status.svg)](godoc)
 
