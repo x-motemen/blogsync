@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"io/ioutil"
+	"os"
 
 	"gopkg.in/yaml.v2"
 )
@@ -46,6 +47,15 @@ func loadConfig(r io.Reader) (*config, error) {
 		b.RemoteRoot = key
 	}
 	return c, nil
+}
+
+func loadConfigFromEnv() (*config, error) {
+	return &config{
+		Default: &blogConfig{
+			Username: os.Getenv("BLOG_USERNAME"),
+			Password: os.Getenv("BLOG_PASSWORD"),
+		},
+	}, nil
 }
 
 func (c *config) Get(remoteRoot string) *blogConfig {

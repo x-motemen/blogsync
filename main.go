@@ -47,7 +47,26 @@ func loadConfiguration() (*config, error) {
 	if err != nil {
 		return nil, err
 	}
-	return loadConfigFiles(pwd)
+
+	var conf *config
+	conf, err = loadConfigFiles(pwd)
+	if err != nil {
+		return nil, err
+	}
+
+	var confEnv *config
+	confEnv, err = loadConfigFromEnv()
+	if err != nil {
+		return nil, err
+	}
+	if confEnv.Default.Username != "" {
+		conf.Default.Username = confEnv.Default.Username
+	}
+	if confEnv.Default.Password != "" {
+		conf.Default.Password = confEnv.Default.Password
+	}
+
+	return conf, nil
 }
 
 func loadConfigFiles(pwd string) (*config, error) {
