@@ -52,8 +52,8 @@ func loadConfig(r io.Reader) (*config, error) {
 func loadConfigFromEnv() (*config, error) {
 	return &config{
 		Default: &blogConfig{
-			Username: os.Getenv("BLOG_USERNAME"),
-			Password: os.Getenv("BLOG_PASSWORD"),
+			Username: os.Getenv("BLOGSYNC_USERNAME"),
+			Password: os.Getenv("BLOGSYNC_PASSWORD"),
 		},
 	}, nil
 }

@@ -195,14 +195,14 @@ func TestLoadConfigration(t *testing.T) {
 			t.Fatal(err)
 		}
 		origHome := os.Getenv("HOME")
-		origBlogUsername := os.Getenv("BLOG_USERNAME")
-		origBlogPassword := os.Getenv("BLOG_PASSWORD")
+		origBlogsyncUsername := os.Getenv("BLOGSYNC_USERNAME")
+		origBlogsyncPassword := os.Getenv("BLOGSYNC_PASSWORD")
 		origPwd, _ := os.Getwd()
 		cleanup := func() {
 			os.RemoveAll(tempdir)
 			os.Setenv("HOME", origHome)
-			os.Setenv("BLOG_USERNAME", origBlogUsername)
-			os.Setenv("BLOG_PASSWORD", origBlogPassword)
+			os.Setenv("BLOGSYNC_USERNAME", origBlogsyncUsername)
+			os.Setenv("BLOGSYNC_PASSWORD", origBlogsyncPassword)
 			os.Chdir(origPwd)
 		}
 
@@ -237,13 +237,13 @@ func TestLoadConfigration(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = os.Setenv("BLOG_USERNAME", envUsername)
+		err = os.Setenv("BLOGSYNC_USERNAME", envUsername)
 		if err != nil {
 			cleanup()
 			t.Fatal(err)
 		}
 
-		err = os.Setenv("BLOG_PASSWORD", envPassword)
+		err = os.Setenv("BLOGSYNC_PASSWORD", envPassword)
 		if err != nil {
 			cleanup()
 			t.Fatal(err)
