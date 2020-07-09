@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.12.0](https://github.com/x-motemen/blogsync/compare/v0.11.0...v0.12.0) (2020-07-09)
+
+* username and password can read from environment variable  [#48](https://github.com/x-motemen/blogsync/pull/48) ([nabeo](https://github.com/nabeo))
+* change urls contained in documents to the correct repository [#45](https://github.com/x-motemen/blogsync/pull/45) ([lufia](https://github.com/lufia))
+
 ## [v0.11.0](https://github.com/x-motemen/blogsync/compare/v0.10.3...v0.11.0) (2020-01-24)
 
 * change module name to github.com/x-motemen/blogsync [#44](https://github.com/x-motemen/blogsync/pull/44) ([Songmu](https://github.com/Songmu))
