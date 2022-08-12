@@ -16,7 +16,6 @@ devel-deps: deps
       tmpdir=$$(mktemp -d); \
 	  cd $$tmpdir; \
 	  go get ${u} \
-	    golang.org/x/lint/golint            \
 	    github.com/Songmu/godzil/cmd/godzil \
 	    github.com/tcnksm/ghr;              \
 	  rm -rf $$tmpdir'
@@ -24,10 +23,6 @@ devel-deps: deps
 .PHONY: test
 test: deps
 	go test ./...
-
-.PHONY: lint
-lint: devel-deps
-	golint -set_exit_status ./...
 
 .PHONY: build
 build: deps
