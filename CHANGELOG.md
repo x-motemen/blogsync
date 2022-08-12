@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.12.1](https://github.com/x-motemen/blogsync/compare/v0.12.0...v0.12.1) (2022-08-12)
+
+* releng related file changes [#50](https://github.com/x-motemen/blogsync/pull/50) ([Songmu](https://github.com/Songmu))
+* Update to Go 1.19 [#49](https://github.com/x-motemen/blogsync/pull/49) ([w-haibara](https://github.com/w-haibara))
+
 ## [v0.12.0](https://github.com/x-motemen/blogsync/compare/v0.11.0...v0.12.0) (2020-07-09)
 
 * username and password can read from environment variable  [#48](https://github.com/x-motemen/blogsync/pull/48) ([nabeo](https://github.com/nabeo))
