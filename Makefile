@@ -12,22 +12,12 @@ deps:
 
 .PHONY: devel-deps
 devel-deps: deps
-	sh -c '\
-      tmpdir=$$(mktemp -d); \
-	  cd $$tmpdir; \
-	  go get ${u} \
-	    golang.org/x/lint/golint            \
-	    github.com/Songmu/godzil/cmd/godzil \
-	    github.com/tcnksm/ghr;              \
-	  rm -rf $$tmpdir'
+	go install github.com/tcnksm/ghr@latest
+	go install github.com/Songmu/godzil/cmd/godzil@latest
 
 .PHONY: test
 test: deps
 	go test ./...
-
-.PHONY: lint
-lint: devel-deps
-	golint -set_exit_status ./...
 
 .PHONY: build
 build: deps
