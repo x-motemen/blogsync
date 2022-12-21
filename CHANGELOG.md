@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.12.2](https://github.com/x-motemen/blogsync/compare/v0.12.1...v0.12.2) - 2022-12-21
+- fix nil dereference when without default config by @Azuki-bar in https://github.com/x-motemen/blogsync/pull/51
+- update release related stuffs by @Songmu in https://github.com/x-motemen/blogsync/pull/52
+- update deps by @Songmu in https://github.com/x-motemen/blogsync/pull/53
+
 ## [v0.12.1](https://github.com/x-motemen/blogsync/compare/v0.12.0...v0.12.1) (2022-08-12)
 
 * releng related file changes [#50](https://github.com/x-motemen/blogsync/pull/50) ([Songmu](https://github.com/Songmu))
