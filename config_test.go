@@ -259,17 +259,17 @@ func TestLoadConfigration(t *testing.T) {
 		return &b
 	}
 	testCases := []struct {
-		name       string
+		name        string
 		envUsername string
 		envPassword string
-		localConf  *string
-		globalConf *string
+		localConf   *string
+		globalConf  *string
 
 		blogKey string
 		expect  blogConfig
 	}{
 		{
-			name: "use system environment and system environment has priority over global conf",
+			name:        "use system environment and system environment has priority over global conf",
 			envUsername: "mmm",
 			envPassword: "pww",
 			localConf: pstr(`---
@@ -290,7 +290,7 @@ func TestLoadConfigration(t *testing.T) {
 			},
 		},
 		{
-			name: "use system environment and system environment has priority over local conf",
+			name:        "use system environment and system environment has priority over local conf",
 			envUsername: "mmm",
 			envPassword: "pww",
 			localConf: pstr(`---
@@ -311,7 +311,7 @@ func TestLoadConfigration(t *testing.T) {
 			},
 		},
 		{
-			name: "localConf only, and no system environment",
+			name:        "localConf only, and no system environment",
 			envUsername: "",
 			envPassword: "",
 			localConf: pstr(`---
@@ -329,10 +329,26 @@ func TestLoadConfigration(t *testing.T) {
 			},
 		},
 		{
-			name: "inherit default config, and no system environment",
+			name:        "no default conf, and use auth data from system envrionment",
+			envUsername: "mmm",
+			envPassword: "pww",
+			localConf: pstr(`---
+              blog1.example.com:
+                local_root: ./data`),
+			globalConf: nil,
+			blogKey: "blog1.example.com",
+			expect: blogConfig{
+				RemoteRoot: "blog1.example.com",
+				LocalRoot:  "./data",
+				Username:   "mmm",
+				Password:   "pww",
+			},
+		},
+		{
+			name:        "inherit default config, and no system environment",
 			envUsername: "",
 			envPassword: "",
-			localConf: nil,
+			localConf:   nil,
 			globalConf: pstr(`---
               default:
                 username: hoge

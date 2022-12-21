@@ -59,6 +59,9 @@ func loadConfiguration() (*config, error) {
 	if err != nil {
 		return nil, err
 	}
+	if conf.Default == nil {
+		conf.Default = &blogConfig{}
+	}
 	if confEnv.Default.Username != "" {
 		conf.Default.Username = confEnv.Default.Username
 	}
