@@ -329,7 +329,7 @@ func TestLoadConfigration(t *testing.T) {
 			},
 		},
 		{
-			name:        "no default conf, and use auth dataes from system envrionment",
+			name:        "no default conf, and use auth data from system envrionment",
 			envUsername: "mmm",
 			envPassword: "pww",
 			localConf: pstr(`---
