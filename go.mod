@@ -5,7 +5,7 @@ require (
 	github.com/motemen/go-loghttp v0.0.0-20170804080138-974ac5ceac27
 	github.com/motemen/go-wsse v0.0.0-20141201105324-13a083a10e32
 	github.com/stretchr/testify v1.8.0
-	github.com/urfave/cli/v2 v2.11.1
+	github.com/urfave/cli/v2 v2.23.7
 	gopkg.in/yaml.v2 v2.4.0
 )
 
