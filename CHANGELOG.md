@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.12.3](https://github.com/x-motemen/blogsync/compare/v0.12.2...v0.12.3) - 2022-12-22
+- chore: build assets for Windows by @suzuki-shunsuke in https://github.com/x-motemen/blogsync/pull/56
+
 ## [v0.12.2](https://github.com/x-motemen/blogsync/compare/v0.12.1...v0.12.2) - 2022-12-21
 - fix nil dereference when without default config by @Azuki-bar in https://github.com/x-motemen/blogsync/pull/51
 - update release related stuffs by @Songmu in https://github.com/x-motemen/blogsync/pull/52
