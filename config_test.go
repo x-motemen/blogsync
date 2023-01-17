@@ -170,22 +170,22 @@ func TestLoadConfigFiles(t *testing.T) {
 			},
 		},
 		{
-			name:      "BlogOwner",
+			name:      "Owner",
 			localConf: nil,
 			globalConf: pstr(`---
               blog1.example.com:
                 username: blog1
                 local_root: ./data
-                blog_owner: sample1
+                owner: sample1
               blog2.example.com:
                 local_root: ./blog2
-                blog_owner: sample2`),
+                owner: sample2`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
 				RemoteRoot: "blog1.example.com",
 				LocalRoot:  "./data",
 				Username:   "blog1",
-				BlogOwner:  "sample1",
+				Owner:      "sample1",
 			},
 		},
 	}
@@ -355,7 +355,7 @@ func TestLoadConfigration(t *testing.T) {
               blog1.example.com:
                 local_root: ./data`),
 			globalConf: nil,
-			blogKey: "blog1.example.com",
+			blogKey:    "blog1.example.com",
 			expect: blogConfig{
 				RemoteRoot: "blog1.example.com",
 				LocalRoot:  "./data",

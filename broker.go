@@ -156,9 +156,9 @@ func (b *broker) PostEntry(e *entry) error {
 }
 
 func entryEndPointUrl(bc *blogConfig) string {
-	blogOwner := bc.BlogOwner
-	if blogOwner == "" {
-		blogOwner = bc.Username
+	owner := bc.Owner
+	if owner == "" {
+		owner = bc.Username
 	}
-	return fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", blogOwner, bc.RemoteRoot)
+	return fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", owner, bc.RemoteRoot)
 }

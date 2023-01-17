@@ -7,7 +7,7 @@ import (
 
 func TestEntryEndPointUrl(t *testing.T) {
 	testCases := []struct {
-		name string
+		name   string
 		config blogConfig
 		expect string
 	}{
@@ -20,11 +20,11 @@ func TestEntryEndPointUrl(t *testing.T) {
 			expect: "https://blog.hatena.ne.jp/sample1/example1.hatenablog.com/atom/entry",
 		},
 		{
-			name: "blogowner",
+			name: "owner",
 			config: blogConfig{
 				RemoteRoot: "example1.hatenablog.com",
 				Username:   "sample1",
-				BlogOwner:  "sample2",
+				Owner:      "sample2",
 			},
 			expect: "https://blog.hatena.ne.jp/sample2/example1.hatenablog.com/atom/entry",
 		},
