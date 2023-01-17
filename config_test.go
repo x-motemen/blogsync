@@ -169,6 +169,25 @@ func TestLoadConfigFiles(t *testing.T) {
 				Password:   "pww",
 			},
 		},
+		{
+			name:      "BlogOwner",
+			localConf: nil,
+			globalConf: pstr(`---
+              blog1.example.com:
+                username: blog1
+                local_root: ./data
+                blog_owner: sample1
+              blog2.example.com:
+                local_root: ./blog2
+                blog_owner: sample2`),
+			blogKey: "blog1.example.com",
+			expect: blogConfig{
+				RemoteRoot: "blog1.example.com",
+				LocalRoot:  "./data",
+				Username:   "blog1",
+				BlogOwner:  "sample1",
+			},
+		},
 	}
 
 	for _, tc := range testCases {

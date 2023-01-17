@@ -19,6 +19,7 @@ type blogConfig struct {
 	Username   string
 	Password   string
 	OmitDomain *bool `yaml:"omit_domain"`
+	BlogOwner  string `yaml:"blog_owner"`
 }
 
 func loadConfig(r io.Reader) (*config, error) {
