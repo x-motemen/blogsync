@@ -46,8 +46,20 @@ default:
 - `<blog>.password`: そのブログに投稿するための API キー。はてなユーザのパスワードではありません。ブログの詳細設定画面 の「APIキー」で確認できます。
 - `<blog>.local_root`: ブログのエントリを格納するパスのルート。
 - `<blog>.omit_domain`: ブログエントリを格納するパスにドメインを含めません。
+- `<blog>.blog_owner`: 編集対象のブログオーナーが自身とは別のユーザーの場合、ブログオーナーを個別に設定できます。
 
 設定ファイルは、 `blogsync.yaml` というファイルがカレントディレクトリにある場合、それも使われます。
+
+#### ブログオーナーが自身とは別の場合の設定
+
+複数人で編集するブログなどで、編集者とブログのオーナーが別ユーザーの場合は下記のように設定できます。
+
+```yaml
+example.hatenablog.com:
+  username: sample
+  password: <API KEY>
+  blog_owner: <BLOG OWNER NAME>
+```
 
 ### エントリをダウンロードする（blogsync pull）
 
