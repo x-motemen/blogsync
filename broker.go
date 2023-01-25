@@ -32,7 +32,7 @@ func newBroker(bc *blogConfig) *broker {
 
 func (b *broker) FetchRemoteEntries() ([]*entry, error) {
 	entries := []*entry{}
-	url := fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.Username, b.RemoteRoot)
+	url := entryEndPointUrl(b.blogConfig)
 
 	for {
 		feed, err := b.Client.GetFeed(url)
@@ -142,8 +142,8 @@ func (b *broker) PutEntry(e *entry) error {
 }
 
 func (b *broker) PostEntry(e *entry) error {
-	postURL := fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", b.Username, b.RemoteRoot)
-	newEntry, err := asEntry(b.Client.PostEntry(postURL, e.atom()))
+	endPoint := entryEndPointUrl(b.blogConfig)
+	newEntry, err := asEntry(b.Client.PostEntry(endPoint, e.atom()))
 	if err != nil {
 		return err
 	}
@@ -153,4 +153,12 @@ func (b *broker) PostEntry(e *entry) error {
 
 	path := b.LocalPath(newEntry)
 	return b.Store(newEntry, path)
+}
+
+func entryEndPointUrl(bc *blogConfig) string {
+	owner := bc.Owner
+	if owner == "" {
+		owner = bc.Username
+	}
+	return fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", owner, bc.RemoteRoot)
 }

@@ -18,7 +18,8 @@ type blogConfig struct {
 	LocalRoot  string `yaml:"local_root"`
 	Username   string
 	Password   string
-	OmitDomain *bool `yaml:"omit_domain"`
+	OmitDomain *bool  `yaml:"omit_domain"`
+	Owner      string `yaml:"owner"`
 }
 
 func loadConfig(r io.Reader) (*config, error) {
