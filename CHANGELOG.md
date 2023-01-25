@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.13.0](https://github.com/x-motemen/blogsync/compare/v0.12.3...v0.13.0) - 2023-01-25
+- AtomPub API のエンドポイントにownerを設定できるように修正 by @halkt in https://github.com/x-motemen/blogsync/pull/58
+
 ## [v0.12.3](https://github.com/x-motemen/blogsync/compare/v0.12.2...v0.12.3) - 2022-12-22
 - chore: build assets for Windows by @suzuki-shunsuke in https://github.com/x-motemen/blogsync/pull/56
 
