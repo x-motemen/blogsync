@@ -1,0 +1,30 @@
+inputs:
+  version:
+    type: string
+    description: "A version to install blogsync"
+    default: latest
+    required: false
+runs:
+  using: 'composite'
+  steps:
+    - name: setup blogsync
+      shell: bash
+      run: |
+        set -e
+        VERSION="${{ inputs.version }}"
+        if [ "${VERSION}" = "latest" ]; then
+          DOWNLOAD_URL=$(curl -sS https://api.github.com/repos/x-motemen/blogsync/releases | jq -r '[.[]|select(.prerelease==false)][0].assets[].browser_download_url|select(match("linux_amd64"))')
+        else
+          DOWNLOAD_URL="https://github.com/x-motemen/blogsync/releases/download/${VERSION}/blogsync_${VERSION}_linux_amd64.tar.gz"
+        fi
+        cd /tmp
+        curl -sfLO "${DOWNLOAD_URL}"
+        if [[ "${DOWNLOAD_URL}" =~ \.tar\.gz$ ]]; then
+          FILENAME=$(basename "${DOWNLOAD_URL}" .tar.gz)
+          tar xzvf "${FILENAME}.tar.gz"
+          sudo install "${FILENAME}/blogsync" /usr/local/bin/blogsync
+        elif [[ "${DOWNLOAD_URL}" =~ \.zip$ ]]; then
+          FILENAME=$(basename "${DOWNLOAD_URL}" .zip)
+          unzip "${FILENAME}.zip"
+          sudo install "${FILENAME}/blogsync" /usr/local/bin/blogsync
+        fi
