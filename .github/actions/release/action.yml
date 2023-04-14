@@ -20,3 +20,6 @@ runs:
     shell: bash
     env:
       GITHUB_TOKEN: ${{ inputs.token }}
+  - uses: haya14busa/action-update-semver@v1
+    with:
+      major_version_tag_only: true
