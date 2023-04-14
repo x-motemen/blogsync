@@ -1,0 +1,22 @@
+name: blogsync
+description: setup blogsync to publish to Hatena Blog
+inputs:
+  version:
+    description: "A version to install blogsync"
+    default: "v0.13.0"
+    required: false
+runs:
+  using: 'composite'
+  steps:
+  - name: setup blogsync
+    shell: bash
+    run: |
+      cd "${GITHUB_WORKSPACE}" || exit 1
+      TEMP_PATH="$(mktemp -d)"
+      PATH="${TEMP_PATH}:$PATH"
+      curl -sfL https://raw.githubusercontent.com/x-motemen/blogsync/master/install.sh | sh -s -- -b "${TEMP_PATH}" "${{ inputs.version }}" 2>&1
+      sudo install "${TEMP_PATH}/blogsync" /usr/local/bin/blogsync
+      rm -rf "${TEMP_PATH}"
+branding:
+  icon: edit-3
+  color: blue
