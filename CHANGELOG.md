@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.13.1](https://github.com/x-motemen/blogsync/compare/v0.13.0...v0.13.1) - 2023-04-14
+- add action.yml to support custom GitHub Actions by @Songmu in https://github.com/x-motemen/blogsync/pull/64
+- Marketplaceに公開するためのアクションの作成 by @theoremoon in https://github.com/x-motemen/blogsync/pull/63
+
 ## [v0.13.0](https://github.com/x-motemen/blogsync/compare/v0.12.3...v0.13.0) - 2023-01-25
 - AtomPub API のエンドポイントにownerを設定できるように修正 by @halkt in https://github.com/x-motemen/blogsync/pull/58
 
