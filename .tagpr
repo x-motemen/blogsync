@@ -32,4 +32,4 @@
 [tagpr]
 	vPrefix = true
 	releaseBranch = master
-	versionFile = version.go,action.yml
+	versionFile = version.go,action.yml,.github/actions/release/action.yml
