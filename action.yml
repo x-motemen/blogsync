@@ -1,30 +1,22 @@
+name: blogsync
+description: setup blogsync to publish to Hatena Blog
 inputs:
   version:
-    type: string
     description: "A version to install blogsync"
-    default: latest
+    default: "v0.13.0"
     required: false
 runs:
   using: 'composite'
   steps:
-    - name: setup blogsync
-      shell: bash
-      run: |
-        set -e
-        VERSION="${{ inputs.version }}"
-        if [ "${VERSION}" = "latest" ]; then
-          DOWNLOAD_URL=$(curl -sS https://api.github.com/repos/x-motemen/blogsync/releases | jq -r '[.[]|select(.prerelease==false)][0].assets[].browser_download_url|select(match("linux_amd64"))')
-        else
-          DOWNLOAD_URL="https://github.com/x-motemen/blogsync/releases/download/${VERSION}/blogsync_${VERSION}_linux_amd64.tar.gz"
-        fi
-        cd /tmp
-        curl -sfLO "${DOWNLOAD_URL}"
-        if [[ "${DOWNLOAD_URL}" =~ \.tar\.gz$ ]]; then
-          FILENAME=$(basename "${DOWNLOAD_URL}" .tar.gz)
-          tar xzvf "${FILENAME}.tar.gz"
-          sudo install "${FILENAME}/blogsync" /usr/local/bin/blogsync
-        elif [[ "${DOWNLOAD_URL}" =~ \.zip$ ]]; then
-          FILENAME=$(basename "${DOWNLOAD_URL}" .zip)
-          unzip "${FILENAME}.zip"
-          sudo install "${FILENAME}/blogsync" /usr/local/bin/blogsync
-        fi
+  - name: setup blogsync
+    shell: bash
+    run: |
+      cd "${GITHUB_WORKSPACE}" || exit 1
+      TEMP_PATH="$(mktemp -d)"
+      PATH="${TEMP_PATH}:$PATH"
+      curl -sfL https://raw.githubusercontent.com/x-motemen/blogsync/master/install.sh | sh -s -- -b "${TEMP_PATH}" "${{ inputs.version }}" 2>&1
+      sudo install "${TEMP_PATH}/blogsync" /usr/local/bin/blogsync
+      rm -rf "${TEMP_PATH}"
+branding:
+  icon: edit-3
+  color: blue
