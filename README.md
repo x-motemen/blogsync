@@ -155,6 +155,10 @@ blogsync post は標準入力からエントリの内容を受けとって投稿
 ^D
 ```
 
+### GitHub Actions
+
+`uses: x-motemen/blogsync@v0` とすればblogsyncをインストールできます。
+
 ## Author
 
 [motemen](https://github.com/motemen)
