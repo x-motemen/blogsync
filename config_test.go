@@ -5,8 +5,16 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"testing"
 )
+
+var homeEnvName = func() string {
+	if runtime.GOOS == "windows" {
+		return "USERPROFILE"
+	}
+	return "HOME"
+}()
 
 func TestLoadConfigFiles(t *testing.T) {
 	setup := func(t *testing.T, localConf, globalConf *string) (string, func()) {
@@ -14,10 +22,10 @@ func TestLoadConfigFiles(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		origHome := os.Getenv("HOME")
+		origHome := os.Getenv(homeEnvName)
 		cleanup := func() {
 			os.RemoveAll(tempdir)
-			os.Setenv("HOME", origHome)
+			os.Setenv(homeEnvName, origHome)
 		}
 
 		if localConf != nil {
@@ -43,7 +51,7 @@ func TestLoadConfigFiles(t *testing.T) {
 			}
 		}
 
-		err = os.Setenv("HOME", tempdir)
+		err = os.Setenv(homeEnvName, tempdir)
 		if err != nil {
 			cleanup()
 			t.Fatal(err)
@@ -213,13 +221,13 @@ func TestLoadConfigration(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		origHome := os.Getenv("HOME")
+		origHome := os.Getenv(homeEnvName)
 		origBlogsyncUsername := os.Getenv("BLOGSYNC_USERNAME")
 		origBlogsyncPassword := os.Getenv("BLOGSYNC_PASSWORD")
 		origPwd, _ := os.Getwd()
 		cleanup := func() {
 			os.RemoveAll(tempdir)
-			os.Setenv("HOME", origHome)
+			os.Setenv(homeEnvName, origHome)
 			os.Setenv("BLOGSYNC_USERNAME", origBlogsyncUsername)
 			os.Setenv("BLOGSYNC_PASSWORD", origBlogsyncPassword)
 			os.Chdir(origPwd)
@@ -250,7 +258,7 @@ func TestLoadConfigration(t *testing.T) {
 			}
 		}
 
-		err = os.Setenv("HOME", tempdir)
+		err = os.Setenv(homeEnvName, tempdir)
 		if err != nil {
 			cleanup()
 			t.Fatal(err)
