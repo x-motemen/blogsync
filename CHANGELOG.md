@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.13.5](https://github.com/x-motemen/blogsync/compare/v0.13.4...v0.13.5) - 2023-04-16
+- run tests on windows on CI by @Songmu in https://github.com/x-motemen/blogsync/pull/72
+- update deps by @Songmu in https://github.com/x-motemen/blogsync/pull/74
+
 ## [v0.13.4](https://github.com/x-motemen/blogsync/compare/v0.13.3...v0.13.4) - 2023-04-16
 - Enable stdin on windows by @ongaeshi in https://github.com/x-motemen/blogsync/pull/70
 
