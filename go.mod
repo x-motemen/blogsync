@@ -5,7 +5,7 @@ require (
 	github.com/motemen/go-loghttp v0.0.0-20170804080138-974ac5ceac27
 	github.com/motemen/go-wsse v0.0.0-20141201105324-13a083a10e32
 	github.com/stretchr/testify v1.8.0
-	github.com/urfave/cli/v2 v2.24.1
+	github.com/urfave/cli/v2 v2.25.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -20,4 +20,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-go 1.19
+go 1.20
