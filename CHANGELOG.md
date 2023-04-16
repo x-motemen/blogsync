@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.13.4](https://github.com/x-motemen/blogsync/compare/v0.13.3...v0.13.4) - 2023-04-16
+- Enable stdin on windows by @ongaeshi in https://github.com/x-motemen/blogsync/pull/70
+
 ## [v0.13.3](https://github.com/x-motemen/blogsync/compare/v0.13.2...v0.13.3) - 2023-04-14
 - adjust release/action.yml by @Songmu in https://github.com/x-motemen/blogsync/pull/68
 
