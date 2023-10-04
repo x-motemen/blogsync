@@ -1,0 +1,21 @@
+name: e2e
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: make build
+      - name: run e2e
+        run: |
+          export BLOGSYNC_BIN=$PWD/blogsync
+          export BLOGSYNC_BLOG=${{ secrets.BLOGSYNC_BLOG }}
+          export BLOGSYNC_USERNAME=${{ secrets.BLOGSYNC_USERNAME }}
+          export BLOGSYNC_PASSWORD=${{ secrets.BLOGSYNC_PASSWORD }}
+          export BLOGSYNC_OWNER=${{ secrets.BLOGSYNC_OWNER }}
+          ./.github/workflows/e2e.sh
