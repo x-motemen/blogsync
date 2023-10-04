@@ -26,8 +26,8 @@ post_new_entry() {
 Title: CI entry $entry_id
 ---
 
-- GITHUB_SHA: \`$GITHUB_SHA\`
-- GITHUB_RUN_ID: \`$GITHUB_RUN_ID\`
+- GITHUB_SHA: [\`$GITHUB_SHA\`](https://github.com/$GITHUB_REPOSITORY/commit/$GITHUB_SHA)
+- GITHUB_RUN_ID: [\`$GITHUB_RUN_ID\`](https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)
 __MARKDOWN__
 }
 
