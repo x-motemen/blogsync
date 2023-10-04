@@ -1,0 +1,12 @@
+on:
+  push:
+    branches:
+      - ci-2e2
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          ./.github/workflows/e2e.sh
