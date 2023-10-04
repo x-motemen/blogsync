@@ -3,7 +3,7 @@ name: e2e
 on:
   push:
     branches:
-      - ci-2e2
+      - ci-e2e
 
 jobs:
   e2e:
