@@ -17,11 +17,11 @@ __YAML__
 }
 
 pull_entries() {
-  blogsync pull "$BLOGSYNC_BLOG"
+  "$BLOGSYNC_BIN" pull "$BLOGSYNC_BLOG"
 }
 
 post_new_entry() {
-  blogsync post --custom-path "$entry_id" "$BLOGSYNC_BLOG" <<__MARKDOWN__
+  "$BLOGSYNC_BIN" post --custom-path "$entry_id" "$BLOGSYNC_BLOG" <<__MARKDOWN__
 ---
 Title: CI entry $entry_id
 ---
