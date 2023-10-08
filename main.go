@@ -158,12 +158,12 @@ var commandPush = &cli.Command{
 				return err
 			}
 
-			remoteRoot, err := entry.remoteRoot()
+			blogID, err := entry.blogID()
 			if err != nil {
 				return err
 			}
 
-			bc := conf.Get(remoteRoot)
+			bc := conf.Get(blogID)
 			if bc == nil {
 				return fmt.Errorf("cannot find blog for %s", path)
 			}
@@ -239,20 +239,20 @@ var commandList = &cli.Command{
 		blogs := make([]*struct{ url, fullPath string }, 0, len(conf.Blogs))
 
 		maxURLLen := 0
-		for remoteRoot := range conf.Blogs {
-			urlLen := len(remoteRoot)
+		for blogID := range conf.Blogs {
+			urlLen := len(blogID)
 			if urlLen > maxURLLen {
 				maxURLLen = urlLen
 			}
 
-			blogConfig := conf.Get(remoteRoot)
+			blogConfig := conf.Get(blogID)
 			var fullPath string
 			if blogConfig.OmitDomain == nil || !*blogConfig.OmitDomain {
-				fullPath = filepath.Join(blogConfig.LocalRoot, blogConfig.RemoteRoot)
+				fullPath = filepath.Join(blogConfig.LocalRoot, blogConfig.BlogID)
 			} else {
 				fullPath = blogConfig.LocalRoot
 			}
-			blogs = append(blogs, &struct{ url, fullPath string }{remoteRoot, fullPath})
+			blogs = append(blogs, &struct{ url, fullPath string }{blogID, fullPath})
 		}
 
 		sort.Slice(blogs, func(i, j int) bool { return blogs[i].url < blogs[j].url })

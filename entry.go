@@ -50,12 +50,12 @@ func (eu *entryURL) UnmarshalYAML(unmarshal func(v interface{}) error) error {
 	return nil
 }
 
-func (eh *entryHeader) remoteRoot() (string, error) {
+func (eh *entryHeader) blogID() (string, error) {
 	// EditURL: https://blog.hatena.ne.jp/Songmu/songmu.hateblog.jp/atom/entry/...
-	// "songmu.hateblog.jp" is remote root in above case.
+	// "songmu.hateblog.jp" is blogID in above case.
 	paths := strings.Split(eh.EditURL, "/")
 	if len(paths) < 5 {
-		return "", fmt.Errorf("failed to get remoteRoot form EditURL: %s", eh.EditURL)
+		return "", fmt.Errorf("failed to get blogID form EditURL: %s", eh.EditURL)
 	}
 	return paths[4], nil
 }
@@ -191,7 +191,7 @@ func entryFromReader(source io.Reader) (*entry, error) {
 	if f, ok := source.(*os.File); ok {
 		if runtime.GOOS == "windows" && f.Name() == os.Stdin.Name() {
 			t := time.Now()
-			entry.LastModified = &t	
+			entry.LastModified = &t
 		} else {
 			fi, err := os.Stat(f.Name())
 			if err != nil {
