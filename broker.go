@@ -156,8 +156,13 @@ func (b *broker) PutEntry(e *entry) error {
 	return b.Store(newEntry, path)
 }
 
-func (b *broker) PostEntry(e *entry) error {
-	endPoint := entryEndPointUrl(b.blogConfig)
+func (b *broker) PostEntry(e *entry, isPage bool) error {
+	var endPoint string
+	if !isPage {
+		endPoint = entryEndPointUrl(b.blogConfig)
+	} else {
+		endPoint = fixedPageEndpointURL(b.blogConfig)
+	}
 	newEntry, err := asEntry(b.Client.PostEntry(endPoint, e.atom()))
 	if err != nil {
 		return err
