@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.13.6](https://github.com/x-motemen/blogsync/compare/v0.13.5...v0.13.6) - 2023-10-08
+- 実際のブログを使ったE2Eテスト by @motemen in https://github.com/x-motemen/blogsync/pull/75
+- s/remoteRoot/blogID/ by @Songmu in https://github.com/x-motemen/blogsync/pull/77
+
 ## [v0.13.5](https://github.com/x-motemen/blogsync/compare/v0.13.4...v0.13.5) - 2023-04-16
 - run tests on windows on CI by @Songmu in https://github.com/x-motemen/blogsync/pull/72
 - update deps by @Songmu in https://github.com/x-motemen/blogsync/pull/74
