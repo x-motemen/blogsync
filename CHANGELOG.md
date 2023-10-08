@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.14.0](https://github.com/x-motemen/blogsync/compare/v0.13.6...v0.14.0) - 2023-10-08
+- support fixed pages by @Songmu in https://github.com/x-motemen/blogsync/pull/78
+- Go 1.21 and update deps by @Songmu in https://github.com/x-motemen/blogsync/pull/80
+
 ## [v0.13.6](https://github.com/x-motemen/blogsync/compare/v0.13.5...v0.13.6) - 2023-10-08
 - 実際のブログを使ったE2Eテスト by @motemen in https://github.com/x-motemen/blogsync/pull/75
 - s/remoteRoot/blogID/ by @Songmu in https://github.com/x-motemen/blogsync/pull/77
