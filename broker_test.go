@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestEntryEndPointUrl(t *testing.T) {
@@ -14,17 +15,17 @@ func TestEntryEndPointUrl(t *testing.T) {
 		{
 			name: "username",
 			config: blogConfig{
-				RemoteRoot: "example1.hatenablog.com",
-				Username:   "sample1",
+				BlogID:   "example1.hatenablog.com",
+				Username: "sample1",
 			},
 			expect: "https://blog.hatena.ne.jp/sample1/example1.hatenablog.com/atom/entry",
 		},
 		{
 			name: "owner",
 			config: blogConfig{
-				RemoteRoot: "example1.hatenablog.com",
-				Username:   "sample1",
-				Owner:      "sample2",
+				BlogID:   "example1.hatenablog.com",
+				Username: "sample1",
+				Owner:    "sample2",
 			},
 			expect: "https://blog.hatena.ne.jp/sample2/example1.hatenablog.com/atom/entry",
 		},

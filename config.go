@@ -14,7 +14,7 @@ type config struct {
 }
 
 type blogConfig struct {
-	RemoteRoot string `yaml:"-"`
+	BlogID     string `yaml:"-"`
 	LocalRoot  string `yaml:"local_root"`
 	Username   string
 	Password   string
@@ -45,7 +45,7 @@ func loadConfig(r io.Reader) (*config, error) {
 			b = &blogConfig{}
 			blogs[key] = b
 		}
-		b.RemoteRoot = key
+		b.BlogID = key
 	}
 	return c, nil
 }
@@ -59,8 +59,8 @@ func loadConfigFromEnv() (*config, error) {
 	}, nil
 }
 
-func (c *config) Get(remoteRoot string) *blogConfig {
-	bc, ok := c.Blogs[remoteRoot]
+func (c *config) Get(blogID string) *blogConfig {
+	bc, ok := c.Blogs[blogID]
 	if !ok {
 		return nil
 	}

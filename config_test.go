@@ -84,9 +84,9 @@ func TestLoadConfigFiles(t *testing.T) {
                 local_root: ./blog2`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
-				RemoteRoot: "blog1.example.com",
-				LocalRoot:  "./data",
-				Username:   "blog1",
+				BlogID:    "blog1.example.com",
+				LocalRoot: "./data",
+				Username:  "blog1",
 			},
 		},
 		{
@@ -99,9 +99,9 @@ func TestLoadConfigFiles(t *testing.T) {
                 username: blog1`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
-				RemoteRoot: "blog1.example.com",
-				LocalRoot:  "./data",
-				Username:   "blog1",
+				BlogID:    "blog1.example.com",
+				LocalRoot: "./data",
+				Username:  "blog1",
 			},
 		},
 		{
@@ -117,7 +117,7 @@ func TestLoadConfigFiles(t *testing.T) {
                 local_root: ./blog2`),
 			blogKey: "blog2.example.com",
 			expect: blogConfig{
-				RemoteRoot: "blog2.example.com",
+				BlogID:     "blog2.example.com",
 				LocalRoot:  "./blog2",
 				Username:   "hoge",
 				Password:   "fuga",
@@ -135,9 +135,9 @@ func TestLoadConfigFiles(t *testing.T) {
 			globalConf: nil,
 			blogKey:    "blog1.example.com",
 			expect: blogConfig{
-				RemoteRoot: "blog1.example.com",
-				LocalRoot:  "./data",
-				Username:   "blog1",
+				BlogID:    "blog1.example.com",
+				LocalRoot: "./data",
+				Username:  "blog1",
 			},
 		},
 		{
@@ -152,10 +152,10 @@ func TestLoadConfigFiles(t *testing.T) {
                 local_root: ./data`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
-				RemoteRoot: "blog1.example.com",
-				LocalRoot:  ".",
-				Username:   "blog1",
-				Password:   "pww",
+				BlogID:    "blog1.example.com",
+				LocalRoot: ".",
+				Username:  "blog1",
+				Password:  "pww",
 			},
 		},
 		{
@@ -171,10 +171,10 @@ func TestLoadConfigFiles(t *testing.T) {
                 local_root: ./data`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
-				RemoteRoot: "blog1.example.com",
-				LocalRoot:  "ddd",
-				Username:   "mmm",
-				Password:   "pww",
+				BlogID:    "blog1.example.com",
+				LocalRoot: "ddd",
+				Username:  "mmm",
+				Password:  "pww",
 			},
 		},
 		{
@@ -190,10 +190,10 @@ func TestLoadConfigFiles(t *testing.T) {
                 owner: sample2`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
-				RemoteRoot: "blog1.example.com",
-				LocalRoot:  "./data",
-				Username:   "blog1",
-				Owner:      "sample1",
+				BlogID:    "blog1.example.com",
+				LocalRoot: "./data",
+				Username:  "blog1",
+				Owner:     "sample1",
 			},
 		},
 	}
@@ -310,10 +310,10 @@ func TestLoadConfigration(t *testing.T) {
                 local_root: ./data`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
-				RemoteRoot: "blog1.example.com",
-				LocalRoot:  "ddd",
-				Username:   "mmm",
-				Password:   "pww",
+				BlogID:    "blog1.example.com",
+				LocalRoot: "ddd",
+				Username:  "mmm",
+				Password:  "pww",
 			},
 		},
 		{
@@ -331,10 +331,10 @@ func TestLoadConfigration(t *testing.T) {
                 local_root: ./data`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
-				RemoteRoot: "blog1.example.com",
-				LocalRoot:  "ddd",
-				Username:   "mmm",
-				Password:   "pww",
+				BlogID:    "blog1.example.com",
+				LocalRoot: "ddd",
+				Username:  "mmm",
+				Password:  "pww",
 			},
 		},
 		{
@@ -350,9 +350,9 @@ func TestLoadConfigration(t *testing.T) {
 			globalConf: nil,
 			blogKey:    "blog1.example.com",
 			expect: blogConfig{
-				RemoteRoot: "blog1.example.com",
-				LocalRoot:  "./data",
-				Username:   "blog1",
+				BlogID:    "blog1.example.com",
+				LocalRoot: "./data",
+				Username:  "blog1",
 			},
 		},
 		{
@@ -365,10 +365,10 @@ func TestLoadConfigration(t *testing.T) {
 			globalConf: nil,
 			blogKey:    "blog1.example.com",
 			expect: blogConfig{
-				RemoteRoot: "blog1.example.com",
-				LocalRoot:  "./data",
-				Username:   "mmm",
-				Password:   "pww",
+				BlogID:    "blog1.example.com",
+				LocalRoot: "./data",
+				Username:  "mmm",
+				Password:  "pww",
 			},
 		},
 		{
@@ -386,7 +386,7 @@ func TestLoadConfigration(t *testing.T) {
                 local_root: ./blog2`),
 			blogKey: "blog2.example.com",
 			expect: blogConfig{
-				RemoteRoot: "blog2.example.com",
+				BlogID:     "blog2.example.com",
 				LocalRoot:  "./blog2",
 				Username:   "hoge",
 				Password:   "fuga",
