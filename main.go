@@ -184,6 +184,7 @@ var commandPost = &cli.Command{
 		&cli.BoolFlag{Name: "draft"},
 		&cli.StringFlag{Name: "title"},
 		&cli.StringFlag{Name: "custom-path"},
+		&cli.BoolFlag{Name: "page"},
 	},
 	Action: func(c *cli.Context) error {
 		blog := c.Args().First()
@@ -219,7 +220,7 @@ var commandPost = &cli.Command{
 		}
 
 		b := newBroker(blogConfig)
-		err = b.PostEntry(entry)
+		err = b.PostEntry(entry, c.Bool("page"))
 		if err != nil {
 			return err
 		}

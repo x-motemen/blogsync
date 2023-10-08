@@ -32,9 +32,18 @@ func newBroker(bc *blogConfig) *broker {
 
 func (b *broker) FetchRemoteEntries() ([]*entry, error) {
 	entries := []*entry{}
-	url := entryEndPointUrl(b.blogConfig)
+	urls := []string{
+		entryEndPointUrl(b.blogConfig),
+		fixedPageEndpointURL(b.blogConfig),
+	}
+	for url := ""; true; {
+		if url == "" {
+			if len(urls) == 0 {
+				break
+			}
+			url, urls = urls[0], urls[1:]
+		}
 
-	for {
 		feed, err := b.Client.GetFeed(url)
 		if err != nil {
 			return nil, err
@@ -45,16 +54,15 @@ func (b *broker) FetchRemoteEntries() ([]*entry, error) {
 			if err != nil {
 				return nil, err
 			}
-
 			entries = append(entries, e)
 		}
 
 		nextLink := feed.Links.Find("next")
-		if nextLink == nil {
-			break
+		if nextLink != nil {
+			url = nextLink.Href
+		} else {
+			url = ""
 		}
-
-		url = nextLink.Href
 	}
 
 	return entries, nil
@@ -66,6 +74,13 @@ func (b *broker) LocalPath(e *entry) string {
 	if b.OmitDomain == nil || !*b.OmitDomain {
 		paths = append(paths, b.BlogID)
 	}
+	// If possible, for fixed pages, we would like to dig a directory such as page/ to place md files,
+	// but it is difficult to solve by a simple method such as prepending a "page/" string
+	// if the path does not begin with an entry string. That is because if you are operating
+	// a subdirectory in Hatena Blog Media, you do not know where the root of the blog is.
+	// e.g.
+	// - https://example.com/subblog/entry/blog-entry
+	// - https://example.com/subblog/fixed-page
 	paths = append(paths, e.URL.Path+extension)
 	return filepath.Join(paths...)
 }
@@ -141,8 +156,13 @@ func (b *broker) PutEntry(e *entry) error {
 	return b.Store(newEntry, path)
 }
 
-func (b *broker) PostEntry(e *entry) error {
-	endPoint := entryEndPointUrl(b.blogConfig)
+func (b *broker) PostEntry(e *entry, isPage bool) error {
+	var endPoint string
+	if !isPage {
+		endPoint = entryEndPointUrl(b.blogConfig)
+	} else {
+		endPoint = fixedPageEndpointURL(b.blogConfig)
+	}
 	newEntry, err := asEntry(b.Client.PostEntry(endPoint, e.atom()))
 	if err != nil {
 		return err
@@ -161,4 +181,12 @@ func entryEndPointUrl(bc *blogConfig) string {
 		owner = bc.Username
 	}
 	return fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", owner, bc.BlogID)
+}
+
+func fixedPageEndpointURL(bc *blogConfig) string {
+	owner := bc.Owner
+	if owner == "" {
+		owner = bc.Username
+	}
+	return fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/page", owner, bc.BlogID)
 }
