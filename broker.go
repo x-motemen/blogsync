@@ -32,9 +32,10 @@ func newBroker(bc *blogConfig) *broker {
 
 func (b *broker) FetchRemoteEntries() ([]*entry, error) {
 	entries := []*entry{}
+	fixedPageURL := fixedPageEndpointURL(b.blogConfig)
 	urls := []string{
 		entryEndPointUrl(b.blogConfig),
-		fixedPageEndpointURL(b.blogConfig),
+		fixedPageURL,
 	}
 	for url := ""; true; {
 		if url == "" {
@@ -46,6 +47,11 @@ func (b *broker) FetchRemoteEntries() ([]*entry, error) {
 
 		feed, err := b.Client.GetFeed(url)
 		if err != nil {
+			if url == fixedPageURL {
+				// Ignore errors in the case of fixed pages, because fixed page is the feature
+				// only for pro users.
+				break
+			}
 			return nil, err
 		}
 
