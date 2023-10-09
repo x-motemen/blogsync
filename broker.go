@@ -93,7 +93,7 @@ func (b *broker) StoreFresh(e *entry, path string) (bool, error) {
 
 	if e.LastModified.After(localLastModified) {
 		logf("fresh", "remote=%s > local=%s", e.LastModified, localLastModified)
-		if err := b.Store(e, path); err != nil {
+		if err := b.Store(e, path, ""); err != nil {
 			return false, err
 		}
 
@@ -103,31 +103,27 @@ func (b *broker) StoreFresh(e *entry, path string) (bool, error) {
 	return false, nil
 }
 
-func (b *broker) Store(e *entry, path string) error {
+func (b *broker) Store(e *entry, path, origPath string) error {
 	logf("store", "%s", path)
 
-	dir, _ := filepath.Split(path)
-	err := os.MkdirAll(dir, 0755)
-	if err != nil {
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 
-	f, err := os.Create(path)
-	if err != nil {
+	if err := os.WriteFile(path, []byte(e.fullContent()), 0666); err != nil {
 		return err
 	}
 
-	_, err = f.WriteString(e.fullContent())
-	if err != nil {
+	if err := os.Chtimes(path, *e.LastModified, *e.LastModified); err != nil {
 		return err
 	}
 
-	err = f.Close()
-	if err != nil {
-		return err
+	if origPath != "" && path != origPath {
+		return os.Remove(origPath)
 	}
 
-	return os.Chtimes(path, *e.LastModified, *e.LastModified)
+	return nil
 }
 
 func (b *broker) UploadFresh(e *entry) (bool, error) {
@@ -151,9 +147,7 @@ func (b *broker) PutEntry(e *entry) error {
 	if e.CustomPath != "" {
 		newEntry.CustomPath = e.CustomPath
 	}
-
-	path := b.LocalPath(newEntry)
-	return b.Store(newEntry, path)
+	return b.Store(newEntry, b.LocalPath(newEntry), b.LocalPath(e))
 }
 
 func (b *broker) PostEntry(e *entry, isPage bool) error {
@@ -171,8 +165,7 @@ func (b *broker) PostEntry(e *entry, isPage bool) error {
 		newEntry.CustomPath = e.CustomPath
 	}
 
-	path := b.LocalPath(newEntry)
-	return b.Store(newEntry, path)
+	return b.Store(newEntry, b.LocalPath(newEntry), b.LocalPath(e))
 }
 
 func entryEndPointUrl(bc *blogConfig) string {
