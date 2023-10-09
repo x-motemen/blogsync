@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strings"
 	"testing"
 )
 
@@ -29,6 +30,10 @@ func TestLoadConfigFiles(t *testing.T) {
 		}
 
 		if localConf != nil {
+			if runtime.GOOS == "windows" {
+				*localConf = strings.ReplaceAll(*localConf, "local_root: /", "local_root: D:/")
+			}
+
 			err := ioutil.WriteFile(
 				filepath.Join(tempdir, "blogsync.yaml"), []byte(*localConf), 0755)
 			if err != nil {
@@ -38,6 +43,9 @@ func TestLoadConfigFiles(t *testing.T) {
 		}
 
 		if globalConf != nil {
+			if runtime.GOOS == "windows" {
+				*globalConf = strings.ReplaceAll(*globalConf, "local_root: /", "local_root: D:/")
+			}
 			globalConfFile := filepath.Join(tempdir, ".config", "blogsync", "config.yaml")
 			err := os.MkdirAll(filepath.Dir(globalConfFile), 0755)
 			if err != nil {
@@ -208,6 +216,10 @@ func TestLoadConfigFiles(t *testing.T) {
 			}
 			out := conf.Get(tc.blogKey)
 
+			if runtime.GOOS == "windows" {
+				out.LocalRoot = filepath.Clean(out.LocalRoot)
+				tc.expect.LocalRoot = filepath.Clean("D:" + tc.expect.LocalRoot)
+			}
 			if !reflect.DeepEqual(*out, tc.expect) {
 				t.Errorf("something went wrong.\n   out: %+v\nexpect: %+v", *out, tc.expect)
 			}
@@ -236,6 +248,9 @@ func TestLoadConfigration(t *testing.T) {
 		os.Chdir(tempdir)
 
 		if localConf != nil {
+			if runtime.GOOS == "windows" {
+				*localConf = strings.ReplaceAll(*localConf, "local_root: /", "local_root: D:/")
+			}
 			err := ioutil.WriteFile(
 				filepath.Join(tempdir, "blogsync.yaml"), []byte(*localConf), 0755)
 			if err != nil {
@@ -245,6 +260,9 @@ func TestLoadConfigration(t *testing.T) {
 		}
 
 		if globalConf != nil {
+			if runtime.GOOS == "windows" {
+				*globalConf = strings.ReplaceAll(*globalConf, "local_root: /", "local_root: D:/")
+			}
 			globalConfFile := filepath.Join(tempdir, ".config", "blogsync", "config.yaml")
 			err := os.MkdirAll(filepath.Dir(globalConfFile), 0755)
 			if err != nil {
@@ -405,6 +423,10 @@ func TestLoadConfigration(t *testing.T) {
 			}
 			out := conf.Get(tc.blogKey)
 
+			if runtime.GOOS == "windows" {
+				out.LocalRoot = filepath.Clean(out.LocalRoot)
+				tc.expect.LocalRoot = filepath.Clean("D:" + tc.expect.LocalRoot)
+			}
 			if !reflect.DeepEqual(*out, tc.expect) {
 				t.Errorf("something went wrong.\n   out: %+v\nexpect: %+v", *out, tc.expect)
 			}
