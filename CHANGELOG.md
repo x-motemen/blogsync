@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.14.1](https://github.com/x-motemen/blogsync/compare/v0.14.0...v0.14.1) - 2023-10-09
+- update GitHub Actions workflows by @Songmu in https://github.com/x-motemen/blogsync/pull/81
+- remove old file that is no longer used due to changing the path of the entry after updating it by @Songmu in https://github.com/x-motemen/blogsync/pull/83
+
 ## [v0.14.0](https://github.com/x-motemen/blogsync/compare/v0.13.6...v0.14.0) - 2023-10-08
 - support fixed pages by @Songmu in https://github.com/x-motemen/blogsync/pull/78
 - Go 1.21 and update deps by @Songmu in https://github.com/x-motemen/blogsync/pull/80
