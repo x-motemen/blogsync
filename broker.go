@@ -165,7 +165,7 @@ func (b *broker) PostEntry(e *entry, isPage bool) error {
 		newEntry.CustomPath = e.CustomPath
 	}
 
-	return b.Store(newEntry, b.LocalPath(newEntry), b.LocalPath(e))
+	return b.Store(newEntry, b.LocalPath(newEntry), "")
 }
 
 func entryEndPointUrl(bc *blogConfig) string {
