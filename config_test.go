@@ -17,23 +17,30 @@ var homeEnvName = func() string {
 	return "HOME"
 }()
 
-func TestLoadConfigFiles(t *testing.T) {
-	setup := func(t *testing.T, localConf, globalConf *string) (string, func()) {
+func TestLoadConfigration(t *testing.T) {
+	setup := func(t *testing.T, envUsername string, envPassword string, localConf, globalConf *string) func() {
 		tempdir, err := ioutil.TempDir("", "blogsync-test")
 		if err != nil {
 			t.Fatal(err)
 		}
 		origHome := os.Getenv(homeEnvName)
+		origBlogsyncUsername := os.Getenv("BLOGSYNC_USERNAME")
+		origBlogsyncPassword := os.Getenv("BLOGSYNC_PASSWORD")
+		origPwd, _ := os.Getwd()
 		cleanup := func() {
 			os.RemoveAll(tempdir)
 			os.Setenv(homeEnvName, origHome)
+			os.Setenv("BLOGSYNC_USERNAME", origBlogsyncUsername)
+			os.Setenv("BLOGSYNC_PASSWORD", origBlogsyncPassword)
+			os.Chdir(origPwd)
 		}
+
+		os.Chdir(tempdir)
 
 		if localConf != nil {
 			if runtime.GOOS == "windows" {
 				*localConf = strings.ReplaceAll(*localConf, "local_root: /", "local_root: D:/")
 			}
-
 			err := ioutil.WriteFile(
 				filepath.Join(tempdir, "blogsync.yaml"), []byte(*localConf), 0755)
 			if err != nil {
@@ -64,7 +71,24 @@ func TestLoadConfigFiles(t *testing.T) {
 			cleanup()
 			t.Fatal(err)
 		}
-		return tempdir, cleanup
+
+		if envUsername != "" {
+			err = os.Setenv("BLOGSYNC_USERNAME", envUsername)
+			if err != nil {
+				cleanup()
+				t.Fatal(err)
+			}
+		}
+
+		if envPassword != "" {
+			err = os.Setenv("BLOGSYNC_PASSWORD", envPassword)
+			if err != nil {
+				cleanup()
+				t.Fatal(err)
+			}
+		}
+
+		return cleanup
 	}
 
 	pstr := func(str string) *string {
@@ -74,9 +98,11 @@ func TestLoadConfigFiles(t *testing.T) {
 		return &b
 	}
 	testCases := []struct {
-		name       string
-		localConf  *string
-		globalConf *string
+		name        string
+		envUsername string
+		envPassword string
+		localConf   *string
+		globalConf  *string
 
 		blogKey string
 		expect  blogConfig
@@ -204,115 +230,7 @@ func TestLoadConfigFiles(t *testing.T) {
 				Owner:     "sample1",
 			},
 		},
-	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			workdir, teardown := setup(t, tc.localConf, tc.globalConf)
-			defer teardown()
-			conf, err := loadConfigFiles(workdir)
-			if err != nil {
-				t.Errorf("error should be nil but: %s", err)
-			}
-			out := conf.Get(tc.blogKey)
-
-			if runtime.GOOS == "windows" {
-				out.LocalRoot = filepath.Clean(out.LocalRoot)
-				tc.expect.LocalRoot = filepath.Clean("D:" + tc.expect.LocalRoot)
-			}
-			if !reflect.DeepEqual(*out, tc.expect) {
-				t.Errorf("something went wrong.\n   out: %+v\nexpect: %+v", *out, tc.expect)
-			}
-		})
-	}
-}
-
-func TestLoadConfigration(t *testing.T) {
-	setup := func(t *testing.T, envUsername string, envPassword string, localConf, globalConf *string) func() {
-		tempdir, err := ioutil.TempDir("", "blogsync-test")
-		if err != nil {
-			t.Fatal(err)
-		}
-		origHome := os.Getenv(homeEnvName)
-		origBlogsyncUsername := os.Getenv("BLOGSYNC_USERNAME")
-		origBlogsyncPassword := os.Getenv("BLOGSYNC_PASSWORD")
-		origPwd, _ := os.Getwd()
-		cleanup := func() {
-			os.RemoveAll(tempdir)
-			os.Setenv(homeEnvName, origHome)
-			os.Setenv("BLOGSYNC_USERNAME", origBlogsyncUsername)
-			os.Setenv("BLOGSYNC_PASSWORD", origBlogsyncPassword)
-			os.Chdir(origPwd)
-		}
-
-		os.Chdir(tempdir)
-
-		if localConf != nil {
-			if runtime.GOOS == "windows" {
-				*localConf = strings.ReplaceAll(*localConf, "local_root: /", "local_root: D:/")
-			}
-			err := ioutil.WriteFile(
-				filepath.Join(tempdir, "blogsync.yaml"), []byte(*localConf), 0755)
-			if err != nil {
-				cleanup()
-				t.Fatal(err)
-			}
-		}
-
-		if globalConf != nil {
-			if runtime.GOOS == "windows" {
-				*globalConf = strings.ReplaceAll(*globalConf, "local_root: /", "local_root: D:/")
-			}
-			globalConfFile := filepath.Join(tempdir, ".config", "blogsync", "config.yaml")
-			err := os.MkdirAll(filepath.Dir(globalConfFile), 0755)
-			if err != nil {
-				cleanup()
-				t.Fatal(err)
-			}
-			err = ioutil.WriteFile(globalConfFile, []byte(*globalConf), 0755)
-			if err != nil {
-				cleanup()
-				t.Fatal(err)
-			}
-		}
-
-		err = os.Setenv(homeEnvName, tempdir)
-		if err != nil {
-			cleanup()
-			t.Fatal(err)
-		}
-
-		err = os.Setenv("BLOGSYNC_USERNAME", envUsername)
-		if err != nil {
-			cleanup()
-			t.Fatal(err)
-		}
-
-		err = os.Setenv("BLOGSYNC_PASSWORD", envPassword)
-		if err != nil {
-			cleanup()
-			t.Fatal(err)
-		}
-
-		return cleanup
-	}
-
-	pstr := func(str string) *string {
-		return &str
-	}
-	pbool := func(b bool) *bool {
-		return &b
-	}
-	testCases := []struct {
-		name        string
-		envUsername string
-		envPassword string
-		localConf   *string
-		globalConf  *string
-
-		blogKey string
-		expect  blogConfig
-	}{
 		{
 			name:        "use system environment and system environment has priority over global conf",
 			envUsername: "mmm",
