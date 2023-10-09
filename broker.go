@@ -168,18 +168,18 @@ func (b *broker) PostEntry(e *entry, isPage bool) error {
 	return b.Store(newEntry, b.LocalPath(newEntry), "")
 }
 
-func entryEndPointUrl(bc *blogConfig) string {
+func atomEndpointURLRoot(bc *blogConfig) string {
 	owner := bc.Owner
 	if owner == "" {
 		owner = bc.Username
 	}
-	return fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/entry", owner, bc.BlogID)
+	return fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/", owner, bc.BlogID)
+}
+
+func entryEndPointUrl(bc *blogConfig) string {
+	return atomEndpointURLRoot(bc) + "entry"
 }
 
 func fixedPageEndpointURL(bc *blogConfig) string {
-	owner := bc.Owner
-	if owner == "" {
-		owner = bc.Username
-	}
-	return fmt.Sprintf("https://blog.hatena.ne.jp/%s/%s/atom/page", owner, bc.BlogID)
+	return atomEndpointURLRoot(bc) + "page"
 }
