@@ -4,6 +4,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 )
@@ -22,11 +23,20 @@ type blogConfig struct {
 	Owner      string `yaml:"owner"`
 }
 
-func loadConfig(r io.Reader) (*config, error) {
+func loadConfig(r io.Reader, fpath string) (*config, error) {
 	bytes, err := ioutil.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
+
+	if !filepath.IsAbs(fpath) {
+		var err error
+		fpath, err = filepath.Abs(fpath)
+		if err != nil {
+			return nil, err
+		}
+	}
+	absDir := filepath.Dir(fpath)
 
 	var blogs map[string]*blogConfig
 	err = yaml.Unmarshal(bytes, &blogs)
@@ -34,18 +44,27 @@ func loadConfig(r io.Reader) (*config, error) {
 		return nil, err
 	}
 
-	c := &config{
-		Default: blogs["default"],
-		Blogs:   blogs,
-	}
-
-	delete(blogs, "default")
 	for key, b := range blogs {
 		if b == nil {
 			b = &blogConfig{}
-			blogs[key] = b
 		}
-		b.BlogID = key
+		if b.LocalRoot != "" && !filepath.IsAbs(b.LocalRoot) {
+			b.LocalRoot = filepath.Join(absDir, b.LocalRoot)
+		}
+		if b.BlogID != "default" {
+			b.BlogID = key
+		}
+		blogs[key] = b
+	}
+
+	defaultConf := blogs["default"]
+	if defaultConf == nil {
+		defaultConf = &blogConfig{}
+	}
+	delete(blogs, "default")
+	c := &config{
+		Default: defaultConf,
+		Blogs:   blogs,
 	}
 	return c, nil
 }

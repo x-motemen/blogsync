@@ -79,13 +79,13 @@ func TestLoadConfigFiles(t *testing.T) {
 			globalConf: pstr(`---
               blog1.example.com:
                 username: blog1
-                local_root: ./data
+                local_root: /data
               blog2.example.com:
-                local_root: ./blog2`),
+                local_root: /blog2`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
 				BlogID:    "blog1.example.com",
-				LocalRoot: "./data",
+				LocalRoot: "/data",
 				Username:  "blog1",
 			},
 		},
@@ -94,13 +94,13 @@ func TestLoadConfigFiles(t *testing.T) {
 			localConf: nil,
 			globalConf: pstr(`---
               default:
-                local_root: ./data
+                local_root: /data
               blog1.example.com:
                 username: blog1`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
 				BlogID:    "blog1.example.com",
-				LocalRoot: "./data",
+				LocalRoot: "/data",
 				Username:  "blog1",
 			},
 		},
@@ -111,14 +111,14 @@ func TestLoadConfigFiles(t *testing.T) {
               default:
                 username: hoge
                 password: fuga
-                local_root: ./data
+                local_root: /data
                 omit_domain: false
               blog2.example.com:
-                local_root: ./blog2`),
+                local_root: /blog2`),
 			blogKey: "blog2.example.com",
 			expect: blogConfig{
 				BlogID:     "blog2.example.com",
-				LocalRoot:  "./blog2",
+				LocalRoot:  "/blog2",
 				Username:   "hoge",
 				Password:   "fuga",
 				OmitDomain: pbool(false),
@@ -129,14 +129,14 @@ func TestLoadConfigFiles(t *testing.T) {
 			localConf: pstr(`---
               blog1.example.com:
                 username: blog1
-                local_root: ./data
+                local_root: /data
               blog2.example.com:
-                local_root: ./blog2`),
+                local_root: /blog2`),
 			globalConf: nil,
 			blogKey:    "blog1.example.com",
 			expect: blogConfig{
 				BlogID:    "blog1.example.com",
-				LocalRoot: "./data",
+				LocalRoot: "/data",
 				Username:  "blog1",
 			},
 		},
@@ -145,7 +145,7 @@ func TestLoadConfigFiles(t *testing.T) {
 			localConf: pstr(`---
               blog1.example.com:
                 username: blog1
-                local_root: .`),
+                local_root: /`),
 			globalConf: pstr(`---
               blog1.example.com:
                 password: pww
@@ -153,7 +153,7 @@ func TestLoadConfigFiles(t *testing.T) {
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
 				BlogID:    "blog1.example.com",
-				LocalRoot: ".",
+				LocalRoot: "/",
 				Username:  "blog1",
 				Password:  "pww",
 			},
@@ -162,17 +162,17 @@ func TestLoadConfigFiles(t *testing.T) {
 			name: "empty configuration",
 			localConf: pstr(`---
               default:
-                local_root: ddd
+                local_root: /ddd
               blog1.example.com:`),
 			globalConf: pstr(`---
               default:
                 username: mmm
                 password: pww
-                local_root: ./data`),
+                local_root: /data`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
 				BlogID:    "blog1.example.com",
-				LocalRoot: "ddd",
+				LocalRoot: "/ddd",
 				Username:  "mmm",
 				Password:  "pww",
 			},
@@ -183,15 +183,15 @@ func TestLoadConfigFiles(t *testing.T) {
 			globalConf: pstr(`---
               blog1.example.com:
                 username: blog1
-                local_root: ./data
+                local_root: /data
                 owner: sample1
               blog2.example.com:
-                local_root: ./blog2
+                local_root: /blog2
                 owner: sample2`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
 				BlogID:    "blog1.example.com",
-				LocalRoot: "./data",
+				LocalRoot: "/data",
 				Username:  "blog1",
 				Owner:     "sample1",
 			},
@@ -301,17 +301,17 @@ func TestLoadConfigration(t *testing.T) {
 			envPassword: "pww",
 			localConf: pstr(`---
               default:
-                local_root: ddd
+                local_root: /ddd
               blog1.example.com:`),
 			globalConf: pstr(`---
               default:
                 username: username
                 password: password
-                local_root: ./data`),
+                local_root: /data`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
 				BlogID:    "blog1.example.com",
-				LocalRoot: "ddd",
+				LocalRoot: "/ddd",
 				Username:  "mmm",
 				Password:  "pww",
 			},
@@ -324,15 +324,15 @@ func TestLoadConfigration(t *testing.T) {
               default:
                 username: username
                 password: password
-                local_root: ddd
+                local_root: /ddd
               blog1.example.com:`),
 			globalConf: pstr(`---
               default:
-                local_root: ./data`),
+                local_root: /data`),
 			blogKey: "blog1.example.com",
 			expect: blogConfig{
 				BlogID:    "blog1.example.com",
-				LocalRoot: "ddd",
+				LocalRoot: "/ddd",
 				Username:  "mmm",
 				Password:  "pww",
 			},
@@ -344,14 +344,14 @@ func TestLoadConfigration(t *testing.T) {
 			localConf: pstr(`---
               blog1.example.com:
                 username: blog1
-                local_root: ./data
+                local_root: /data
               blog2.example.com:
-                local_root: ./blog2`),
+                local_root: /blog2`),
 			globalConf: nil,
 			blogKey:    "blog1.example.com",
 			expect: blogConfig{
 				BlogID:    "blog1.example.com",
-				LocalRoot: "./data",
+				LocalRoot: "/data",
 				Username:  "blog1",
 			},
 		},
@@ -361,12 +361,12 @@ func TestLoadConfigration(t *testing.T) {
 			envPassword: "pww",
 			localConf: pstr(`---
               blog1.example.com:
-                local_root: ./data`),
+                local_root: /data`),
 			globalConf: nil,
 			blogKey:    "blog1.example.com",
 			expect: blogConfig{
 				BlogID:    "blog1.example.com",
-				LocalRoot: "./data",
+				LocalRoot: "/data",
 				Username:  "mmm",
 				Password:  "pww",
 			},
@@ -380,14 +380,14 @@ func TestLoadConfigration(t *testing.T) {
               default:
                 username: hoge
                 password: fuga
-                local_root: ./data
+                local_root: /data
                 omit_domain: false
               blog2.example.com:
-                local_root: ./blog2`),
+                local_root: /blog2`),
 			blogKey: "blog2.example.com",
 			expect: blogConfig{
 				BlogID:     "blog2.example.com",
-				LocalRoot:  "./blog2",
+				LocalRoot:  "/blog2",
 				Username:   "hoge",
 				Password:   "fuga",
 				OmitDomain: pbool(false),
