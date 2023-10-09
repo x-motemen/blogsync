@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.14.2](https://github.com/x-motemen/blogsync/compare/v0.14.1...v0.14.2) - 2023-10-09
+- [bugfix] ignore errors in the case of fetching fixed pages by @Songmu in https://github.com/x-motemen/blogsync/pull/85
+
 ## [v0.14.1](https://github.com/x-motemen/blogsync/compare/v0.14.0...v0.14.1) - 2023-10-09
 - update GitHub Actions workflows by @Songmu in https://github.com/x-motemen/blogsync/pull/81
 - remove old file that is no longer used due to changing the path of the entry after updating it by @Songmu in https://github.com/x-motemen/blogsync/pull/83
