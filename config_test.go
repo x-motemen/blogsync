@@ -71,6 +71,11 @@ func TestLoadConfigration(t *testing.T) {
 		if err := os.Chdir(tempdir); err != nil {
 			return nil, err
 		}
+		for _, swap := range swaps {
+			if err := swap(); err != nil {
+				return nil, err
+			}
+		}
 
 		if localConf != nil {
 			if runtime.GOOS == "windows" {
@@ -94,12 +99,6 @@ func TestLoadConfigration(t *testing.T) {
 			}
 			err = os.WriteFile(globalConfFile, []byte(*globalConf), 0755)
 			if err != nil {
-				return nil, err
-			}
-		}
-
-		for _, swap := range swaps {
-			if err := swap(); err != nil {
 				return nil, err
 			}
 		}
