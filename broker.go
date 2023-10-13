@@ -74,21 +74,10 @@ func (b *broker) FetchRemoteEntries() ([]*entry, error) {
 	return entries, nil
 }
 
+const entryExt = ".md" // TODO regard re.ContentType
+
 func (b *broker) LocalPath(e *entry) string {
-	extension := ".md" // TODO regard re.ContentType
-	paths := []string{b.LocalRoot}
-	if b.OmitDomain == nil || !*b.OmitDomain {
-		paths = append(paths, b.BlogID)
-	}
-	// If possible, for fixed pages, we would like to dig a directory such as page/ to place md files,
-	// but it is difficult to solve by a simple method such as prepending a "page/" string
-	// if the path does not begin with an entry string. That is because if you are operating
-	// a subdirectory in Hatena Blog Media, you do not know where the root of the blog is.
-	// e.g.
-	// - https://example.com/subblog/entry/blog-entry
-	// - https://example.com/subblog/fixed-page
-	paths = append(paths, e.URL.Path+extension)
-	return filepath.Join(paths...)
+	return filepath.Join(b.localRoot(), e.URL.Path+entryExt)
 }
 
 func (b *broker) StoreFresh(e *entry, path string) (bool, error) {

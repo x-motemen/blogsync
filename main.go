@@ -155,6 +155,36 @@ var commandPush = &cli.Command{
 				return err
 			}
 
+			if entry.EditURL == "" {
+				// post new entry
+				if !filepath.IsAbs(path) {
+					var err error
+					path, err = filepath.Abs(path)
+					if err != nil {
+						return err
+					}
+				}
+				bc := conf.detectBlogConfig(path)
+				if bc == nil {
+					return fmt.Errorf("cannot find blog for %q", path)
+				}
+				// The entry directory is not always at the top of the localRoot, such as
+				// in the case of using subdirectory feature in BlogMedia. Therefore, the
+				// relative position from the entry directory is obtained as a custom path as below.
+				blogPath, _ := filepath.Rel(bc.localRoot(), path)
+				blogPath = "/" + filepath.ToSlash(blogPath)
+				stuffs := strings.SplitN(blogPath, "/entry/", 2)
+				if len(stuffs) != 2 {
+					return fmt.Errorf("%q is not a blog entry", path)
+				}
+				entry.CustomPath = strings.TrimSuffix(stuffs[1], entryExt)
+				b := newBroker(bc)
+				err = b.PostEntry(entry, false)
+				if err != nil {
+					return err
+				}
+				continue
+			}
 			blogID, err := entry.blogID()
 			if err != nil {
 				return err

@@ -14,6 +14,19 @@ type config struct {
 	Blogs   map[string]*blogConfig
 }
 
+func (c *config) detectBlogConfig(fpath string) *blogConfig {
+	var retBc *blogConfig
+	for blogID := range c.Blogs {
+		bc := c.Get(blogID)
+		if bc.LocalRoot != "" && strings.HasPrefix(fpath, bc.localRoot()) {
+			if retBc == nil || len(bc.localRoot()) > len(retBc.localRoot()) {
+				retBc = bc
+			}
+		}
+	}
+	return retBc
+}
+
 type blogConfig struct {
 	BlogID     string `yaml:"-"`
 	LocalRoot  string `yaml:"local_root"`
@@ -21,6 +34,14 @@ type blogConfig struct {
 	Password   string
 	OmitDomain *bool  `yaml:"omit_domain"`
 	Owner      string `yaml:"owner"`
+}
+
+func (bc *blogConfig) localRoot() string {
+	paths := []string{bc.LocalRoot}
+	if bc.OmitDomain == nil || !*bc.OmitDomain {
+		paths = append(paths, bc.BlogID)
+	}
+	return filepath.Join(paths...)
 }
 
 func loadConfig(r io.Reader, fpath string) (*config, error) {
