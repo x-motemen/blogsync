@@ -39,7 +39,7 @@ func loadSingleConfigFile(fname string) (*config, error) {
 		return nil, err
 	}
 	defer f.Close()
-	return loadConfig(f)
+	return loadConfig(f, fname)
 }
 
 func loadConfiguration() (*config, error) {
