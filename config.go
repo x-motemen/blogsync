@@ -61,11 +61,10 @@ func loadConfig(r io.Reader, fpath string) (*config, error) {
 		defaultConf = &blogConfig{}
 	}
 	delete(blogs, "default")
-	c := &config{
+	return &config{
 		Default: defaultConf,
 		Blogs:   blogs,
-	}
-	return c, nil
+	}, nil
 }
 
 func loadConfigFromEnv() (*config, error) {
