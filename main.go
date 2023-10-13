@@ -73,21 +73,18 @@ func loadConfiguration() (*config, error) {
 }
 
 func loadConfigFiles(pwd string) (*config, error) {
-	conf, err := loadSingleConfigFile(filepath.Join(pwd, "blogsync.yaml"))
-	if err != nil {
-		return nil, err
-	}
-
+	confs := []string{filepath.Join(pwd, "blogsync.yaml")}
 	home, err := os.UserHomeDir()
-	if err != nil && conf == nil {
-		return nil, err
-	}
 	if err == nil {
-		homeConf, err := loadSingleConfigFile(filepath.Join(home, ".config", "blogsync", "config.yaml"))
+		confs = append(confs, filepath.Join(home, ".config", "blogsync", "config.yaml"))
+	}
+	var conf *config
+	for _, confFile := range confs {
+		tmpConf, err := loadSingleConfigFile(confFile)
 		if err != nil {
 			return nil, err
 		}
-		conf = mergeConfig(conf, homeConf)
+		conf = mergeConfig(conf, tmpConf)
 	}
 	if conf == nil {
 		return nil, fmt.Errorf("no config files found")

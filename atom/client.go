@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 )
 
@@ -101,7 +100,7 @@ func (c *Client) http(method, url string, body io.Reader) (*http.Response, error
 	}
 
 	if resp.StatusCode >= 300 {
-		bytes, _ := ioutil.ReadAll(resp.Body)
+		bytes, _ := io.ReadAll(resp.Body)
 		return resp, fmt.Errorf("got [%s]: %q", resp.Status, string(bytes))
 	}
 

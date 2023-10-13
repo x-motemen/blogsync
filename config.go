@@ -2,7 +2,6 @@ package main
 
 import (
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -24,7 +23,7 @@ type blogConfig struct {
 }
 
 func loadConfig(r io.Reader, fpath string) (*config, error) {
-	bytes, err := ioutil.ReadAll(r)
+	bytes, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
@@ -62,11 +61,10 @@ func loadConfig(r io.Reader, fpath string) (*config, error) {
 		defaultConf = &blogConfig{}
 	}
 	delete(blogs, "default")
-	c := &config{
+	return &config{
 		Default: defaultConf,
 		Blogs:   blogs,
-	}
-	return c, nil
+	}, nil
 }
 
 func loadConfigFromEnv() (*config, error) {
