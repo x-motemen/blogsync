@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
@@ -164,7 +163,7 @@ func entryFromAtom(e *atom.Entry) (*entry, error) {
 var delimReg = regexp.MustCompile(`---\n+`)
 
 func entryFromReader(source io.Reader) (*entry, error) {
-	b, err := ioutil.ReadAll(source)
+	b, err := io.ReadAll(source)
 	if err != nil {
 		return nil, err
 	}

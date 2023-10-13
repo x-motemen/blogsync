@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -77,7 +76,7 @@ func TestLoadConfigration(t *testing.T) {
 			if runtime.GOOS == "windows" {
 				*localConf = strings.ReplaceAll(*localConf, "local_root: /", "local_root: D:/")
 			}
-			err := ioutil.WriteFile(
+			err := os.WriteFile(
 				filepath.Join(tempdir, "blogsync.yaml"), []byte(*localConf), 0755)
 			if err != nil {
 				return nil, err
@@ -93,7 +92,7 @@ func TestLoadConfigration(t *testing.T) {
 			if err != nil {
 				return nil, err
 			}
-			err = ioutil.WriteFile(globalConfFile, []byte(*globalConf), 0755)
+			err = os.WriteFile(globalConfFile, []byte(*globalConf), 0755)
 			if err != nil {
 				return nil, err
 			}
