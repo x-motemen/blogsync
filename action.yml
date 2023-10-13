@@ -3,7 +3,7 @@ description: setup blogsync to publish to Hatena Blog
 inputs:
   version:
     description: "A version to install blogsync"
-    default: "v0.14.2"
+    default: "v0.15.0"
     required: false
 runs:
   using: 'composite'
