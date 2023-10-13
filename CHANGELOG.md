@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.15.0](https://github.com/x-motemen/blogsync/compare/v0.14.2...v0.15.0) - 2023-10-13
+- [breaking change] normalize localRoot to absolute path by @Songmu in https://github.com/x-motemen/blogsync/pull/87
+- refactoring around config loading by @Songmu in https://github.com/x-motemen/blogsync/pull/89
+- expand tilde in LocalPath with home directory by @Songmu in https://github.com/x-motemen/blogsync/pull/90
+
 ## [v0.14.2](https://github.com/x-motemen/blogsync/compare/v0.14.1...v0.14.2) - 2023-10-09
 - [bugfix] ignore errors in the case of fetching fixed pages by @Songmu in https://github.com/x-motemen/blogsync/pull/85
 
