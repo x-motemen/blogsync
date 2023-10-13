@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 )
@@ -47,8 +48,17 @@ func loadConfig(r io.Reader, fpath string) (*config, error) {
 		if b == nil {
 			b = &blogConfig{}
 		}
-		if b.LocalRoot != "" && !filepath.IsAbs(b.LocalRoot) {
-			b.LocalRoot = filepath.Join(absDir, b.LocalRoot)
+		if b.LocalRoot != "" {
+			if b.LocalRoot == "~" || strings.HasPrefix(b.LocalRoot, "~/") {
+				home, err := os.UserHomeDir()
+				if err != nil {
+					return nil, err
+				}
+				b.LocalRoot = strings.Replace(b.LocalRoot, "~", home, 1)
+			}
+			if !filepath.IsAbs(b.LocalRoot) {
+				b.LocalRoot = filepath.Join(absDir, b.LocalRoot)
+			}
 		}
 		if b.BlogID != "default" {
 			b.BlogID = key
