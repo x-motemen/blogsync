@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.16.0](https://github.com/x-motemen/blogsync/compare/v0.15.0...v0.16.0) - 2023-10-14
+- add doc directory by @Songmu in https://github.com/x-motemen/blogsync/pull/92
+- post new entry when the pushed entry has no EditURL by @Songmu in https://github.com/x-motemen/blogsync/pull/91
+- set the updated to nil when the entry is still draft by @Songmu in https://github.com/x-motemen/blogsync/pull/95
+
 ## [v0.15.0](https://github.com/x-motemen/blogsync/compare/v0.14.2...v0.15.0) - 2023-10-13
 - [breaking change] normalize localRoot to absolute path by @Songmu in https://github.com/x-motemen/blogsync/pull/87
 - refactoring around config loading by @Songmu in https://github.com/x-motemen/blogsync/pull/89
