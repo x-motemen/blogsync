@@ -100,13 +100,13 @@ func TestDraftFullContent(t *testing.T) {
 }
 
 func TestFrontmatterDraftEntryFromReader(t *testing.T) {
-	jst, _ := time.LoadLocation("Asia/Tokyo")
+	var ti *time.Time
 
 	e, err := entryFromReader(strings.NewReader(draftContent))
 	assert.NoError(t, err)
 
 	assert.Equal(t, "所内#4", e.Title)
-	assert.True(t, e.Date.Equal(time.Date(2012, 12, 20, 0, 0, 0, 0, jst)))
+	assert.Equal(t, e.Date, ti)
 	assert.Equal(t, "http://hatenablog.example.com/2", e.URL.String())
 	assert.Equal(t, "http://hatenablog.example.com/2/edit", e.EditURL)
 	assert.True(t, e.IsDraft)

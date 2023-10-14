@@ -24,7 +24,7 @@ type entryURL struct {
 type entryHeader struct {
 	Title      string     `yaml:"Title"`
 	Category   []string   `yaml:"Category,omitempty"`
-	Date       *time.Time `yaml:"Date"`
+	Date       *time.Time `yaml:"Date,omitempty"`
 	URL        *entryURL  `yaml:"URL"`
 	EditURL    string     `yaml:"EditURL"`
 	IsDraft    bool       `yaml:"Draft,omitempty"`
@@ -140,24 +140,31 @@ func entryFromAtom(e *atom.Entry) (*entry, error) {
 		categories = append(categories, c.Term)
 	}
 
-	entry := &entry{
+	var isDraft bool
+	if e.Control != nil && e.Control.Draft == "yes" {
+		isDraft = true
+	}
+
+	// Set the updated to nil when the entry is still draft.
+	// But if the date is in the future, don't set to nil because it may be a reserved post.
+	updated := e.Updated
+	if updated != nil && isDraft && !time.Now().Before(*updated) {
+		updated = nil
+	}
+
+	return &entry{
 		entryHeader: &entryHeader{
 			URL:      &entryURL{u},
 			EditURL:  editLink.Href,
 			Title:    e.Title,
 			Category: categories,
-			Date:     e.Updated,
+			Date:     updated,
+			IsDraft:  isDraft,
 		},
 		LastModified: e.Edited,
 		Content:      e.Content.Content,
 		ContentType:  e.Content.Type,
-	}
-
-	if e.Control != nil && e.Control.Draft == "yes" {
-		entry.IsDraft = true
-	}
-
-	return entry, nil
+	}, nil
 }
 
 var delimReg = regexp.MustCompile(`---\n+`)
@@ -179,6 +186,11 @@ func entryFromReader(source io.Reader) (*entry, error) {
 		err = yaml.Unmarshal([]byte(c[1]), &eh)
 		if err != nil {
 			return nil, err
+		}
+		// Set the updated to nil when the entry is still draft.
+		// But if the date is in the future, don't set to nil because it may be a reserved post.
+		if eh.IsDraft && eh.Date != nil && !time.Now().Before(*eh.Date) {
+			eh.Date = nil
 		}
 		content = c[2]
 	}
