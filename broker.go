@@ -142,7 +142,7 @@ func (b *broker) PutEntry(e *entry) error {
 	if e.CustomPath != "" {
 		newEntry.CustomPath = e.CustomPath
 	}
-	return b.Store(newEntry, b.LocalPath(newEntry), b.LocalPath(e))
+	return b.Store(newEntry, b.LocalPath(newEntry), b.originalPath(e))
 }
 
 func (b *broker) PostEntry(e *entry, isPage bool) error {
@@ -161,6 +161,13 @@ func (b *broker) PostEntry(e *entry, isPage bool) error {
 	}
 
 	return b.Store(newEntry, b.LocalPath(newEntry), "")
+}
+
+func (b *broker) originalPath(e *entry) string {
+	if e.URL == nil {
+		return ""
+	}
+	return b.LocalPath(e)
 }
 
 func atomEndpointURLRoot(bc *blogConfig) string {
