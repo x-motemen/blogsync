@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.16.1](https://github.com/x-motemen/blogsync/compare/v0.16.0...v0.16.1) - 2023-10-14
+- 記事更新時に更新元ファイルのentryHeaderのURLが未設定の場合も更新ができるように修正  by @halkt in https://github.com/x-motemen/blogsync/pull/99
+
 ## [v0.16.0](https://github.com/x-motemen/blogsync/compare/v0.15.0...v0.16.0) - 2023-10-14
 - add doc directory by @Songmu in https://github.com/x-motemen/blogsync/pull/92
 - post new entry when the pushed entry has no EditURL by @Songmu in https://github.com/x-motemen/blogsync/pull/91
