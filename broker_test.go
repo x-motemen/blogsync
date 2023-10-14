@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/url"
+	"runtime"
 	"testing"
 	"time"
 
@@ -47,9 +48,10 @@ func TestOriginalPath(t *testing.T) {
 	d := time.Date(2023, 10, 10, 0, 0, 0, 0, jst)
 
 	testCases := []struct {
-		name   string
-		entry  entry
-		expect string
+		name          string
+		entry         entry
+		expect        string
+		expectWindows string
 	}{
 		{
 			name: "entry has URL",
@@ -64,7 +66,8 @@ func TestOriginalPath(t *testing.T) {
 				LastModified: &d,
 				Content:      "テスト",
 			},
-			expect: "example1.hatenablog.com/2.md",
+			expect:        "example1.hatenablog.com/2.md",
+			expectWindows: "example1.hatenablog.com\\2.md",
 		},
 		{
 			name: "Not URL",
@@ -77,7 +80,8 @@ func TestOriginalPath(t *testing.T) {
 				LastModified: &d,
 				Content:      "テスト",
 			},
-			expect: "",
+			expect:        "",
+			expectWindows: "",
 		},
 	}
 
@@ -90,6 +94,9 @@ func TestOriginalPath(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := broker.originalPath(&tc.entry)
+			if runtime.GOOS == "windows" {
+				tc.expect = tc.expectWindows
+			}
 			assert.Equal(t, tc.expect, got)
 		})
 	}
