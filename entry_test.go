@@ -139,7 +139,6 @@ URL: http://hatenablog.example.com/2
 EditURL: http://hatenablog.example.com/2/edit
 PreviewURL: http://hatenablog.example.com/2/preview
 Draft: true
-Preview: true
 ---
 
 下書き
@@ -158,32 +157,11 @@ func TestDraftWithPreviewFullContent(t *testing.T) {
 			Title:      "所内#4",
 			Date:       &d,
 			IsDraft:    true,
-			IsPreview:  true,
 		},
 		LastModified: &d,
 		Content:      "下書き\n",
 	}
 	assert.Equal(t, draftWithPreviewContent, e.fullContent())
-}
-
-func TestNoDraftWithPreviewFullContent(t *testing.T) {
-	u, _ := url.Parse("http://hatenablog.example.com/1")
-	jst, _ := time.LoadLocation("Asia/Tokyo")
-	d := time.Date(2012, 12, 19, 0, 0, 0, 0, jst)
-
-	e := &entry{
-		entryHeader: &entryHeader{
-			URL:       &entryURL{u},
-			EditURL:   u.String() + "/edit",
-			Title:     "所内#3",
-			Date:      &d,
-			IsDraft:   false,
-			IsPreview: true,
-		},
-		LastModified: &d,
-		Content:      "test\ntest2\n",
-	}
-	assert.Equal(t, content, e.fullContent())
 }
 
 var noCategory = `Title: 所内

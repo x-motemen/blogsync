@@ -29,7 +29,6 @@ type entryHeader struct {
 	EditURL    string     `yaml:"EditURL"`
 	PreviewURL string     `yaml:"PreviewURL,omitempty"`
 	IsDraft    bool       `yaml:"Draft,omitempty"`
-	IsPreview  bool       `yaml:"Preview,omitempty"`
 	CustomPath string     `yaml:"CustomPath,omitempty"`
 }
 
@@ -70,10 +69,6 @@ type entry struct {
 }
 
 func (e *entry) HeaderString() string {
-	// Preview doesn't work when draft is false.
-	if !e.entryHeader.IsDraft {
-		e.entryHeader.IsPreview = false
-	}
 	d, err := yaml.Marshal(e.entryHeader)
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -113,15 +108,9 @@ func (e *entry) atom() *atom.Entry {
 	}
 
 	if e.IsDraft {
-		if e.IsPreview {
-			atomEntry.Control = &atom.Control{
-				Draft:   "yes",
-				Preview: "yes",
-			}
-		} else {
-			atomEntry.Control = &atom.Control{
-				Draft: "yes",
-			}
+		atomEntry.Control = &atom.Control{
+			Draft:   "yes",
+			Preview: "yes",
 		}
 	}
 
@@ -160,11 +149,6 @@ func entryFromAtom(e *atom.Entry) (*entry, error) {
 		isDraft = true
 	}
 
-	var isPreview bool
-	if e.Control != nil && isDraft && e.Control.Preview == "yes" {
-		isPreview = true
-	}
-
 	// Set the updated to nil when the entry is still draft.
 	// But if the date is in the future, don't set to nil because it may be a reserved post.
 	updated := e.Updated
@@ -181,7 +165,6 @@ func entryFromAtom(e *atom.Entry) (*entry, error) {
 			Category:   categories,
 			Date:       updated,
 			IsDraft:    isDraft,
-			IsPreview:  isPreview,
 		},
 		LastModified: e.Edited,
 		Content:      e.Content.Content,
