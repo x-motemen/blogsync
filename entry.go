@@ -27,7 +27,9 @@ type entryHeader struct {
 	Date       *time.Time `yaml:"Date,omitempty"`
 	URL        *entryURL  `yaml:"URL"`
 	EditURL    string     `yaml:"EditURL"`
+	PreviewURL string     `yaml:"PreviewURL,omitempty"`
 	IsDraft    bool       `yaml:"Draft,omitempty"`
+	IsPreview  bool       `yaml:"Preview,omitempty"`
 	CustomPath string     `yaml:"CustomPath,omitempty"`
 }
 
@@ -68,6 +70,10 @@ type entry struct {
 }
 
 func (e *entry) HeaderString() string {
+	// Preview doesn't work when draft is false.
+	if !e.entryHeader.IsDraft {
+		e.entryHeader.IsPreview = false
+	}
 	d, err := yaml.Marshal(e.entryHeader)
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -107,8 +113,15 @@ func (e *entry) atom() *atom.Entry {
 	}
 
 	if e.IsDraft {
-		atomEntry.Control = &atom.Control{
-			Draft: "yes",
+		if e.IsPreview {
+			atomEntry.Control = &atom.Control{
+				Draft:   "yes",
+				Preview: "yes",
+			}
+		} else {
+			atomEntry.Control = &atom.Control{
+				Draft: "yes",
+			}
 		}
 	}
 
@@ -135,6 +148,8 @@ func entryFromAtom(e *atom.Entry) (*entry, error) {
 		return nil, fmt.Errorf("could not find link[rel=edit]")
 	}
 
+	previewLink := e.Links.Find("preview")
+
 	categories := make([]string, 0)
 	for _, c := range e.Category {
 		categories = append(categories, c.Term)
@@ -143,6 +158,11 @@ func entryFromAtom(e *atom.Entry) (*entry, error) {
 	var isDraft bool
 	if e.Control != nil && e.Control.Draft == "yes" {
 		isDraft = true
+	}
+
+	var isPreview bool
+	if e.Control != nil && isDraft && e.Control.Preview == "yes" {
+		isPreview = true
 	}
 
 	// Set the updated to nil when the entry is still draft.
@@ -154,12 +174,14 @@ func entryFromAtom(e *atom.Entry) (*entry, error) {
 
 	return &entry{
 		entryHeader: &entryHeader{
-			URL:      &entryURL{u},
-			EditURL:  editLink.Href,
-			Title:    e.Title,
-			Category: categories,
-			Date:     updated,
-			IsDraft:  isDraft,
+			URL:        &entryURL{u},
+			EditURL:    editLink.Href,
+			PreviewURL: previewLink.Href,
+			Title:      e.Title,
+			Category:   categories,
+			Date:       updated,
+			IsDraft:    isDraft,
+			IsPreview:  isPreview,
 		},
 		LastModified: e.Edited,
 		Content:      e.Content.Content,
