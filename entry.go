@@ -137,7 +137,11 @@ func entryFromAtom(e *atom.Entry) (*entry, error) {
 		return nil, fmt.Errorf("could not find link[rel=edit]")
 	}
 
-	previewLink := e.Links.Find("preview")
+	var previewLink string
+	p := e.Links.Find("preview")
+	if p != nil {
+		previewLink = p.Href
+	}
 
 	categories := make([]string, 0)
 	for _, c := range e.Category {
@@ -160,7 +164,7 @@ func entryFromAtom(e *atom.Entry) (*entry, error) {
 		entryHeader: &entryHeader{
 			URL:        &entryURL{u},
 			EditURL:    editLink.Href,
-			PreviewURL: previewLink.Href,
+			PreviewURL: previewLink,
 			Title:      e.Title,
 			Category:   categories,
 			Date:       updated,
