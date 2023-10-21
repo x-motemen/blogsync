@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -14,6 +15,7 @@ import (
 type broker struct {
 	*atom.Client
 	*blogConfig
+	writer io.Writer
 }
 
 func newBroker(bc *blogConfig) *broker {
@@ -27,6 +29,7 @@ func newBroker(bc *blogConfig) *broker {
 			},
 		},
 		blogConfig: bc,
+		writer:     os.Stdout,
 	}
 }
 
@@ -109,6 +112,7 @@ func (b *broker) Store(e *entry, path, origPath string) error {
 	if err := os.WriteFile(path, []byte(e.fullContent()), 0666); err != nil {
 		return err
 	}
+	fmt.Fprintln(b.writer, path)
 
 	if err := os.Chtimes(path, *e.LastModified, *e.LastModified); err != nil {
 		return err
