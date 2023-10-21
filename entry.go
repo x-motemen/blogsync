@@ -27,6 +27,7 @@ type entryHeader struct {
 	Date       *time.Time `yaml:"Date,omitempty"`
 	URL        *entryURL  `yaml:"URL"`
 	EditURL    string     `yaml:"EditURL"`
+	PreviewURL string     `yaml:"PreviewURL,omitempty"`
 	IsDraft    bool       `yaml:"Draft,omitempty"`
 	CustomPath string     `yaml:"CustomPath,omitempty"`
 }
@@ -108,7 +109,8 @@ func (e *entry) atom() *atom.Entry {
 
 	if e.IsDraft {
 		atomEntry.Control = &atom.Control{
-			Draft: "yes",
+			Draft:   "yes",
+			Preview: "yes",
 		}
 	}
 
@@ -135,6 +137,12 @@ func entryFromAtom(e *atom.Entry) (*entry, error) {
 		return nil, fmt.Errorf("could not find link[rel=edit]")
 	}
 
+	var previewLink string
+	p := e.Links.Find("preview")
+	if p != nil {
+		previewLink = p.Href
+	}
+
 	categories := make([]string, 0)
 	for _, c := range e.Category {
 		categories = append(categories, c.Term)
@@ -154,12 +162,13 @@ func entryFromAtom(e *atom.Entry) (*entry, error) {
 
 	return &entry{
 		entryHeader: &entryHeader{
-			URL:      &entryURL{u},
-			EditURL:  editLink.Href,
-			Title:    e.Title,
-			Category: categories,
-			Date:     updated,
-			IsDraft:  isDraft,
+			URL:        &entryURL{u},
+			EditURL:    editLink.Href,
+			PreviewURL: previewLink,
+			Title:      e.Title,
+			Category:   categories,
+			Date:       updated,
+			IsDraft:    isDraft,
 		},
 		LastModified: e.Edited,
 		Content:      e.Content.Content,

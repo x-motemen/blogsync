@@ -99,6 +99,25 @@ func TestDraftFullContent(t *testing.T) {
 	assert.Equal(t, draftContent, e.fullContent())
 }
 
+func TestNoDraftFullContent(t *testing.T) {
+	u, _ := url.Parse("http://hatenablog.example.com/1")
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	d := time.Date(2012, 12, 19, 0, 0, 0, 0, jst)
+
+	e := &entry{
+		entryHeader: &entryHeader{
+			URL:     &entryURL{u},
+			EditURL: u.String() + "/edit",
+			Title:   "所内#3",
+			Date:    &d,
+			IsDraft: false,
+		},
+		LastModified: &d,
+		Content:      "test\ntest2\n",
+	}
+	assert.Equal(t, content, e.fullContent())
+}
+
 func TestFrontmatterDraftEntryFromReader(t *testing.T) {
 	var ti *time.Time
 
@@ -111,6 +130,38 @@ func TestFrontmatterDraftEntryFromReader(t *testing.T) {
 	assert.Equal(t, "http://hatenablog.example.com/2/edit", e.EditURL)
 	assert.True(t, e.IsDraft)
 	assert.Equal(t, "下書き\n", e.Content)
+}
+
+var draftWithPreviewContent = `---
+Title: 所内#4
+Date: 2012-12-20T00:00:00+09:00
+URL: http://hatenablog.example.com/2
+EditURL: http://hatenablog.example.com/2/edit
+PreviewURL: http://hatenablog.example.com/2/preview
+Draft: true
+---
+
+下書き
+`
+
+func TestDraftWithPreviewFullContent(t *testing.T) {
+	u, _ := url.Parse("http://hatenablog.example.com/2")
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	d := time.Date(2012, 12, 20, 0, 0, 0, 0, jst)
+
+	e := &entry{
+		entryHeader: &entryHeader{
+			URL:        &entryURL{u},
+			EditURL:    u.String() + "/edit",
+			PreviewURL: u.String() + "/preview",
+			Title:      "所内#4",
+			Date:       &d,
+			IsDraft:    true,
+		},
+		LastModified: &d,
+		Content:      "下書き\n",
+	}
+	assert.Equal(t, draftWithPreviewContent, e.fullContent())
 }
 
 var noCategory = `Title: 所内
