@@ -95,6 +95,10 @@ func loadConfigFiles(pwd string) (*config, error) {
 var commandPull = &cli.Command{
 	Name:  "pull",
 	Usage: "Pull entries from remote",
+	Flags: []cli.Flag{
+		&cli.BoolFlag{Name: "no-drafts"},
+		&cli.BoolFlag{Name: "only-drafts"},
+	},
 	Action: func(c *cli.Context) error {
 		blog := c.Args().First()
 		if blog == "" {
@@ -112,7 +116,8 @@ var commandPull = &cli.Command{
 		}
 
 		b := newBroker(blogConfig)
-		remoteEntries, err := b.FetchRemoteEntries()
+		remoteEntries, err := b.FetchRemoteEntries(
+			!c.Bool("only-drafts"), !c.Bool("no-drafts"))
 		if err != nil {
 			return err
 		}
