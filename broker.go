@@ -33,7 +33,7 @@ func newBroker(bc *blogConfig) *broker {
 	}
 }
 
-func (b *broker) FetchRemoteEntries() ([]*entry, error) {
+func (b *broker) FetchRemoteEntries(published, drafts bool) ([]*entry, error) {
 	entries := []*entry{}
 	fixedPageURL := fixedPageEndpointURL(b.blogConfig)
 	urls := []string{
@@ -63,7 +63,9 @@ func (b *broker) FetchRemoteEntries() ([]*entry, error) {
 			if err != nil {
 				return nil, err
 			}
-			entries = append(entries, e)
+			if (e.IsDraft && drafts) || (!e.IsDraft && published) {
+				entries = append(entries, e)
+			}
 		}
 
 		nextLink := feed.Links.Find("next")
