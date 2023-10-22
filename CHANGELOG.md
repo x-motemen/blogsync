@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.17.0](https://github.com/x-motemen/blogsync/compare/v0.16.1...v0.17.0) - 2023-10-22
+- Add PreviewURL field by @Mahito in https://github.com/x-motemen/blogsync/pull/104
+- [incompatible] change log output dest to stderr by @Songmu in https://github.com/x-motemen/blogsync/pull/106
+- output updated files to stdout by @Songmu in https://github.com/x-motemen/blogsync/pull/107
+- add "--no-drafts" and "--only-drafts" flags to pull subcommand for drafts management by @Songmu in https://github.com/x-motemen/blogsync/pull/110
+
 ## [v0.16.1](https://github.com/x-motemen/blogsync/compare/v0.16.0...v0.16.1) - 2023-10-14
 - 記事更新時に更新元ファイルのentryHeaderのURLが未設定の場合も更新ができるように修正  by @halkt in https://github.com/x-motemen/blogsync/pull/99
 
