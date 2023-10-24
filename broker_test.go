@@ -5,8 +5,6 @@ import (
 	"runtime"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestEntryEndPointUrl(t *testing.T) {
@@ -37,7 +35,9 @@ func TestEntryEndPointUrl(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := entryEndPointUrl(&tc.config)
-			assert.Equal(t, tc.expect, got)
+			if tc.expect != got {
+				t.Errorf("expect: %s, got: %s", tc.expect, got)
+			}
 		})
 	}
 }
@@ -97,7 +97,9 @@ func TestOriginalPath(t *testing.T) {
 			if runtime.GOOS == "windows" {
 				tc.expect = tc.expectWindows
 			}
-			assert.Equal(t, tc.expect, got)
+			if tc.expect != got {
+				t.Errorf("expect: %s, got: %s", tc.expect, got)
+			}
 		})
 	}
 }
