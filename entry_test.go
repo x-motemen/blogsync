@@ -6,28 +6,64 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
-	"gopkg.in/yaml.v2"
 )
+
+var jst *time.Location
+
+func init() {
+	jst, _ = time.LoadLocation("Asia/Tokyo")
+}
 
 func TestEntryFromReader(t *testing.T) {
 	f, err := os.Open("example/data/karimen.hatenablog.com/entry/2012/12/18/000000.md")
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer f.Close()
 
-	jst, err := time.LoadLocation("Asia/Tokyo")
-	assert.NoError(t, err)
-
 	e, err := entryFromReader(f)
-	assert.NoError(t, err)
+	if err != nil {
+		t.Errorf("failed to parse entry: %v", err)
+	}
+	if e, g := "所内#2", e.Title; e != g {
+		t.Errorf("Title: got %#v, want %#v", g, e)
+	}
 
-	assert.Equal(t, "所内#2", e.Title)
-
-	assert.True(t, e.Date.Equal(time.Date(2012, 12, 18, 0, 0, 0, 0, jst)))
+	if e, g := e.Date, time.Date(2012, 12, 18, 0, 0, 0, 0, jst); !e.Equal(g) {
+		t.Errorf("Date: got %#v, want %#v", g, e)
+	}
 }
 
-var content = `---
+func mustURLParse(s string) *url.URL {
+	u, err := url.Parse(s)
+	if err != nil {
+		panic(err)
+	}
+	return u
+}
+
+func TestFullContent(t *testing.T) {
+	testCases := []struct {
+		name string
+		e    func() *entry
+		want string
+	}{{
+		name: "normal",
+		e: func() *entry {
+			u := mustURLParse("http://hatenablog.example.com/1")
+			d := time.Date(2012, 12, 19, 0, 0, 0, 0, jst)
+			return &entry{
+				entryHeader: &entryHeader{
+					URL:     &entryURL{u},
+					EditURL: u.String() + "/edit",
+					Title:   "所内#3",
+					Date:    &d,
+				},
+				LastModified: &d,
+				Content:      "test\ntest2\n",
+			}
+		},
+		want: `---
 Title: 所内#3
 Date: 2012-12-19T00:00:00+09:00
 URL: http://hatenablog.example.com/1
@@ -36,167 +72,123 @@ EditURL: http://hatenablog.example.com/1/edit
 
 test
 test2
-`
+`}, {
+		name: "draft",
+		e: func() *entry {
+			u := mustURLParse("http://hatenablog.example.com/2")
+			return &entry{
+				entryHeader: &entryHeader{
+					URL:     &entryURL{u},
+					EditURL: u.String() + "/edit",
+					Title:   "所内#4",
+					IsDraft: true,
+				},
+				Content: "下書き\n",
+			}
 
-func TestFullContent(t *testing.T) {
-	u, _ := url.Parse("http://hatenablog.example.com/1")
-	jst, _ := time.LoadLocation("Asia/Tokyo")
-	d := time.Date(2012, 12, 19, 0, 0, 0, 0, jst)
-
-	e := &entry{
-		entryHeader: &entryHeader{
-			URL:     &entryURL{u},
-			EditURL: u.String() + "/edit",
-			Title:   "所内#3",
-			Date:    &d,
 		},
-		LastModified: &d,
-		Content:      "test\ntest2",
-	}
-	assert.Equal(t, content, e.fullContent())
-}
-
-func TestFrontmatterEntryFromReader(t *testing.T) {
-	jst, _ := time.LoadLocation("Asia/Tokyo")
-
-	e, err := entryFromReader(strings.NewReader(content))
-	assert.NoError(t, err)
-
-	assert.Equal(t, "所内#3", e.Title)
-	assert.True(t, e.Date.Equal(time.Date(2012, 12, 19, 0, 0, 0, 0, jst)))
-	assert.Equal(t, "http://hatenablog.example.com/1", e.URL.String())
-	assert.Equal(t, "http://hatenablog.example.com/1/edit", e.EditURL)
-	assert.Equal(t, "test\ntest2\n", e.Content)
-}
-
-var draftContent = `---
+		want: `---
 Title: 所内#4
-Date: 2012-12-20T00:00:00+09:00
 URL: http://hatenablog.example.com/2
 EditURL: http://hatenablog.example.com/2/edit
 Draft: true
 ---
 
 下書き
-`
+`}, {
+		name: "draft with future date",
+		e: func() *entry {
+			u := mustURLParse("http://hatenablog.example.com/2")
+			d := time.Date(2099, 12, 20, 0, 0, 0, 0, jst)
 
-func TestDraftFullContent(t *testing.T) {
-	u, _ := url.Parse("http://hatenablog.example.com/2")
-	jst, _ := time.LoadLocation("Asia/Tokyo")
-	d := time.Date(2012, 12, 20, 0, 0, 0, 0, jst)
+			return &entry{
+				entryHeader: &entryHeader{
+					URL:     &entryURL{u},
+					EditURL: u.String() + "/edit",
+					Title:   "所内#4",
+					Date:    &d,
+					IsDraft: true,
+				},
+				LastModified: &d,
+				Content:      "下書き\n",
+			}
 
-	e := &entry{
-		entryHeader: &entryHeader{
-			URL:     &entryURL{u},
-			EditURL: u.String() + "/edit",
-			Title:   "所内#4",
-			Date:    &d,
-			IsDraft: true,
 		},
-		LastModified: &d,
-		Content:      "下書き\n",
-	}
-	assert.Equal(t, draftContent, e.fullContent())
-}
-
-func TestNoDraftFullContent(t *testing.T) {
-	u, _ := url.Parse("http://hatenablog.example.com/1")
-	jst, _ := time.LoadLocation("Asia/Tokyo")
-	d := time.Date(2012, 12, 19, 0, 0, 0, 0, jst)
-
-	e := &entry{
-		entryHeader: &entryHeader{
-			URL:     &entryURL{u},
-			EditURL: u.String() + "/edit",
-			Title:   "所内#3",
-			Date:    &d,
-			IsDraft: false,
-		},
-		LastModified: &d,
-		Content:      "test\ntest2\n",
-	}
-	assert.Equal(t, content, e.fullContent())
-}
-
-func TestFrontmatterDraftEntryFromReader(t *testing.T) {
-	var ti *time.Time
-
-	e, err := entryFromReader(strings.NewReader(draftContent))
-	assert.NoError(t, err)
-
-	assert.Equal(t, "所内#4", e.Title)
-	assert.Equal(t, e.Date, ti)
-	assert.Equal(t, "http://hatenablog.example.com/2", e.URL.String())
-	assert.Equal(t, "http://hatenablog.example.com/2/edit", e.EditURL)
-	assert.True(t, e.IsDraft)
-	assert.Equal(t, "下書き\n", e.Content)
-}
-
-var draftWithPreviewContent = `---
+		want: `---
 Title: 所内#4
-Date: 2012-12-20T00:00:00+09:00
+Date: 2099-12-20T00:00:00+09:00
 URL: http://hatenablog.example.com/2
 EditURL: http://hatenablog.example.com/2/edit
-PreviewURL: http://hatenablog.example.com/2/preview
 Draft: true
 ---
 
 下書き
-`
+`}, {
+		name: "category",
+		e: func() *entry {
+			u := mustURLParse("http://hatenablog.example.com/2")
+			d := time.Date(2012, 12, 20, 0, 0, 0, 0, jst)
 
-func TestDraftWithPreviewFullContent(t *testing.T) {
-	u, _ := url.Parse("http://hatenablog.example.com/2")
-	jst, _ := time.LoadLocation("Asia/Tokyo")
-	d := time.Date(2012, 12, 20, 0, 0, 0, 0, jst)
+			return &entry{
+				entryHeader: &entryHeader{
+					URL:      &entryURL{u},
+					EditURL:  u.String() + "/edit",
+					Title:    "所内",
+					Category: []string{"foo", "bar"},
+					Date:     &d,
+				},
+				LastModified: &d,
+				Content:      "foo bar カテゴリー\n",
+			}
 
-	e := &entry{
-		entryHeader: &entryHeader{
-			URL:        &entryURL{u},
-			EditURL:    u.String() + "/edit",
-			PreviewURL: u.String() + "/preview",
-			Title:      "所内#4",
-			Date:       &d,
-			IsDraft:    true,
 		},
-		LastModified: &d,
-		Content:      "下書き\n",
-	}
-	assert.Equal(t, draftWithPreviewContent, e.fullContent())
-}
-
-var noCategory = `Title: 所内
-Date: 2012-12-20T00:00:00+09:00
-URL: http://hatenablog.example.com/2
-EditURL: http://hatenablog.example.com/2/edit
-`
-
-func TestUnmarshalYAML(t *testing.T) {
-	u, _ := url.Parse("http://hatenablog.example.com/2")
-	jst, _ := time.LoadLocation("Asia/Tokyo")
-	d := time.Date(2012, 12, 20, 0, 0, 0, 0, jst)
-
-	eh := &entryHeader{
-		URL:      &entryURL{u},
-		EditURL:  u.String() + "/edit",
-		Title:    "所内",
-		Category: []string{"foo", "bar"},
-		Date:     &d,
-	}
-	ya, _ := yaml.Marshal(eh)
-	assert.Equal(t, `Title: 所内
+		want: `---
+Title: 所内
 Category:
 - foo
 - bar
 Date: 2012-12-20T00:00:00+09:00
 URL: http://hatenablog.example.com/2
 EditURL: http://hatenablog.example.com/2/edit
-`, string(ya))
+---
 
-	eh2 := entryHeader{}
-	yaml.Unmarshal(ya, &eh2)
-	assert.Equal(t, "所内", eh2.Title)
+foo bar カテゴリー
+`}}
 
-	eh3 := entryHeader{}
-	yaml.Unmarshal([]byte(noCategory), &eh3)
-	assert.Nil(t, eh3.Category)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			e := tc.e()
+			fullContent := e.fullContent()
+			if fullContent != tc.want {
+				t.Errorf("got %v, want %v", fullContent, tc.want)
+			}
+
+			parsedE, err := entryFromReader(strings.NewReader(fullContent))
+			if err != nil {
+				t.Errorf("failed to parse entry: %v", err)
+			}
+
+			if e, g := e.Title, parsedE.Title; e != g {
+				t.Errorf("Title: got %#v, want %#v", g, e)
+			}
+
+			if e.Date != nil {
+				if e, g := e.Date, parsedE.Date; !e.Equal(*g) {
+					t.Errorf("Date: got %#v, want %#v", g, e)
+				}
+			}
+			if e, g := e.URL, parsedE.URL; e.String() != g.String() {
+				t.Errorf("URL: got %#v, want %#v", g, e)
+			}
+			if e, g := e.EditURL, parsedE.EditURL; e != g {
+				t.Errorf("EditURL: got %#v, want %#v", g, e)
+			}
+			if e, g := e.Content, parsedE.Content; e != g {
+				t.Errorf("Content: got %#v, want %#v", g, e)
+			}
+			if e, g := e.IsDraft, parsedE.IsDraft; e != g {
+				t.Errorf("IsDraft: got %#v, want %#v", g, e)
+			}
+		})
+	}
 }
