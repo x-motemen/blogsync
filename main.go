@@ -16,6 +16,7 @@ func main() {
 	app := cli.NewApp()
 	app.Commands = []*cli.Command{
 		commandPull,
+		commandFetch,
 		commandPush,
 		commandPost,
 		commandList,
@@ -126,6 +127,48 @@ var commandPull = &cli.Command{
 			path := b.LocalPath(re)
 			_, err := b.StoreFresh(re, path)
 			if err != nil {
+				return err
+			}
+		}
+		return nil
+	},
+}
+
+var commandFetch = &cli.Command{
+	Name:  "fetch",
+	Usage: "Fetch entries from remote",
+	Action: func(c *cli.Context) error {
+		first := c.Args().First()
+		if first == "" {
+			cli.ShowCommandHelp(c, "fetch")
+			return errCommandHelp
+		}
+		conf, err := loadConfiguration()
+		if err != nil {
+			return err
+		}
+		for _, path := range c.Args().Slice() {
+			f, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+
+			e, err := entryFromReader(f)
+			if err != nil {
+				return err
+			}
+			blogID, err := e.blogID()
+			if err != nil {
+				return err
+			}
+
+			bc := conf.Get(blogID)
+			if bc == nil {
+				return fmt.Errorf("cannot find blog for %s", path)
+			}
+			b := newBroker(bc)
+			if _, err := b.StoreFresh(e, path); err != nil {
 				return err
 			}
 		}
