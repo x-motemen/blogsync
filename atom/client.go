@@ -5,9 +5,13 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"log"
+	"log/slog"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
+	"sync"
 )
 
 // Client wrapped *http.Client and some methods for accessing atom feed are added
@@ -92,12 +96,29 @@ func entryBody(e *Entry) (*bytes.Buffer, error) {
 
 var blogsyncDebug = os.Getenv("BLOGSYNC_DEBUG") != ""
 
+var debugLogger = sync.OnceValue(func() *slog.Logger {
+	var w io.Writer = os.Stderr
+	cached, err := os.UserCacheDir()
+	if err == nil {
+		logf := filepath.Join(cached, "blogsync", "tracedump.log")
+		if err := os.MkdirAll(filepath.Dir(logf), 0755); err == nil {
+			if f, err := os.OpenFile(logf, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644); err == nil {
+				log.Printf("trace dumps are output to %s\n", logf)
+				w = f
+			}
+		}
+	}
+	return slog.New(slog.NewJSONHandler(w, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
+})
+
 type traceDump struct {
-	RequestBody  string `yaml:",omitempty"`
-	ResponseBody string
-	Method       string
-	URL          string
-	Code         int
+	Request  string `json:"request,omitempty"`
+	Response string `json:"response,omitempty"`
+	Method   string `json:"method"`
+	URL      string `json:"url"`
+	Status   int    `json:"status"`
 }
 
 func (c *Client) http(method, url string, body io.Reader) (*http.Response, error) {
@@ -107,8 +128,8 @@ func (c *Client) http(method, url string, body io.Reader) (*http.Response, error
 		if err != nil {
 			return nil, err
 		}
-		td.RequestBody = string(bb)
-		body = strings.NewReader(td.RequestBody)
+		td.Request = string(bb)
+		body = strings.NewReader(td.Request)
 	}
 
 	req, err := http.NewRequest(method, url, body)
@@ -131,12 +152,12 @@ func (c *Client) http(method, url string, body io.Reader) (*http.Response, error
 		if err != nil {
 			return nil, err
 		}
-		td.ResponseBody = string(bb)
+		td.Response = string(bb)
 		td.Method = method
 		td.URL = url
-		td.Code = resp.StatusCode
-		fmt.Printf("%+v\n", td)
-		resp.Body = io.NopCloser(strings.NewReader(td.ResponseBody))
+		td.Status = resp.StatusCode
+		debugLogger().Debug("traceDump", "data", td)
+		resp.Body = io.NopCloser(strings.NewReader(td.Response))
 	}
 	return resp, nil
 }
