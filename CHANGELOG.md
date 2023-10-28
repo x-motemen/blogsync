@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.18.1](https://github.com/x-motemen/blogsync/compare/v0.18.0...v0.18.1) - 2023-10-28
+- suppress git error logs by @Songmu in https://github.com/x-motemen/blogsync/pull/119
+
 ## [v0.18.0](https://github.com/x-motemen/blogsync/compare/v0.17.0...v0.18.0) - 2023-10-28
 - Drop testify dependency by @Songmu in https://github.com/x-motemen/blogsync/pull/113
 - Output debug logs for API access by @Songmu in https://github.com/x-motemen/blogsync/pull/115
