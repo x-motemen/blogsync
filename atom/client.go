@@ -115,7 +115,7 @@ var debugLogger = sync.OnceValue(func() *slog.Logger {
 
 func (c *Client) http(method, url string, body io.Reader) (resp *http.Response, err error) {
 	if blogsyncDebug {
-		var reqBody, resBody string
+		var reqBody string
 		if body != nil {
 			bb, err := io.ReadAll(body)
 			if err != nil {
@@ -135,14 +135,13 @@ func (c *Client) http(method, url string, body io.Reader) (resp *http.Response, 
 				return
 			}
 			resp.Body = io.NopCloser(bytes.NewReader(bb))
-			resBody = string(bb)
 
 			debugLogger().Debug("traceDump",
 				slog.String("method", method),
 				slog.String("url", url),
 				slog.String("request", reqBody),
 				slog.Int("status", resp.StatusCode),
-				slog.String("response", resBody))
+				slog.String("response", string(bb)))
 		}()
 	}
 
