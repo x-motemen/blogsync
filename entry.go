@@ -243,13 +243,8 @@ var getGit = sync.OnceValue(func() string {
 })
 
 func doCommand(name string, args ...string) (string, error) {
-	cmd := exec.Command(name, args...)
-	cmd.Stderr = os.Stderr
-	bb, err := cmd.Output()
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(string(bb)), nil
+	bb, err := exec.Command(name, args...).Output()
+	return strings.TrimSpace(string(bb)), err
 }
 
 func modTime(fpath string) (time.Time, error) {
