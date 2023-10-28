@@ -213,12 +213,11 @@ func entryFromReader(source io.Reader) (*entry, error) {
 			t := time.Now()
 			entry.LastModified = &t
 		} else {
-			fi, err := os.Stat(f.Name())
+			ti, err := modTime(f.Name())
 			if err != nil {
 				return nil, err
 			}
-			t := fi.ModTime()
-			entry.LastModified = &t
+			entry.LastModified = &ti
 		}
 	}
 
@@ -231,4 +230,12 @@ func asEntry(atomEntry *atom.Entry, err error) (*entry, error) {
 	}
 
 	return entryFromAtom(atomEntry)
+}
+
+func modTime(fpath string) (time.Time, error) {
+	fi, err := os.Stat(fpath)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return fi.ModTime(), nil
 }
