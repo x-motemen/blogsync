@@ -6,9 +6,11 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"os/exec"
 	"regexp"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/x-motemen/blogsync/atom"
@@ -232,10 +234,46 @@ func asEntry(atomEntry *atom.Entry, err error) (*entry, error) {
 	return entryFromAtom(atomEntry)
 }
 
+var getGit = sync.OnceValue(func() string {
+	g, err := exec.LookPath("git")
+	if err != nil {
+		return ""
+	}
+	return g
+})
+
+func doCommand(name string, args ...string) (string, error) {
+	cmd := exec.Command(name, args...)
+	cmd.Stderr = os.Stderr
+	bb, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(bb)), nil
+}
+
 func modTime(fpath string) (time.Time, error) {
 	fi, err := os.Stat(fpath)
 	if err != nil {
 		return time.Time{}, err
 	}
-	return fi.ModTime(), nil
+	ti := fi.ModTime()
+
+	if git := getGit(); git != "" {
+		// ref. https://git-scm.com/docs/pretty-formats#Documentation/pretty-formats.txt-emaiem
+		// %aI means "author date, strict ISO 8601 format"
+		timeStr, err := doCommand(git, "log", "-1", "--format=%aI", "--", fpath)
+		if err == nil && timeStr != "" {
+			// check if the file is clean (not modified) on git
+			out, err := doCommand(git, "status", "-s", "--", fpath)
+			// if the output is empty, it means the file has not been modified
+			if err == nil && out == "" {
+				t, err := time.Parse(time.RFC3339, timeStr)
+				if err == nil {
+					ti = t
+				}
+			}
+		}
+	}
+	return ti, nil
 }
