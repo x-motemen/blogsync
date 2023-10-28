@@ -121,15 +121,35 @@ type traceDump struct {
 	Status   int    `json:"status"`
 }
 
-func (c *Client) http(method, url string, body io.Reader) (*http.Response, error) {
-	td := traceDump{}
-	if blogsyncDebug && body != nil {
-		bb, err := io.ReadAll(body)
-		if err != nil {
-			return nil, err
+func (c *Client) http(method, url string, body io.Reader) (resp *http.Response, err error) {
+	if blogsyncDebug {
+		td := traceDump{
+			Method: method,
+			URL:    url,
 		}
-		td.Request = string(bb)
-		body = strings.NewReader(td.Request)
+		if body != nil {
+			bb, err := io.ReadAll(body)
+			if err != nil {
+				return nil, err
+			}
+			td.Request = string(bb)
+			body = strings.NewReader(td.Request)
+		}
+		defer func() {
+			if err != nil {
+				return
+			}
+			bb, rerr := io.ReadAll(resp.Body)
+			if rerr != nil {
+				err = rerr
+				resp.Body.Close()
+				return
+			}
+			td.Response = string(bb)
+			td.Status = resp.StatusCode
+			debugLogger().Debug("traceDump", "data", td)
+			resp.Body = io.NopCloser(strings.NewReader(td.Response))
+		}()
 	}
 
 	req, err := http.NewRequest(method, url, body)
@@ -137,7 +157,7 @@ func (c *Client) http(method, url string, body io.Reader) (*http.Response, error
 		return nil, err
 	}
 
-	resp, err := c.Client.Do(req)
+	resp, err = c.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -147,17 +167,5 @@ func (c *Client) http(method, url string, body io.Reader) (*http.Response, error
 		return resp, fmt.Errorf("got [%s]: %q", resp.Status, string(bytes))
 	}
 
-	if blogsyncDebug {
-		bb, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		td.Response = string(bb)
-		td.Method = method
-		td.URL = url
-		td.Status = resp.StatusCode
-		debugLogger().Debug("traceDump", "data", td)
-		resp.Body = io.NopCloser(strings.NewReader(td.Response))
-	}
 	return resp, nil
 }
