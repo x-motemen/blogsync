@@ -113,27 +113,16 @@ var debugLogger = sync.OnceValue(func() *slog.Logger {
 	}))
 })
 
-type traceDump struct {
-	Request  string `json:"request,omitempty"`
-	Response string `json:"response,omitempty"`
-	Method   string `json:"method"`
-	URL      string `json:"url"`
-	Status   int    `json:"status"`
-}
-
 func (c *Client) http(method, url string, body io.Reader) (resp *http.Response, err error) {
 	if blogsyncDebug {
-		td := traceDump{
-			Method: method,
-			URL:    url,
-		}
+		var reqBody, resBody string
 		if body != nil {
 			bb, err := io.ReadAll(body)
 			if err != nil {
 				return nil, err
 			}
-			td.Request = string(bb)
-			body = strings.NewReader(td.Request)
+			reqBody = string(bb)
+			body = strings.NewReader(reqBody)
 		}
 		defer func() {
 			if err != nil {
@@ -145,10 +134,15 @@ func (c *Client) http(method, url string, body io.Reader) (resp *http.Response, 
 				resp.Body.Close()
 				return
 			}
-			td.Response = string(bb)
-			td.Status = resp.StatusCode
-			debugLogger().Debug("traceDump", "data", td)
-			resp.Body = io.NopCloser(strings.NewReader(td.Response))
+			resp.Body = io.NopCloser(bytes.NewReader(bb))
+			resBody = string(bb)
+
+			debugLogger().Debug("traceDump",
+				slog.String("method", method),
+				slog.String("url", url),
+				slog.String("request", reqBody),
+				slog.Int("status", resp.StatusCode),
+				slog.String("response", resBody))
 		}()
 	}
 
