@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.18.0](https://github.com/x-motemen/blogsync/compare/v0.17.0...v0.18.0) - 2023-10-28
+- Drop testify dependency by @Songmu in https://github.com/x-motemen/blogsync/pull/113
+- Output debug logs for API access by @Songmu in https://github.com/x-motemen/blogsync/pull/115
+- use git log to determine when a file was last updated by @Songmu in https://github.com/x-motemen/blogsync/pull/118
+- add fetch subcommand by @Songmu in https://github.com/x-motemen/blogsync/pull/116
+
 ## [v0.17.0](https://github.com/x-motemen/blogsync/compare/v0.16.1...v0.17.0) - 2023-10-22
 - Add PreviewURL field by @Mahito in https://github.com/x-motemen/blogsync/pull/104
 - [incompatible] change log output dest to stderr by @Songmu in https://github.com/x-motemen/blogsync/pull/106
