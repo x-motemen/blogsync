@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"strings"
 )
 
 // Client wrapped *http.Client and some methods for accessing atom feed are added
@@ -88,7 +90,27 @@ func entryBody(e *Entry) (*bytes.Buffer, error) {
 	return body, nil
 }
 
+var blogsyncDebug = os.Getenv("BLOGSYNC_DEBUG") != ""
+
+type traceDump struct {
+	RequestBody  string `yaml:",omitempty"`
+	ResponseBody string
+	Method       string
+	URL          string
+	Code         int
+}
+
 func (c *Client) http(method, url string, body io.Reader) (*http.Response, error) {
+	td := traceDump{}
+	if blogsyncDebug && body != nil {
+		bb, err := io.ReadAll(body)
+		if err != nil {
+			return nil, err
+		}
+		td.RequestBody = string(bb)
+		body = strings.NewReader(td.RequestBody)
+	}
+
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
@@ -104,5 +126,17 @@ func (c *Client) http(method, url string, body io.Reader) (*http.Response, error
 		return resp, fmt.Errorf("got [%s]: %q", resp.Status, string(bytes))
 	}
 
+	if blogsyncDebug {
+		bb, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		td.ResponseBody = string(bb)
+		td.Method = method
+		td.URL = url
+		td.Code = resp.StatusCode
+		fmt.Printf("%+v\n", td)
+		resp.Body = io.NopCloser(strings.NewReader(td.ResponseBody))
+	}
 	return resp, nil
 }
