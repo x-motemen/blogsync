@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/motemen/go-wsse"
 	"github.com/x-motemen/blogsync/atom"
@@ -86,11 +85,7 @@ func (b *broker) LocalPath(e *entry) string {
 }
 
 func (b *broker) StoreFresh(e *entry, path string) (bool, error) {
-	var localLastModified time.Time
-	if fi, err := os.Stat(path); err == nil {
-		localLastModified = fi.ModTime()
-	}
-
+	localLastModified, _ := modTime(path)
 	if e.LastModified.After(localLastModified) {
 		logf("fresh", "remote=%s > local=%s", e.LastModified, localLastModified)
 		if err := b.Store(e, path, ""); err != nil {
