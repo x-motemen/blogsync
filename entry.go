@@ -27,7 +27,7 @@ type entryHeader struct {
 	Title      string     `yaml:"Title"`
 	Category   []string   `yaml:"Category,omitempty"`
 	Date       *time.Time `yaml:"Date,omitempty"`
-	URL        *entryURL  `yaml:"URL"`
+	URL        *entryURL  `yaml:"URL,omitempty"`
 	EditURL    string     `yaml:"EditURL"`
 	PreviewURL string     `yaml:"PreviewURL,omitempty"`
 	IsDraft    bool       `yaml:"Draft,omitempty"`

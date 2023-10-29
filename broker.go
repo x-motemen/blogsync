@@ -126,6 +126,17 @@ func (b *broker) StoreFresh(e *entry, path string) (bool, error) {
 func (b *broker) Store(e *entry, path, origPath string) error {
 	logf("store", "%s", path)
 
+	if e.IsDraft && strings.Contains(e.EditURL, "/atom/entry/") {
+		stuffs := strings.SplitN(e.URL.Path, "/entry/", 2)
+		if len(stuffs) != 2 {
+			return fmt.Errorf("invalid path: %s", e.URL.Path)
+		}
+		cPath := stuffs[1]
+		if isGivenPath(cPath) {
+			e.URL = nil
+		}
+	}
+
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
