@@ -34,6 +34,7 @@ type blogConfig struct {
 	Password   string
 	OmitDomain *bool  `yaml:"omit_domain"`
 	Owner      string `yaml:"owner"`
+	local      bool
 }
 
 func (bc *blogConfig) localRoot() string {
@@ -57,7 +58,8 @@ func loadConfig(r io.Reader, fpath string) (*config, error) {
 			return nil, err
 		}
 	}
-	absDir := filepath.Dir(fpath)
+	absDir, fname := filepath.Split(fpath)
+	var isLocal = fname == "blogsync.yaml"
 
 	var blogs map[string]*blogConfig
 	err = yaml.Unmarshal(bytes, &blogs)
@@ -83,6 +85,7 @@ func loadConfig(r io.Reader, fpath string) (*config, error) {
 		}
 		if b.BlogID != "default" {
 			b.BlogID = key
+			b.local = isLocal
 		}
 		blogs[key] = b
 	}
@@ -136,6 +139,9 @@ func mergeBlogConfig(b1, b2 *blogConfig) *blogConfig {
 	}
 	if b1.OmitDomain == nil {
 		b1.OmitDomain = b2.OmitDomain
+	}
+	if !b1.local {
+		b1.local = b2.local
 	}
 	return b1
 }

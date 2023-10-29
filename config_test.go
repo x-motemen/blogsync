@@ -187,6 +187,7 @@ func TestLoadConfigration(t *testing.T) {
 				BlogID:    "blog1.example.com",
 				LocalRoot: "/data",
 				Username:  "blog1",
+				local:     true,
 			},
 		},
 		{
@@ -205,6 +206,7 @@ func TestLoadConfigration(t *testing.T) {
 				LocalRoot: "/",
 				Username:  "blog1",
 				Password:  "pww",
+				local:     true,
 			},
 		},
 		{
@@ -224,6 +226,7 @@ func TestLoadConfigration(t *testing.T) {
 				LocalRoot: "/ddd",
 				Username:  "mmm",
 				Password:  "pww",
+				local:     true,
 			},
 		},
 		{
@@ -245,7 +248,6 @@ func TestLoadConfigration(t *testing.T) {
 				Owner:     "sample1",
 			},
 		},
-
 		{
 			name:        "use system environment and system environment has priority over global conf",
 			envUsername: "mmm",
@@ -265,6 +267,7 @@ func TestLoadConfigration(t *testing.T) {
 				LocalRoot: "/ddd",
 				Username:  "mmm",
 				Password:  "pww",
+				local:     true,
 			},
 		},
 		{
@@ -286,6 +289,7 @@ func TestLoadConfigration(t *testing.T) {
 				LocalRoot: "/ddd",
 				Username:  "mmm",
 				Password:  "pww",
+				local:     true,
 			},
 		},
 		{
@@ -304,6 +308,7 @@ func TestLoadConfigration(t *testing.T) {
 				BlogID:    "blog1.example.com",
 				LocalRoot: "/data",
 				Username:  "blog1",
+				local:     true,
 			},
 		},
 		{
@@ -320,13 +325,12 @@ func TestLoadConfigration(t *testing.T) {
 				LocalRoot: "/data",
 				Username:  "mmm",
 				Password:  "pww",
+				local:     true,
 			},
 		},
 		{
-			name:        "inherit default config, and no system environment",
-			envUsername: "",
-			envPassword: "",
-			localConf:   nil,
+			name:      "inherit default config, and no system environment",
+			localConf: nil,
 			globalConf: pstr(`---
               default:
                 username: hoge
@@ -342,6 +346,25 @@ func TestLoadConfigration(t *testing.T) {
 				Username:   "hoge",
 				Password:   "fuga",
 				OmitDomain: pbool(false),
+			},
+		},
+		{
+			name: "config that are only global will have the local flag false",
+			localConf: pstr(`---
+              blog1.example.com:
+                local_root: /blog1`),
+			globalConf: pstr(`---
+              default:
+                username: hoge
+                local_root: /data
+              blog2.example.com:
+                local_root: /blog2`),
+			blogKey: "blog2.example.com",
+			expect: blogConfig{
+				BlogID:    "blog2.example.com",
+				LocalRoot: "/blog2",
+				Username:  "hoge",
+				local:     false,
 			},
 		},
 	}
