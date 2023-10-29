@@ -234,18 +234,16 @@ func asEntry(atomEntry *atom.Entry, err error) (*entry, error) {
 	return entryFromAtom(atomEntry)
 }
 
-var getGit = sync.OnceValue(func() string {
+var getGit = sync.OnceValue(func() func(...string) (string, error) {
 	g, err := exec.LookPath("git")
-	if err != nil {
-		return ""
+	if err != nil || g == "" {
+		return nil
 	}
-	return g
+	return func(args ...string) (string, error) {
+		bb, err := exec.Command(g, args...).Output()
+		return strings.TrimSpace(string(bb)), err
+	}
 })
-
-func doCommand(name string, args ...string) (string, error) {
-	bb, err := exec.Command(name, args...).Output()
-	return strings.TrimSpace(string(bb)), err
-}
 
 func modTime(fpath string) (time.Time, error) {
 	fi, err := os.Stat(fpath)
@@ -254,13 +252,13 @@ func modTime(fpath string) (time.Time, error) {
 	}
 	ti := fi.ModTime()
 
-	if git := getGit(); git != "" {
+	if git := getGit(); git != nil {
 		// ref. https://git-scm.com/docs/pretty-formats#Documentation/pretty-formats.txt-emaiem
 		// %aI means "author date, strict ISO 8601 format"
-		timeStr, err := doCommand(git, "log", "-1", "--format=%aI", "--", fpath)
+		timeStr, err := git("log", "-1", "--format=%aI", "--", fpath)
 		if err == nil && timeStr != "" {
 			// check if the file is clean (not modified) on git
-			out, err := doCommand(git, "status", "-s", "--", fpath)
+			out, err := git("status", "-s", "--", fpath)
 			// if the output is empty, it means the file has not been modified
 			if err == nil && out == "" {
 				t, err := time.Parse(time.RFC3339, timeStr)
