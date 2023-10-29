@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.18.2](https://github.com/x-motemen/blogsync/compare/v0.18.1...v0.18.2) - 2023-10-29
+- return a function instead of a string when retrieving git by @Songmu in https://github.com/x-motemen/blogsync/pull/121
+- make the blogID argument of blogsync pull optional by @Songmu in https://github.com/x-motemen/blogsync/pull/123
+- unshallow if a shallow repository mainly for CI environment by @Songmu in https://github.com/x-motemen/blogsync/pull/124
+
 ## [v0.18.1](https://github.com/x-motemen/blogsync/compare/v0.18.0...v0.18.1) - 2023-10-28
 - suppress git error logs by @Songmu in https://github.com/x-motemen/blogsync/pull/119
 
