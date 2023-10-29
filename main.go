@@ -101,33 +101,39 @@ var commandPull = &cli.Command{
 		&cli.BoolFlag{Name: "only-drafts"},
 	},
 	Action: func(c *cli.Context) error {
-		blog := c.Args().First()
-		if blog == "" {
-			cli.ShowCommandHelp(c, "pull")
-			return errCommandHelp
-		}
-
 		conf, err := loadConfiguration()
 		if err != nil {
 			return err
 		}
-		blogConfig := conf.Get(blog)
-		if blogConfig == nil {
-			return fmt.Errorf("blog not found: %s", blog)
+
+		blogs := c.Args().Slice()
+		if len(blogs) == 0 {
+			blogs = conf.localBlogIDs()
+		}
+		if len(blogs) == 0 {
+			cli.ShowCommandHelp(c, "pull")
+			return errCommandHelp
 		}
 
-		b := newBroker(blogConfig)
-		remoteEntries, err := b.FetchRemoteEntries(
-			!c.Bool("only-drafts"), !c.Bool("no-drafts"))
-		if err != nil {
-			return err
-		}
+		for _, blog := range blogs {
+			blogConfig := conf.Get(blog)
+			if blogConfig == nil {
+				return fmt.Errorf("blog not found: %s", blog)
+			}
 
-		for _, re := range remoteEntries {
-			path := b.LocalPath(re)
-			_, err := b.StoreFresh(re, path)
+			b := newBroker(blogConfig)
+			remoteEntries, err := b.FetchRemoteEntries(
+				!c.Bool("only-drafts"), !c.Bool("no-drafts"))
 			if err != nil {
 				return err
+			}
+
+			for _, re := range remoteEntries {
+				path := b.LocalPath(re)
+				_, err := b.StoreFresh(re, path)
+				if err != nil {
+					return err
+				}
 			}
 		}
 		return nil

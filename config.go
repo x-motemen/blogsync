@@ -27,6 +27,16 @@ func (c *config) detectBlogConfig(fpath string) *blogConfig {
 	return retBc
 }
 
+func (c *config) localBlogIDs() []string {
+	var ret []string
+	for blogID, bc := range c.Blogs {
+		if bc.local {
+			ret = append(ret, blogID)
+		}
+	}
+	return ret
+}
+
 type blogConfig struct {
 	BlogID     string `yaml:"-"`
 	LocalRoot  string `yaml:"local_root"`
