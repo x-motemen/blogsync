@@ -45,6 +45,7 @@ type blogConfig struct {
 	OmitDomain *bool  `yaml:"omit_domain"`
 	Owner      string `yaml:"owner"`
 	local      bool
+	rootURL    string
 }
 
 func (bc *blogConfig) localRoot() string {
@@ -53,6 +54,22 @@ func (bc *blogConfig) localRoot() string {
 		paths = append(paths, bc.BlogID)
 	}
 	return filepath.Join(paths...)
+}
+
+func (bc *blogConfig) fetchRootURL() string {
+	if bc.rootURL != "" {
+		return bc.rootURL
+	}
+	b := newBroker(bc)
+	u := entryEndPointUrl(bc)
+	feed, err := b.Client.GetFeed(u)
+	if err != nil {
+		return ""
+	}
+	if l := feed.Links.Find("alternate"); l != nil {
+		b.rootURL = l.Href
+	}
+	return b.rootURL
 }
 
 func loadConfig(r io.Reader, fpath string) (*config, error) {
