@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/motemen/go-wsse"
 	"github.com/x-motemen/blogsync/atom"
@@ -165,9 +165,6 @@ func (b *broker) PutEntry(e *entry) error {
 	if err != nil {
 		return err
 	}
-	if e.CustomPath != "" {
-		newEntry.CustomPath = e.CustomPath
-	}
 	return b.Store(newEntry, b.LocalPath(newEntry), b.originalPath(e))
 }
 
@@ -182,10 +179,6 @@ func (b *broker) PostEntry(e *entry, isPage bool) error {
 	if err != nil {
 		return err
 	}
-	if e.CustomPath != "" {
-		newEntry.CustomPath = e.CustomPath
-	}
-
 	return b.Store(newEntry, b.LocalPath(newEntry), "")
 }
 
