@@ -192,8 +192,14 @@ var (
 	defaultBlogPathReg = regexp.MustCompile(`^2[01][0-9]{2}/[01][0-9]/[0-3][0-9]/[0-9]{6}$`)
 	hatenaDiaryPathReg = regexp.MustCompile(`^2[01][0-9]{2}[01][0-9][0-3][0-9]/[0-9]{9,12}$`)
 	titlePathReg       = regexp.MustCompile(`^2[01][0-9]{2}/[01][0-9]/[0-3][0-9]/.+$`)
-	draftReg           = regexp.MustCompile(`^_draft/`)
+	draftDir = "_draft/"
 )
+
+func isGivenPath(path string) bool {
+	return defaultBlogPathReg.MatchString(path) ||
+		hatenaDiaryPathReg.MatchString(path) ||
+		titlePathReg.MatchString(path)
+}
 
 var commandPush = &cli.Command{
 	Name:  "push",
@@ -277,11 +283,7 @@ var commandPush = &cli.Command{
 			blogPath = "/" + filepath.ToSlash(blogPath)
 			if stuffs := strings.SplitN(blogPath, "/entry/", 2); len(stuffs) == 2 {
 				cPath := strings.TrimSuffix(stuffs[1], entryExt)
-				if !defaultBlogPathReg.MatchString(cPath) &&
-					!hatenaDiaryPathReg.MatchString(cPath) &&
-					!titlePathReg.MatchString(cPath) &&
-					!draftReg.MatchString(cPath) {
-
+				if !isGivenPath(cPath) && !strings.HasPrefix(cPath, draftDir) {
 					entry.CustomPath = cPath
 				}
 			}

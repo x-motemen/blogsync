@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"io"
 	"net/http"
 	"os"
@@ -89,7 +90,23 @@ func (b *broker) FetchRemoteEntries(published, drafts bool) ([]*entry, error) {
 const entryExt = ".md" // TODO regard re.ContentType
 
 func (b *broker) LocalPath(e *entry) string {
-	return filepath.Join(b.localRoot(), e.URL.Path+entryExt)
+	localPath := e.URL.Path
+
+	if e.IsDraft && strings.Contains(e.EditURL, "/atom/entry/") {
+		stuffs := strings.SplitN(e.URL.Path, "/entry/", 2)
+		if len(stuffs) != 2 {
+			return ""
+		}
+
+		cPath := stuffs[1]
+		if isGivenPath(cPath) {
+			paths := strings.Split(e.EditURL, "/")
+			if len(paths) == 8 {
+				localPath = stuffs[0] + "/entry/" + draftDir + paths[7]
+			}
+		}
+	}
+	return filepath.Join(b.localRoot(), localPath+entryExt)
 }
 
 func (b *broker) StoreFresh(e *entry, path string) (bool, error) {
