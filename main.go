@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -187,6 +188,13 @@ var commandFetch = &cli.Command{
 	},
 }
 
+var (
+	defaultBlogPathReg = regexp.MustCompile(`^2[01][0-9]{2}/[01][0-9]/[0-3][0-9]/[0-9]{6}$`)
+	hatenaDiaryPathReg = regexp.MustCompile(`^2[01][0-9]{2}[01][0-9][0-3][0-9]/[0-9]{9,12}$`)
+	titlePathReg       = regexp.MustCompile(`^2[01][0-9]{2}/[01][0-9]/[0-3][0-9]/.+$`)
+	draftReg           = regexp.MustCompile(`^_draft/`)
+)
+
 var commandPush = &cli.Command{
 	Name:  "push",
 	Usage: "Push local entries to remote",
@@ -207,6 +215,14 @@ var commandPush = &cli.Command{
 		}
 
 		for _, path := range c.Args().Slice() {
+			if !filepath.IsAbs(path) {
+				var err error
+				path, err = filepath.Abs(path)
+				if err != nil {
+					return err
+				}
+			}
+
 			f, err := os.Open(path)
 			if err != nil {
 				return err
@@ -226,13 +242,6 @@ var commandPush = &cli.Command{
 
 			if entry.EditURL == "" {
 				// post new entry
-				if !filepath.IsAbs(path) {
-					var err error
-					path, err = filepath.Abs(path)
-					if err != nil {
-						return err
-					}
-				}
 				bc := conf.detectBlogConfig(path)
 				if bc == nil {
 					return fmt.Errorf("cannot find blog for %q", path)
@@ -264,6 +273,18 @@ var commandPush = &cli.Command{
 				return fmt.Errorf("cannot find blog for %s", path)
 			}
 
+			blogPath, _ := filepath.Rel(bc.localRoot(), path)
+			blogPath = "/" + filepath.ToSlash(blogPath)
+			if stuffs := strings.SplitN(blogPath, "/entry/", 2); len(stuffs) == 2 {
+				cPath := strings.TrimSuffix(stuffs[1], entryExt)
+				if !defaultBlogPathReg.MatchString(cPath) &&
+					!hatenaDiaryPathReg.MatchString(cPath) &&
+					!titlePathReg.MatchString(cPath) &&
+					!draftReg.MatchString(cPath) {
+
+					entry.CustomPath = cPath
+				}
+			}
 			_, err = newBroker(bc, c.App.Writer).UploadFresh(entry)
 			if err != nil {
 				return err
