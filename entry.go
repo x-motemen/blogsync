@@ -239,10 +239,18 @@ var getGit = sync.OnceValue(func() func(...string) (string, error) {
 	if err != nil || g == "" {
 		return nil
 	}
-	return func(args ...string) (string, error) {
+	git := func(args ...string) (string, error) {
 		bb, err := exec.Command(g, args...).Output()
 		return strings.TrimSpace(string(bb)), err
 	}
+	if boolStr, err := git("rev-parse", "--is-shallow-repository"); err != nil {
+		return nil
+	} else if boolStr == "true" {
+		if _, err := git("fetch", "--unshallow"); err != nil {
+			return nil
+		}
+	}
+	return git
 })
 
 func modTime(fpath string) (time.Time, error) {
