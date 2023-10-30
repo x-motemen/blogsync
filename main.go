@@ -245,6 +245,7 @@ var commandPush = &cli.Command{
 				ti := time.Now()
 				entry.LastModified = &ti
 			}
+			entry.localPath = path
 
 			if entry.EditURL == "" {
 				// post new entry

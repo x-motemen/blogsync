@@ -90,6 +90,12 @@ func (b *broker) FetchRemoteEntries(published, drafts bool) ([]*entry, error) {
 const entryExt = ".md" // TODO regard re.ContentType
 
 func (b *broker) LocalPath(e *entry) string {
+	if e.localPath != "" {
+		return e.localPath
+	}
+	if e.URL == nil {
+		return ""
+	}
 	localPath := e.URL.Path
 
 	if e.IsDraft && strings.Contains(e.EditURL, "/atom/entry/") {
@@ -98,9 +104,11 @@ func (b *broker) LocalPath(e *entry) string {
 			return ""
 		}
 		if isGivenPath(entryPath) {
+			// EditURL is like bellow
+			//   https://blog.hatena.ne.jp/Songmu/songmu.hatenadiary.org/atom/entry/6801883189050452361
 			paths := strings.Split(e.EditURL, "/")
 			if len(paths) == 8 {
-				localPath = subdir + "/entry/" + draftDir + entryPath
+				localPath = subdir + "/entry/" + draftDir + paths[7] // path[7] is entryID
 			}
 		}
 	}
@@ -173,7 +181,7 @@ func (b *broker) PutEntry(e *entry) error {
 	if err != nil {
 		return err
 	}
-	return b.Store(newEntry, b.LocalPath(newEntry), b.originalPath(e))
+	return b.Store(newEntry, b.LocalPath(newEntry), b.LocalPath(e))
 }
 
 func (b *broker) PostEntry(e *entry, isPage bool) error {

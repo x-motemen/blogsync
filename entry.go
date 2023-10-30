@@ -68,6 +68,7 @@ type entry struct {
 	LastModified *time.Time
 	Content      string
 	ContentType  string
+	localPath    string
 }
 
 func (e *entry) HeaderString() string {
