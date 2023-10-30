@@ -278,3 +278,12 @@ func modTime(fpath string) (time.Time, error) {
 	}
 	return ti, nil
 }
+
+func extractEntryPath(p string) (subdir string, entryPath string) {
+	stuffs := strings.SplitN(p, "/entry/", 2)
+	if len(stuffs) != 2 {
+		return "", ""
+	}
+	entryPath = strings.TrimSuffix(stuffs[1], entryExt)
+	return stuffs[0], entryPath
+}

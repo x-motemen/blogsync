@@ -192,7 +192,7 @@ var (
 	defaultBlogPathReg = regexp.MustCompile(`^2[01][0-9]{2}/[01][0-9]/[0-3][0-9]/[0-9]{6}$`)
 	hatenaDiaryPathReg = regexp.MustCompile(`^2[01][0-9]{2}[01][0-9][0-3][0-9]/[0-9]{9,12}$`)
 	titlePathReg       = regexp.MustCompile(`^2[01][0-9]{2}/[01][0-9]/[0-3][0-9]/.+$`)
-	draftDir = "_draft/"
+	draftDir           = "_draft/"
 )
 
 func isGivenPath(path string) bool {
@@ -257,11 +257,11 @@ var commandPush = &cli.Command{
 				// relative position from the entry directory is obtained as a custom path as below.
 				blogPath, _ := filepath.Rel(bc.localRoot(), path)
 				blogPath = "/" + filepath.ToSlash(blogPath)
-				stuffs := strings.SplitN(blogPath, "/entry/", 2)
-				if len(stuffs) != 2 {
+				_, entryPath := extractEntryPath(path)
+				if entryPath == "" {
 					return fmt.Errorf("%q is not a blog entry", path)
 				}
-				entry.CustomPath = strings.TrimSuffix(stuffs[1], entryExt)
+				entry.CustomPath = entryPath
 				b := newBroker(bc, c.App.Writer)
 				err = b.PostEntry(entry, false)
 				if err != nil {
@@ -281,10 +281,10 @@ var commandPush = &cli.Command{
 
 			blogPath, _ := filepath.Rel(bc.localRoot(), path)
 			blogPath = "/" + filepath.ToSlash(blogPath)
-			if stuffs := strings.SplitN(blogPath, "/entry/", 2); len(stuffs) == 2 {
-				cPath := strings.TrimSuffix(stuffs[1], entryExt)
-				if !isGivenPath(cPath) && !strings.HasPrefix(cPath, draftDir) {
-					entry.CustomPath = cPath
+
+			if _, entryPath := extractEntryPath(path); entryPath != "" {
+				if !isGivenPath(entryPath) && !strings.HasPrefix(entryPath, draftDir) {
+					entry.CustomPath = entryPath
 				}
 			}
 			_, err = newBroker(bc, c.App.Writer).UploadFresh(entry)

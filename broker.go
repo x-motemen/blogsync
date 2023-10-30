@@ -93,16 +93,14 @@ func (b *broker) LocalPath(e *entry) string {
 	localPath := e.URL.Path
 
 	if e.IsDraft && strings.Contains(e.EditURL, "/atom/entry/") {
-		stuffs := strings.SplitN(e.URL.Path, "/entry/", 2)
-		if len(stuffs) != 2 {
+		subdir, entryPath := extractEntryPath(e.URL.Path)
+		if entryPath == "" {
 			return ""
 		}
-
-		cPath := stuffs[1]
-		if isGivenPath(cPath) {
+		if isGivenPath(entryPath) {
 			paths := strings.Split(e.EditURL, "/")
 			if len(paths) == 8 {
-				localPath = stuffs[0] + "/entry/" + draftDir + paths[7]
+				localPath = subdir + "/entry/" + draftDir + entryPath
 			}
 		}
 	}
@@ -127,12 +125,11 @@ func (b *broker) Store(e *entry, path, origPath string) error {
 	logf("store", "%s", path)
 
 	if e.IsDraft && strings.Contains(e.EditURL, "/atom/entry/") {
-		stuffs := strings.SplitN(e.URL.Path, "/entry/", 2)
-		if len(stuffs) != 2 {
+		_, entryPath := extractEntryPath(e.URL.Path)
+		if entryPath == "" {
 			return fmt.Errorf("invalid path: %s", e.URL.Path)
 		}
-		cPath := stuffs[1]
-		if isGivenPath(cPath) {
+		if isGivenPath(entryPath) {
 			e.URL = nil
 		}
 	}
