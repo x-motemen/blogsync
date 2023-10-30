@@ -103,7 +103,7 @@ func (b *broker) LocalPath(e *entry) string {
 		if entryPath == "" {
 			return ""
 		}
-		if isGivenPath(entryPath) {
+		if isLikelyGivenPath(entryPath) {
 			// EditURL is like bellow
 			//   https://blog.hatena.ne.jp/Songmu/songmu.hatenadiary.org/atom/entry/6801883189050452361
 			paths := strings.Split(e.EditURL, "/")
@@ -137,7 +137,7 @@ func (b *broker) Store(e *entry, path, origPath string) error {
 		if entryPath == "" {
 			return fmt.Errorf("invalid path: %s", e.URL.Path)
 		}
-		if isGivenPath(entryPath) {
+		if isLikelyGivenPath(entryPath) {
 			e.URL = nil
 		}
 	}

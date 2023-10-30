@@ -189,16 +189,19 @@ var commandFetch = &cli.Command{
 }
 
 var (
+	// 標準フォーマット: 2011/11/07/161845
 	defaultBlogPathReg = regexp.MustCompile(`^2[01][0-9]{2}/[01][0-9]/[0-3][0-9]/[0-9]{6}$`)
+	// はてなダイアリー風フォーマット: 20111107/1320650325
 	hatenaDiaryPathReg = regexp.MustCompile(`^2[01][0-9]{2}[01][0-9][0-3][0-9]/[0-9]{9,12}$`)
-	titlePathReg       = regexp.MustCompile(`^2[01][0-9]{2}/[01][0-9]/[0-3][0-9]/.+$`)
-	draftDir           = "_draft/"
+	// タイトルフォーマット: 2011/11/07/週末は川に行きました
+	titlePathReg = regexp.MustCompile(`^2[01][0-9]{2}/[01][0-9]/[0-3][0-9]/.+$`)
+	draftDir     = "_draft/"
 )
 
-func isGivenPath(path string) bool {
-	return defaultBlogPathReg.MatchString(path) ||
-		hatenaDiaryPathReg.MatchString(path) ||
-		titlePathReg.MatchString(path)
+func isLikelyGivenPath(p string) bool {
+	return defaultBlogPathReg.MatchString(p) ||
+		hatenaDiaryPathReg.MatchString(p) ||
+		titlePathReg.MatchString(p)
 }
 
 var commandPush = &cli.Command{
@@ -284,7 +287,7 @@ var commandPush = &cli.Command{
 			blogPath = "/" + filepath.ToSlash(blogPath)
 
 			if _, entryPath := extractEntryPath(path); entryPath != "" {
-				if !isGivenPath(entryPath) && !strings.HasPrefix(entryPath, draftDir) {
+				if !isLikelyGivenPath(entryPath) && !strings.HasPrefix(entryPath, draftDir) {
 					entry.CustomPath = entryPath
 				}
 			}
