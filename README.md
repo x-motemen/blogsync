@@ -3,12 +3,12 @@ blogsync
 
 [![Build Status](https://github.com/x-motemen/blogsync/workflows/test/badge.svg?branch=master)][actions]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
-[![GoDoc](https://godoc.org/github.com/x-motemen/blogsync?status.svg)](godoc)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/x-motemen/blogsync)](PkgGoDev)
 
 [actions]: https://github.com/x-motemen/blogsync/actions?workflow=test
 [coveralls]: https://coveralls.io/r/x-motemen/blogsync?branch=master
 [license]: https://github.com/x-motemen/blogsync/blob/master/LICENSE
-[godoc]: https://godoc.org/github.com/x-motemen/blogsync
+[PkgGoDev]: https://pkg.go.dev/github.com/x-motemen/blogsync
 
 ## Description
 
@@ -22,13 +22,20 @@ blogsync
 
 https://github.com/x-motemen/blogsync/releases から実行ファイルを直接取得できます。
 
-HEADを使いたい場合は `go get github.com/x-motemen/blogsync` してください。
+ソースコードから最新版を使いたい場合は `go install github.com/x-motemen/blogsync@latest` してください。
 
 ## Usage
 
 ### Configuration
 
-まず初めに設定ファイルを書きます。ホームディレクトリ以下の .config/blogsync/config.yaml に、以下のような YAML を置いてください。
+まず初めに設定ファイルを準備します。設定ファイルには以下の2種類があります。
+
+- ローカル設定: `./blogsync.yaml`
+- グローバル設定: `~/.config/blogsync/config.yaml`
+
+両方存在する場合、設定の内容はマージされますが、ローカル設定の内容が優先されます。
+
+設定ファイルの内容は以下のようなYAMLです。
 
 ```yaml
 motemen.hatenablog.com:
@@ -40,15 +47,14 @@ default:
 
 各項目の意味は次のとおり:
 
-- キー（例: `motemen.hatenablog.com` ）: ブログのドメイン。はてなブログのダッシュボードからブログの設定画面などを開いたとき、URL に含まれる文字列です。技術的には AtomPub API における「ブログID」になります。
+- キー（例: `motemen.hatenablog.com` ）: ブログID (blogID)。はてなブログのダッシュボードからブログの設定画面などを開いたとき、URL に含まれる文字列です。技術的には AtomPub API における「ブログID」になります。独自ドメインを利用していない場合は配信ドメインと一致します。
   - "default" という名前のキーは特別で、すべてのブログの項目のデフォルト値として扱われます。
 - `<blog>.username`: そのブログに投稿するはてなユーザの ID。
 - `<blog>.password`: そのブログに投稿するための API キー。はてなユーザのパスワードではありません。ブログの詳細設定画面 の「APIキー」で確認できます。
 - `<blog>.local_root`: ブログのエントリを格納するパスのルート。
-- `<blog>.omit_domain`: ブログエントリを格納するパスにドメインを含めません。
+    - `$local_root/$blogID/` 配下にエントリが格納されます。`omit_domain` 設定がされている場合はブログIDは含まれず、local\_root直下にエントリーが格納されます
+- `<blog>.omit_domain`: ブログエントリを格納するパスにブログIDを含めません。
 - `<blog>.owner`: 編集対象のブログオーナーが自身とは別のユーザーの場合、ブログオーナーを個別に設定できます。
-
-設定ファイルは、 `blogsync.yaml` というファイルがカレントディレクトリにある場合、それも使われます。
 
 #### ブログオーナーが自身とは別の場合の設定
 
@@ -63,10 +69,10 @@ example.hatenablog.com:
 
 ### エントリをダウンロードする（blogsync pull）
 
-設定が完了したら、以下のコマンドを実行すると当該のブログに投稿しているエントリがその URL ローカルに保存されます。
+設定が完了したら、以下のコマンドを実行すると当該のブログに投稿しているエントリがその URL ローカルに保存されます。固定ページ機能を利用している場合、それもまとめてダウンロードされます。
 
 ```sh
-% blogsync pull <blog>
+% blogsync pull <blogID>
 ```
 
 この際保存されるファイルのパスは、エントリの URL ベースにしたものとなります。blogsync pull motemen.hatenablog.com した結果だとこんな感じになります（分かりやすいように少し省略しています）:
@@ -89,6 +95,8 @@ example.hatenablog.com:
 ```
 
 以降は blogsync pull すると、ブログエントリとローカルのファイルをつき合わせ、新しいエントリのみダウンロードされるようになります。
+
+ちなみに、blogIDは省略可能で、省略した場合 `blogsync.yaml` に設定されているブログの内容がpullされます。
 
 ### ファイルのフォーマット
 
@@ -137,6 +145,8 @@ EditURL: https://blog.hatena.ne.jp/motemen/motemen.hatenablog.com/atom/entry/845
 
 ファイルがリモートの記事よりも新しくない場合は、更新リクエストは行われません。
 
+基本的にはダウンロードしてきたファイルを更新する用途のコマンドですが、新しくファイルを配置してpushすることも可能です。
+
 ### エントリを投稿する（blogsync post）
 
 まだはてなブログ側に存在しない記事を投稿する場合は、投稿用のコマンドで記事を投稿します。
@@ -147,7 +157,7 @@ EditURL: https://blog.hatena.ne.jp/motemen/motemen.hatenablog.com/atom/entry/845
 
 blogsync post は標準入力からエントリの内容を受けとって投稿し、投稿されたエントリに対応するファイルをダウンロードします。その後は新しく作成されたファイルを編集し、push することでエントリの編集を続けられます。
 
-このコマンドでは --title=<TITLE>、--draft という引数によって記事タイトルや下書き状態の指定を行えるのでこんな風に雑に、ターミナルから書き始めることもできます…
+このコマンドでは `--title=<TITLE>`、`--draft` という引数によって記事タイトルや下書き状態の指定を行えるのでこんな風に雑に、ターミナルから書き始めることもできます…
 
 ```console
 % blogsync post --draft --title=blogsync motemen.hatenablog.com
@@ -155,10 +165,19 @@ blogsync post は標準入力からエントリの内容を受けとって投稿
 ^D
 ```
 
+### 特定のエントリを更新する (blogsync fetch)
+
+エントリファイルを指定して、リモートの更新を取り込むことができます。
+
+```sh
+% blogsync fetch <path/to/file>
+```
+
+
 ### GitHub Actions
 
 `uses: x-motemen/blogsync@v0` とすればblogsyncをインストールできます。
 
 ## Author
 
-[motemen](https://github.com/motemen)
+[motemen](https://github.com/motemen), [Songmu](https://github.com/Songmu)
