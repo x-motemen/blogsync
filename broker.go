@@ -169,6 +169,14 @@ func (b *broker) PostEntry(e *entry, isPage bool) error {
 	return b.Store(newEntry, b.LocalPath(newEntry), "")
 }
 
+func (b *broker) RemoveEntry(e *entry, p string) error {
+	err := b.Client.DeleteEntry(e.EditURL)
+	if err != nil {
+		return err
+	}
+	return os.Remove(p)
+}
+
 func (b *broker) originalPath(e *entry) string {
 	if e.URL == nil {
 		return ""

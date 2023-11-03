@@ -20,6 +20,7 @@ func main() {
 		commandPush,
 		commandPost,
 		commandList,
+		commandRemove,
 	}
 	app.Version = fmt.Sprintf("%s (%s)", version, revision)
 	err := app.Run(os.Args)
@@ -344,6 +345,52 @@ var commandList = &cli.Command{
 			fmt.Printf("%s%s%s\n", blog.url, del, blog.fullPath)
 		}
 
+		return nil
+	},
+}
+
+var commandRemove = &cli.Command{
+	Name:  "remove",
+	Usage: "Remove blog entries",
+	Action: func(c *cli.Context) error {
+		first := c.Args().First()
+		if first == "" {
+			cli.ShowCommandHelp(c, "remove")
+			return errCommandHelp
+		}
+
+		conf, err := loadConfiguration()
+		if err != nil {
+			return err
+		}
+
+		for _, path := range c.Args().Slice() {
+			f, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+
+			entry, err := entryFromReader(f)
+			if err != nil {
+				return err
+			}
+
+			blogID, err := entry.blogID()
+			if err != nil {
+				return err
+			}
+
+			bc := conf.Get(blogID)
+			if bc == nil {
+				return fmt.Errorf("cannot find blog for %s", path)
+			}
+
+			err = newBroker(bc).RemoveEntry(entry, path)
+			if err != nil {
+				return err
+			}
+		}
 		return nil
 	},
 }
