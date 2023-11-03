@@ -12,7 +12,7 @@ import (
 
 var errCommandHelp = fmt.Errorf("command help shown")
 
-func main() {
+func newApp() *cli.App {
 	app := cli.NewApp()
 	app.Commands = []*cli.Command{
 		commandPull,
@@ -23,8 +23,11 @@ func main() {
 		commandRemove,
 	}
 	app.Version = fmt.Sprintf("%s (%s)", version, revision)
-	err := app.Run(os.Args)
-	if err != nil {
+	return app
+}
+
+func main() {
+	if err := newApp().Run(os.Args); err != nil {
 		if err != errCommandHelp {
 			logf("error", "%s", err)
 		}
