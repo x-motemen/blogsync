@@ -17,7 +17,10 @@ type broker struct {
 	writer io.Writer
 }
 
-func newBroker(bc *blogConfig) *broker {
+func newBroker(bc *blogConfig, w io.Writer) *broker {
+	if w == nil {
+		w = os.Stdout
+	}
 	return &broker{
 		Client: &atom.Client{
 			Client: &http.Client{
@@ -28,7 +31,7 @@ func newBroker(bc *blogConfig) *broker {
 			},
 		},
 		blogConfig: bc,
-		writer:     os.Stdout,
+		writer:     w,
 	}
 }
 

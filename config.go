@@ -60,7 +60,7 @@ func (bc *blogConfig) fetchRootURL() string {
 	if bc.rootURL != "" {
 		return bc.rootURL
 	}
-	b := newBroker(bc)
+	b := newBroker(bc, nil)
 	u := entryEndPointUrl(bc)
 	feed, err := b.Client.GetFeed(u)
 	if err != nil {

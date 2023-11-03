@@ -89,7 +89,7 @@ func TestOriginalPath(t *testing.T) {
 		BlogID:   "example1.hatenablog.com",
 		Username: "sample1",
 	}
-	broker := newBroker(&config)
+	broker := newBroker(&config, nil)
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
