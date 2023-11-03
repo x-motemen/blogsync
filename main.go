@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/urfave/cli/v2"
 )
@@ -189,12 +190,16 @@ var commandFetch = &cli.Command{
 var commandPush = &cli.Command{
 	Name:  "push",
 	Usage: "Push local entries to remote",
+	Flags: []cli.Flag{
+		&cli.BoolFlag{Name: "publish"},
+	},
 	Action: func(c *cli.Context) error {
 		first := c.Args().First()
 		if first == "" {
 			cli.ShowCommandHelp(c, "push")
 			return errCommandHelp
 		}
+		publish := c.Bool("publish")
 
 		conf, err := loadConfiguration()
 		if err != nil {
@@ -211,6 +216,12 @@ var commandPush = &cli.Command{
 			entry, err := entryFromReader(f)
 			if err != nil {
 				return err
+			}
+			if publish && entry.IsDraft {
+				entry.IsDraft = false
+				// Assume it has been edited and update modtime.
+				ti := time.Now()
+				entry.LastModified = &ti
 			}
 
 			if entry.EditURL == "" {
