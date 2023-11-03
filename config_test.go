@@ -32,7 +32,7 @@ func TestLoadConfigration(t *testing.T) {
 					if tmpVal != "" {
 						return os.Setenv(envKey, tmpVal)
 					}
-					return nil
+					return os.Unsetenv(envKey)
 				}, func() error {
 					if ok {
 						return os.Setenv(envKey, env)

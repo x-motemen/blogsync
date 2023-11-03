@@ -325,7 +325,7 @@ var commandPost = &cli.Command{
 			return fmt.Errorf("blog not found: %s", blog)
 		}
 
-		entry, err := entryFromReader(os.Stdin)
+		entry, err := entryFromReader(c.App.Reader)
 		if err != nil {
 			return err
 		}
