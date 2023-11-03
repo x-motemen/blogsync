@@ -1,10 +1,7 @@
 package main
 
 import (
-	"net/url"
-	"runtime"
 	"testing"
-	"time"
 )
 
 func TestEntryEndPointUrl(t *testing.T) {
@@ -35,68 +32,6 @@ func TestEntryEndPointUrl(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := entryEndPointUrl(&tc.config)
-			if tc.expect != got {
-				t.Errorf("expect: %s, got: %s", tc.expect, got)
-			}
-		})
-	}
-}
-
-func TestOriginalPath(t *testing.T) {
-	u, _ := url.Parse("http://hatenablog.example.com/2")
-	jst, _ := time.LoadLocation("Asia/Tokyo")
-	d := time.Date(2023, 10, 10, 0, 0, 0, 0, jst)
-
-	testCases := []struct {
-		name          string
-		entry         entry
-		expect        string
-		expectWindows string
-	}{
-		{
-			name: "entry has URL",
-			entry: entry{
-				entryHeader: &entryHeader{
-					URL:     &entryURL{u},
-					EditURL: u.String() + "/edit",
-					Title:   "test",
-					Date:    &d,
-					IsDraft: true,
-				},
-				LastModified: &d,
-				Content:      "テスト",
-			},
-			expect:        "example1.hatenablog.com/2.md",
-			expectWindows: "example1.hatenablog.com\\2.md",
-		},
-		{
-			name: "Not URL",
-			entry: entry{
-				entryHeader: &entryHeader{
-					EditURL: u.String() + "/edit",
-					Title:   "hoge",
-					IsDraft: true,
-				},
-				LastModified: &d,
-				Content:      "テスト",
-			},
-			expect:        "",
-			expectWindows: "",
-		},
-	}
-
-	config := blogConfig{
-		BlogID:   "example1.hatenablog.com",
-		Username: "sample1",
-	}
-	broker := newBroker(&config, nil)
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := broker.originalPath(&tc.entry)
-			if runtime.GOOS == "windows" {
-				tc.expect = tc.expectWindows
-			}
 			if tc.expect != got {
 				t.Errorf("expect: %s, got: %s", tc.expect, got)
 			}

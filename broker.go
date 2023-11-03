@@ -206,13 +206,6 @@ func (b *broker) RemoveEntry(e *entry, p string) error {
 	return os.Remove(p)
 }
 
-func (b *broker) originalPath(e *entry) string {
-	if e.URL == nil {
-		return ""
-	}
-	return b.LocalPath(e)
-}
-
 func atomEndpointURLRoot(bc *blogConfig) string {
 	owner := bc.Owner
 	if owner == "" {
