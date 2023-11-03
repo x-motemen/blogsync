@@ -94,6 +94,12 @@ func entryBody(e *Entry) (*bytes.Buffer, error) {
 	return body, nil
 }
 
+// DeleteEntry removes the blog entry
+func (c *Client) DeleteEntry(url string) error {
+	_, err := c.http("DELETE", url, nil)
+	return err
+}
+
 var blogsyncDebug = os.Getenv("BLOGSYNC_DEBUG") != ""
 
 var debugLogger = sync.OnceValue(func() *slog.Logger {
