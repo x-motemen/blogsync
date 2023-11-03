@@ -12,7 +12,7 @@ import (
 
 var errCommandHelp = fmt.Errorf("command help shown")
 
-func main() {
+func newApp() *cli.App {
 	app := cli.NewApp()
 	app.Commands = []*cli.Command{
 		commandPull,
@@ -23,8 +23,11 @@ func main() {
 		commandRemove,
 	}
 	app.Version = fmt.Sprintf("%s (%s)", version, revision)
-	err := app.Run(os.Args)
-	if err != nil {
+	return app
+}
+
+func main() {
+	if err := newApp().Run(os.Args); err != nil {
 		if err != errCommandHelp {
 			logf("error", "%s", err)
 		}
@@ -122,7 +125,7 @@ var commandPull = &cli.Command{
 				return fmt.Errorf("blog not found: %s", blog)
 			}
 
-			b := newBroker(blogConfig)
+			b := newBroker(blogConfig, c.App.Writer)
 			remoteEntries, err := b.FetchRemoteEntries(
 				!c.Bool("only-drafts"), !c.Bool("no-drafts"))
 			if err != nil {
@@ -174,7 +177,7 @@ var commandFetch = &cli.Command{
 			if bc == nil {
 				return fmt.Errorf("cannot find blog for %s", path)
 			}
-			b := newBroker(bc)
+			b := newBroker(bc, c.App.Writer)
 			if _, err := b.StoreFresh(e, path); err != nil {
 				return err
 			}
@@ -233,7 +236,7 @@ var commandPush = &cli.Command{
 					return fmt.Errorf("%q is not a blog entry", path)
 				}
 				entry.CustomPath = strings.TrimSuffix(stuffs[1], entryExt)
-				b := newBroker(bc)
+				b := newBroker(bc, c.App.Writer)
 				err = b.PostEntry(entry, false)
 				if err != nil {
 					return err
@@ -250,7 +253,7 @@ var commandPush = &cli.Command{
 				return fmt.Errorf("cannot find blog for %s", path)
 			}
 
-			_, err = newBroker(bc).UploadFresh(entry)
+			_, err = newBroker(bc, c.App.Writer).UploadFresh(entry)
 			if err != nil {
 				return err
 			}
@@ -301,7 +304,7 @@ var commandPost = &cli.Command{
 			entry.Title = title
 		}
 
-		b := newBroker(blogConfig)
+		b := newBroker(blogConfig, c.App.Writer)
 		err = b.PostEntry(entry, c.Bool("page"))
 		if err != nil {
 			return err
@@ -386,7 +389,7 @@ var commandRemove = &cli.Command{
 				return fmt.Errorf("cannot find blog for %s", path)
 			}
 
-			err = newBroker(bc).RemoveEntry(entry, path)
+			err = newBroker(bc, c.App.Writer).RemoveEntry(entry, path)
 			if err != nil {
 				return err
 			}
