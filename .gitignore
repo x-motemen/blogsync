@@ -1,3 +1,4 @@
+.env*
 /blogsync
 /dist
 coverage.out

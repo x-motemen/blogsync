@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -187,6 +188,22 @@ var commandFetch = &cli.Command{
 	},
 }
 
+var (
+	// 標準フォーマット: 2011/11/07/161845
+	defaultBlogPathReg = regexp.MustCompile(`^2[01][0-9]{2}/[01][0-9]/[0-3][0-9]/[0-9]{6}$`)
+	// はてなダイアリー風フォーマット: 20111107/1320650325
+	hatenaDiaryPathReg = regexp.MustCompile(`^2[01][0-9]{2}[01][0-9][0-3][0-9]/[0-9]{9,12}$`)
+	// タイトルフォーマット: 2011/11/07/週末は川に行きました
+	titlePathReg = regexp.MustCompile(`^2[01][0-9]{2}/[01][0-9]/[0-3][0-9]/.+$`)
+	draftDir     = "_draft/"
+)
+
+func isLikelyGivenPath(p string) bool {
+	return defaultBlogPathReg.MatchString(p) ||
+		hatenaDiaryPathReg.MatchString(p) ||
+		titlePathReg.MatchString(p)
+}
+
 var commandPush = &cli.Command{
 	Name:  "push",
 	Usage: "Push local entries to remote",
@@ -207,6 +224,14 @@ var commandPush = &cli.Command{
 		}
 
 		for _, path := range c.Args().Slice() {
+			if !filepath.IsAbs(path) {
+				var err error
+				path, err = filepath.Abs(path)
+				if err != nil {
+					return err
+				}
+			}
+
 			f, err := os.Open(path)
 			if err != nil {
 				return err
@@ -223,16 +248,10 @@ var commandPush = &cli.Command{
 				ti := time.Now()
 				entry.LastModified = &ti
 			}
+			entry.localPath = path
 
 			if entry.EditURL == "" {
 				// post new entry
-				if !filepath.IsAbs(path) {
-					var err error
-					path, err = filepath.Abs(path)
-					if err != nil {
-						return err
-					}
-				}
 				bc := conf.detectBlogConfig(path)
 				if bc == nil {
 					return fmt.Errorf("cannot find blog for %q", path)
@@ -242,11 +261,11 @@ var commandPush = &cli.Command{
 				// relative position from the entry directory is obtained as a custom path as below.
 				blogPath, _ := filepath.Rel(bc.localRoot(), path)
 				blogPath = "/" + filepath.ToSlash(blogPath)
-				stuffs := strings.SplitN(blogPath, "/entry/", 2)
-				if len(stuffs) != 2 {
+				_, entryPath := extractEntryPath(path)
+				if entryPath == "" {
 					return fmt.Errorf("%q is not a blog entry", path)
 				}
-				entry.CustomPath = strings.TrimSuffix(stuffs[1], entryExt)
+				entry.CustomPath = entryPath
 				b := newBroker(bc, c.App.Writer)
 				err = b.PostEntry(entry, false)
 				if err != nil {
@@ -264,6 +283,14 @@ var commandPush = &cli.Command{
 				return fmt.Errorf("cannot find blog for %s", path)
 			}
 
+			blogPath, _ := filepath.Rel(bc.localRoot(), path)
+			blogPath = "/" + filepath.ToSlash(blogPath)
+
+			if _, entryPath := extractEntryPath(path); entryPath != "" {
+				if !isLikelyGivenPath(entryPath) && !strings.HasPrefix(entryPath, draftDir) {
+					entry.CustomPath = entryPath
+				}
+			}
 			_, err = newBroker(bc, c.App.Writer).UploadFresh(entry)
 			if err != nil {
 				return err
@@ -298,7 +325,7 @@ var commandPost = &cli.Command{
 			return fmt.Errorf("blog not found: %s", blog)
 		}
 
-		entry, err := entryFromReader(os.Stdin)
+		entry, err := entryFromReader(c.App.Reader)
 		if err != nil {
 			return err
 		}

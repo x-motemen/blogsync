@@ -27,7 +27,7 @@ type entryHeader struct {
 	Title      string     `yaml:"Title"`
 	Category   []string   `yaml:"Category,omitempty"`
 	Date       *time.Time `yaml:"Date,omitempty"`
-	URL        *entryURL  `yaml:"URL"`
+	URL        *entryURL  `yaml:"URL,omitempty"`
 	EditURL    string     `yaml:"EditURL"`
 	PreviewURL string     `yaml:"PreviewURL,omitempty"`
 	IsDraft    bool       `yaml:"Draft,omitempty"`
@@ -68,6 +68,7 @@ type entry struct {
 	LastModified *time.Time
 	Content      string
 	ContentType  string
+	localPath    string
 }
 
 func (e *entry) HeaderString() string {
@@ -277,4 +278,13 @@ func modTime(fpath string) (time.Time, error) {
 		}
 	}
 	return ti, nil
+}
+
+func extractEntryPath(p string) (subdir string, entryPath string) {
+	stuffs := strings.SplitN(p, "/entry/", 2)
+	if len(stuffs) != 2 {
+		return "", ""
+	}
+	entryPath = strings.TrimSuffix(stuffs[1], entryExt)
+	return stuffs[0], entryPath
 }

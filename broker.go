@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/motemen/go-wsse"
 	"github.com/x-motemen/blogsync/atom"
@@ -89,7 +90,29 @@ func (b *broker) FetchRemoteEntries(published, drafts bool) ([]*entry, error) {
 const entryExt = ".md" // TODO regard re.ContentType
 
 func (b *broker) LocalPath(e *entry) string {
-	return filepath.Join(b.localRoot(), e.URL.Path+entryExt)
+	if e.localPath != "" {
+		return e.localPath
+	}
+	if e.URL == nil {
+		return ""
+	}
+	localPath := e.URL.Path
+
+	if e.IsDraft && strings.Contains(e.EditURL, "/atom/entry/") {
+		subdir, entryPath := extractEntryPath(e.URL.Path)
+		if entryPath == "" {
+			return ""
+		}
+		if isLikelyGivenPath(entryPath) {
+			// EditURL is like bellow
+			//   https://blog.hatena.ne.jp/Songmu/songmu.hatenadiary.org/atom/entry/6801883189050452361
+			paths := strings.Split(e.EditURL, "/")
+			if len(paths) == 8 {
+				localPath = subdir + "/entry/" + draftDir + paths[7] // path[7] is entryID
+			}
+		}
+	}
+	return filepath.Join(b.localRoot(), localPath+entryExt)
 }
 
 func (b *broker) StoreFresh(e *entry, path string) (bool, error) {
@@ -108,6 +131,16 @@ func (b *broker) StoreFresh(e *entry, path string) (bool, error) {
 
 func (b *broker) Store(e *entry, path, origPath string) error {
 	logf("store", "%s", path)
+
+	if e.IsDraft && strings.Contains(e.EditURL, "/atom/entry/") {
+		_, entryPath := extractEntryPath(e.URL.Path)
+		if entryPath == "" {
+			return fmt.Errorf("invalid path: %s", e.URL.Path)
+		}
+		if isLikelyGivenPath(entryPath) {
+			e.URL = nil
+		}
+	}
 
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -148,10 +181,7 @@ func (b *broker) PutEntry(e *entry) error {
 	if err != nil {
 		return err
 	}
-	if e.CustomPath != "" {
-		newEntry.CustomPath = e.CustomPath
-	}
-	return b.Store(newEntry, b.LocalPath(newEntry), b.originalPath(e))
+	return b.Store(newEntry, b.LocalPath(newEntry), b.LocalPath(e))
 }
 
 func (b *broker) PostEntry(e *entry, isPage bool) error {
@@ -165,10 +195,6 @@ func (b *broker) PostEntry(e *entry, isPage bool) error {
 	if err != nil {
 		return err
 	}
-	if e.CustomPath != "" {
-		newEntry.CustomPath = e.CustomPath
-	}
-
 	return b.Store(newEntry, b.LocalPath(newEntry), "")
 }
 
@@ -178,13 +204,6 @@ func (b *broker) RemoveEntry(e *entry, p string) error {
 		return err
 	}
 	return os.Remove(p)
-}
-
-func (b *broker) originalPath(e *entry) string {
-	if e.URL == nil {
-		return ""
-	}
-	return b.LocalPath(e)
 }
 
 func atomEndpointURLRoot(bc *blogConfig) string {
