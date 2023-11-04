@@ -231,14 +231,7 @@ var commandPush = &cli.Command{
 					return err
 				}
 			}
-
-			f, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer f.Close()
-
-			entry, err := entryFromReader(f)
+			entry, err := entryFromFile(path)
 			if err != nil {
 				return err
 			}
@@ -248,7 +241,6 @@ var commandPush = &cli.Command{
 				ti := time.Now()
 				entry.LastModified = &ti
 			}
-			entry.localPath = path
 
 			if entry.EditURL == "" {
 				// post new entry
@@ -406,13 +398,7 @@ var commandRemove = &cli.Command{
 		}
 
 		for _, path := range c.Args().Slice() {
-			f, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer f.Close()
-
-			entry, err := entryFromReader(f)
+			entry, err := entryFromFile(path)
 			if err != nil {
 				return err
 			}
@@ -427,7 +413,7 @@ var commandRemove = &cli.Command{
 				return fmt.Errorf("cannot find blog for %s", path)
 			}
 
-			err = newBroker(bc, c.App.Writer).RemoveEntry(entry, path)
+			err = newBroker(bc, c.App.Writer).RemoveEntry(entry)
 			if err != nil {
 				return err
 			}
