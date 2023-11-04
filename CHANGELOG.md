@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.19.0](https://github.com/x-motemen/blogsync/compare/v0.18.2...v0.19.0) - 2023-11-04
+- define func *blogConfig.fetchRootURL by @Songmu in https://github.com/x-motemen/blogsync/pull/125
+- update README.md by @Songmu in https://github.com/x-motemen/blogsync/pull/131
+- add remove subcommand to remove the entry by @Songmu in https://github.com/x-motemen/blogsync/pull/132
+- define func newApp() for internal testability by @Songmu in https://github.com/x-motemen/blogsync/pull/133
+- add --publish option to push subcommand by @Songmu in https://github.com/x-motemen/blogsync/pull/134
+- 下書きエントリーのファイル配置位置の変更 by @Songmu in https://github.com/x-motemen/blogsync/pull/128
+
 ## [v0.18.2](https://github.com/x-motemen/blogsync/compare/v0.18.1...v0.18.2) - 2023-10-29
 - return a function instead of a string when retrieving git by @Songmu in https://github.com/x-motemen/blogsync/pull/121
 - make the blogID argument of blogsync pull optional by @Songmu in https://github.com/x-motemen/blogsync/pull/123
