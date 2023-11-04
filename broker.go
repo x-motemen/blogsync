@@ -198,12 +198,16 @@ func (b *broker) PostEntry(e *entry, isPage bool) error {
 	return b.Store(newEntry, b.LocalPath(newEntry), "")
 }
 
-func (b *broker) RemoveEntry(e *entry, p string) error {
+func (b *broker) RemoveEntry(e *entry) error {
 	err := b.Client.DeleteEntry(e.EditURL)
 	if err != nil {
 		return err
 	}
-	return os.Remove(p)
+	p := b.LocalPath(e)
+	if _, err := os.Stat(p); err == nil {
+		return os.Remove(p)
+	}
+	return nil
 }
 
 func atomEndpointURLRoot(bc *blogConfig) string {

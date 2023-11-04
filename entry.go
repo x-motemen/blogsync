@@ -227,6 +227,21 @@ func entryFromReader(source io.Reader) (*entry, error) {
 	return entry, nil
 }
 
+func entryFromFile(fpath string) (*entry, error) {
+	f, err := os.Open(fpath)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	e, err := entryFromReader(f)
+	if err != nil {
+		return nil, err
+	}
+	e.localPath = fpath
+	return e, nil
+}
+
 func asEntry(atomEntry *atom.Entry, err error) (*entry, error) {
 	if err != nil {
 		return nil, err
