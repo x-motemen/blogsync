@@ -26,8 +26,9 @@ func newApp() *cli.App {
 	}
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
-			Name:  "C",
-			Usage: "Run as if blogsync was started in `PATH` instead of the current working directory. ",
+			Name:    "C",
+			Usage:   "Run as if blogsync was started in `PATH` instead of the current working directory. ",
+			EnvVars: []string{"BLOGSYNC_WORKDIR"},
 			Action: func(ctx *cli.Context, wdir string) error {
 				if wdir == "" {
 					return nil
