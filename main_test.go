@@ -105,6 +105,17 @@ func TestBlogsync(t *testing.T) {
 		}
 		originalEntryFile := entryFile
 		entryFile = movedPath
+		e, err := entryFromFile(entryFile)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if e.URL != nil {
+			t.Errorf("URL is registered in a draft with no custom path specified. URL: %s", *e.URL)
+		}
+		if e.Date != nil {
+			t.Errorf("Date is registered in a draft. Date: %s", *e.Date)
+		}
+
 		if err := appendFile(movedPath, "updated\n"); err != nil {
 			t.Fatal(err)
 		}
