@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -12,6 +13,68 @@ import (
 type config struct {
 	Default *blogConfig
 	Blogs   map[string]*blogConfig
+}
+
+func loadSingleConfigFile(fname string) (*config, error) {
+	if _, err := os.Stat(fname); err != nil {
+		return nil, nil
+	}
+	f, err := os.Open(fname)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return loadConfig(f, fname)
+}
+
+func loadConfiguration() (*config, error) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	var conf *config
+	conf, err = loadConfigFiles(pwd)
+	if err != nil {
+		return nil, err
+	}
+
+	var confEnv *config
+	confEnv, err = loadConfigFromEnv()
+	if err != nil {
+		return nil, err
+	}
+	if conf.Default == nil {
+		conf.Default = &blogConfig{}
+	}
+	if confEnv.Default.Username != "" {
+		conf.Default.Username = confEnv.Default.Username
+	}
+	if confEnv.Default.Password != "" {
+		conf.Default.Password = confEnv.Default.Password
+	}
+
+	return conf, nil
+}
+
+func loadConfigFiles(pwd string) (*config, error) {
+	confs := []string{filepath.Join(pwd, "blogsync.yaml")}
+	home, err := os.UserHomeDir()
+	if err == nil {
+		confs = append(confs, filepath.Join(home, ".config", "blogsync", "config.yaml"))
+	}
+	var conf *config
+	for _, confFile := range confs {
+		tmpConf, err := loadSingleConfigFile(confFile)
+		if err != nil {
+			return nil, err
+		}
+		conf = mergeConfig(conf, tmpConf)
+	}
+	if conf == nil {
+		return nil, fmt.Errorf("no config files found")
+	}
+	return conf, nil
 }
 
 func (c *config) detectBlogConfig(fpath string) *blogConfig {
