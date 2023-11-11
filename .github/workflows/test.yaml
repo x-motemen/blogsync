@@ -41,7 +41,7 @@ jobs:
         github-token: ${{ secrets.github_token }}
         path-to-profile: coverage.out
         parallel: true
-        job-number: ${{ strategy.job-index }}
+        flag-name: ${{ matrix.os }}
   finish:
     runs-on: ubuntu-latest
     needs: test
