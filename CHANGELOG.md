@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.20.0](https://github.com/x-motemen/blogsync/compare/v0.19.0...v0.20.0) - 2023-11-11
+- define func entryFromFile by @Songmu in https://github.com/x-motemen/blogsync/pull/136
+- [nit] enhance testing by @Songmu in https://github.com/x-motemen/blogsync/pull/141
+- use flag-name instead of job-number for goveralls by @Songmu in https://github.com/x-motemen/blogsync/pull/142
+- add C option to change working directory by @Songmu in https://github.com/x-motemen/blogsync/pull/143
+
 ## [v0.19.0](https://github.com/x-motemen/blogsync/compare/v0.18.2...v0.19.0) - 2023-11-04
 - define func *blogConfig.fetchRootURL by @Songmu in https://github.com/x-motemen/blogsync/pull/125
 - update README.md by @Songmu in https://github.com/x-motemen/blogsync/pull/131
