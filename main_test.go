@@ -39,24 +39,21 @@ func TestBlogsync(t *testing.T) {
 		t.Skip("BLOGSYNC_TEST_BLOG not set")
 	}
 
-	pwd, err := os.Getwd()
+	dir := t.TempDir()
+	dir, err := filepath.EvalSymlinks(dir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	dir := t.TempDir()
-	if err := os.Chdir(dir); err != nil {
-		t.Fatal(err)
-	}
+
+	orig, ok := os.LookupEnv("BLOGSYNC_WORKDIR")
+	os.Setenv("BLOGSYNC_WORKDIR", dir)
 	defer func() {
-		if err := os.Chdir(pwd); err != nil {
-			t.Fatal(err)
+		if ok {
+			os.Setenv("BLOGSYNC_WORKDIR", orig)
+		} else {
+			os.Unsetenv("BLOGSYNC_WORKDIR")
 		}
 	}()
-
-	dir, err = filepath.EvalSymlinks(dir)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	confYAML := fmt.Sprintf(`%s:
   local_root: .
