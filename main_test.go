@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -84,6 +85,20 @@ func TestBlogsync(t *testing.T) {
 		}
 	})
 
+	t.Run("fetchRootURL", func(t *testing.T) {
+		t.Log("fetchRootURL returns the remote root URL")
+		conf, err := loadConfiguration()
+		if err != nil {
+			t.Fatal(err)
+		}
+		remotRoot := conf.Get(blogID).fetchRootURL()
+		u, _ := url.Parse(remotRoot)
+		// XXX: In case of own URL, blogID and remote URL do not match.
+		if u.Hostname() != blogID {
+			t.Errorf("unexpected hostname. got: %s, expected: %s", u.Hostname(), blogID)
+		}
+	})
+
 	t.Run("post draft and publish", func(t *testing.T) {
 		t.Log("Post a draft without a custom path and check if the file is saved in the proper location")
 		app.Reader = strings.NewReader("draft\n")
@@ -103,14 +118,7 @@ func TestBlogsync(t *testing.T) {
 			t.Fatalf("unexpected draft file: %s", entryFile)
 		}
 
-		t.Log("Draft files under `_draft/` will revert to the original file name if the file is renamed and pushed again")
-		d, f := filepath.Split(entryFile)
-		movedPath := filepath.Join(d, "_"+f)
-		if err := os.Rename(entryFile, movedPath); err != nil {
-			t.Fatal(err)
-		}
-		originalEntryFile := entryFile
-		entryFile = movedPath
+		t.Log("Check entry metadata")
 		e, err := entryFromFile(entryFile)
 		if err != nil {
 			t.Fatal(err)
@@ -122,6 +130,14 @@ func TestBlogsync(t *testing.T) {
 			t.Errorf("Date is registered in a draft. Date: %s", *e.Date)
 		}
 
+		t.Log("Draft files under `_draft/` will revert to the original file name if the file is renamed and pushed again")
+		d, f := filepath.Split(entryFile)
+		movedPath := filepath.Join(d, "_"+f)
+		if err := os.Rename(entryFile, movedPath); err != nil {
+			t.Fatal(err)
+		}
+		originalEntryFile := entryFile
+		entryFile = movedPath
 		if err := appendFile(movedPath, "updated\n"); err != nil {
 			t.Fatal(err)
 		}
