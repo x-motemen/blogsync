@@ -98,7 +98,7 @@ func (b *broker) LocalPath(e *entry) string {
 	}
 	localPath := e.URL.Path
 
-	if e.IsDraft && strings.Contains(e.EditURL, "/atom/entry/") {
+	if e.IsDraft && e.isBlogEntry() {
 		subdir, entryPath := extractEntryPath(e.URL.Path)
 		if entryPath == "" {
 			return ""
@@ -132,7 +132,7 @@ func (b *broker) StoreFresh(e *entry, path string) (bool, error) {
 func (b *broker) Store(e *entry, path, origPath string) error {
 	logf("store", "%s", path)
 
-	if e.IsDraft && strings.Contains(e.EditURL, "/atom/entry/") {
+	if e.IsDraft && e.isBlogEntry() {
 		_, entryPath := extractEntryPath(e.URL.Path)
 		if entryPath == "" {
 			return fmt.Errorf("invalid path: %s", e.URL.Path)
