@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.20.1](https://github.com/x-motemen/blogsync/compare/v0.20.0...v0.20.1) - 2023-11-12
+- change test blog for CI by @Songmu in https://github.com/x-motemen/blogsync/pull/144
+- [nit] refactoring by @Songmu in https://github.com/x-motemen/blogsync/pull/146
+- test enhancement by @Songmu in https://github.com/x-motemen/blogsync/pull/147
+- [bugfix] fix fetch subcommand by @Songmu in https://github.com/x-motemen/blogsync/pull/148
+
 ## [v0.20.0](https://github.com/x-motemen/blogsync/compare/v0.19.0...v0.20.0) - 2023-11-11
 - define func entryFromFile by @Songmu in https://github.com/x-motemen/blogsync/pull/136
 - [nit] enhance testing by @Songmu in https://github.com/x-motemen/blogsync/pull/141
