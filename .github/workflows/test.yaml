@@ -31,10 +31,9 @@ jobs:
     - name: test
       run: go test -coverprofile coverage.out -covermode atomic ./...
       env:
-        BLOGSYNC_TEST_BLOG: ${{ secrets.BLOGSYNC_BLOG }}
-        BLOGSYNC_USERNAME: ${{ secrets.BLOGSYNC_USERNAME }}
-        BLOGSYNC_PASSWORD: ${{ secrets.BLOGSYNC_PASSWORD }}
-        BLOGSYNC_OWNER: ${{ secrets.BLOGSYNC_OWNER }}
+        BLOGSYNC_TEST_BLOG: blogsynctest.hatenablog.com
+        BLOGSYNC_USERNAME: Songmu
+        BLOGSYNC_PASSWORD: ${{ secrets.BLOGSYNC_SONGMU_PASSWORD }}
     - name: Send coverage
       uses: shogo82148/actions-goveralls@v1
       with:
