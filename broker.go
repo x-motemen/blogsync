@@ -60,7 +60,7 @@ func (b *broker) FetchRemoteEntries(published, drafts bool) ([]*entry, error) {
 			}
 			return nil, err
 		}
-		if b.rootURL != "" {
+		if b.rootURL == "" {
 			if l := feed.Links.Find("alternate"); l != nil {
 				b.rootURL = l.Href
 			}

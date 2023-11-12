@@ -118,6 +118,10 @@ func TestBlogsync(t *testing.T) {
 			t.Fatalf("unexpected draft file: %s", entryFile)
 		}
 
+		if _, err := blogsync("pull"); err != nil {
+			t.Error(err)
+		}
+
 		t.Log("Check entry metadata")
 		e, err := entryFromFile(entryFile)
 		if err != nil {
