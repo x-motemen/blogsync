@@ -78,6 +78,12 @@ func TestBlogsync(t *testing.T) {
 		}
 	})
 
+	t.Run("list", func(t *testing.T) {
+		if _, err := blogsync("list"); err != nil {
+			t.Fatal(err)
+		}
+	})
+
 	t.Run("post draft and publish", func(t *testing.T) {
 		t.Log("Post a draft without a custom path and check if the file is saved in the proper location")
 		app.Reader = strings.NewReader("draft\n")
