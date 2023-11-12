@@ -153,7 +153,11 @@ func TestBlogsync(t *testing.T) {
 		if err := appendFile(movedPath, "updated\n"); err != nil {
 			t.Fatal(err)
 		}
-		draftFile, err := blogsync("push", entryFile)
+		relPath, err := filepath.Rel(dir, entryFile)
+		if err != nil {
+			t.Fatal(err)
+		}
+		draftFile, err := blogsync("push", relPath)
 		if err != nil {
 			t.Fatal(err)
 		}
