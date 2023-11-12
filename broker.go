@@ -38,10 +38,10 @@ func newBroker(bc *blogConfig, w io.Writer) *broker {
 
 func (b *broker) FetchRemoteEntries(published, drafts bool) ([]*entry, error) {
 	entries := []*entry{}
-	fixedPageURL := fixedPageEndpointURL(b.blogConfig)
+	staticPageURL := staticPageEndpointURL(b.blogConfig)
 	urls := []string{
 		entryEndPointUrl(b.blogConfig),
-		fixedPageURL,
+		staticPageURL,
 	}
 	for url := ""; true; {
 		if url == "" {
@@ -53,14 +53,14 @@ func (b *broker) FetchRemoteEntries(published, drafts bool) ([]*entry, error) {
 
 		feed, err := b.Client.GetFeed(url)
 		if err != nil {
-			if url == fixedPageURL {
-				// Ignore errors in the case of fixed pages, because fixed page is the feature
+			if url == staticPageURL {
+				// Ignore errors in the case of static pages, because static page is the feature
 				// only for pro users.
 				break
 			}
 			return nil, err
 		}
-		if b.rootURL != "" {
+		if b.rootURL == "" {
 			if l := feed.Links.Find("alternate"); l != nil {
 				b.rootURL = l.Href
 			}
@@ -98,7 +98,7 @@ func (b *broker) LocalPath(e *entry) string {
 	}
 	localPath := e.URL.Path
 
-	if e.IsDraft && strings.Contains(e.EditURL, "/atom/entry/") {
+	if e.IsDraft && e.isBlogEntry() {
 		subdir, entryPath := extractEntryPath(e.URL.Path)
 		if entryPath == "" {
 			return ""
@@ -132,7 +132,7 @@ func (b *broker) StoreFresh(e *entry, path string) (bool, error) {
 func (b *broker) Store(e *entry, path, origPath string) error {
 	logf("store", "%s", path)
 
-	if e.IsDraft && strings.Contains(e.EditURL, "/atom/entry/") {
+	if e.IsDraft && e.isBlogEntry() {
 		_, entryPath := extractEntryPath(e.URL.Path)
 		if entryPath == "" {
 			return fmt.Errorf("invalid path: %s", e.URL.Path)
@@ -189,7 +189,7 @@ func (b *broker) PostEntry(e *entry, isPage bool) error {
 	if !isPage {
 		endPoint = entryEndPointUrl(b.blogConfig)
 	} else {
-		endPoint = fixedPageEndpointURL(b.blogConfig)
+		endPoint = staticPageEndpointURL(b.blogConfig)
 	}
 	newEntry, err := asEntry(b.Client.PostEntry(endPoint, e.atom()))
 	if err != nil {
@@ -222,6 +222,6 @@ func entryEndPointUrl(bc *blogConfig) string {
 	return atomEndpointURLRoot(bc) + "entry"
 }
 
-func fixedPageEndpointURL(bc *blogConfig) string {
+func staticPageEndpointURL(bc *blogConfig) string {
 	return atomEndpointURLRoot(bc) + "page"
 }

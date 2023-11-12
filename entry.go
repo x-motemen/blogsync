@@ -62,6 +62,14 @@ func (eh *entryHeader) blogID() (string, error) {
 	return paths[4], nil
 }
 
+func (eh *entryHeader) isBlogEntry() bool {
+	return strings.Contains(eh.EditURL, "/atom/entry/")
+}
+
+func (eh *entryHeader) isStaticPage() bool {
+	return strings.Contains(eh.EditURL, "/atom/page/")
+}
+
 // Entry is an entry stored on remote blog providers
 type entry struct {
 	*entryHeader

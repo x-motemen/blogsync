@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -78,6 +79,26 @@ func TestBlogsync(t *testing.T) {
 		}
 	})
 
+	t.Run("list", func(t *testing.T) {
+		if _, err := blogsync("list"); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("fetchRootURL", func(t *testing.T) {
+		t.Log("fetchRootURL returns the remote root URL")
+		conf, err := loadConfiguration()
+		if err != nil {
+			t.Fatal(err)
+		}
+		remotRoot := conf.Get(blogID).fetchRootURL()
+		u, _ := url.Parse(remotRoot)
+		// XXX: In case of own URL, blogID and remote URL do not match.
+		if u.Hostname() != blogID {
+			t.Errorf("unexpected hostname. got: %s, expected: %s", u.Hostname(), blogID)
+		}
+	})
+
 	t.Run("post draft and publish", func(t *testing.T) {
 		t.Log("Post a draft without a custom path and check if the file is saved in the proper location")
 		app.Reader = strings.NewReader("draft\n")
@@ -97,14 +118,11 @@ func TestBlogsync(t *testing.T) {
 			t.Fatalf("unexpected draft file: %s", entryFile)
 		}
 
-		t.Log("Draft files under `_draft/` will revert to the original file name if the file is renamed and pushed again")
-		d, f := filepath.Split(entryFile)
-		movedPath := filepath.Join(d, "_"+f)
-		if err := os.Rename(entryFile, movedPath); err != nil {
-			t.Fatal(err)
+		if _, err := blogsync("pull"); err != nil {
+			t.Error(err)
 		}
-		originalEntryFile := entryFile
-		entryFile = movedPath
+
+		t.Log("Check entry metadata")
 		e, err := entryFromFile(entryFile)
 		if err != nil {
 			t.Fatal(err)
@@ -116,6 +134,14 @@ func TestBlogsync(t *testing.T) {
 			t.Errorf("Date is registered in a draft. Date: %s", *e.Date)
 		}
 
+		t.Log("Draft files under `_draft/` will revert to the original file name if the file is renamed and pushed again")
+		d, f := filepath.Split(entryFile)
+		movedPath := filepath.Join(d, "_"+f)
+		if err := os.Rename(entryFile, movedPath); err != nil {
+			t.Fatal(err)
+		}
+		originalEntryFile := entryFile
+		entryFile = movedPath
 		if err := appendFile(movedPath, "updated\n"); err != nil {
 			t.Fatal(err)
 		}
@@ -131,6 +157,11 @@ func TestBlogsync(t *testing.T) {
 			t.Errorf("renamed draft file is not deleted: %s", movedPath)
 		}
 		entryFile = draftFile
+
+		t.Log("Check if the draft is fetched and saved in the proper location")
+		if _, err := blogsync("fetch", entryFile); err != nil {
+			t.Error(err)
+		}
 
 		t.Log("When a draft is published, a URL is issued and the file is saved in the corresponding location")
 		publishedFile, err := blogsync("push", "--publish", entryFile)
@@ -199,6 +230,34 @@ test`), 0644); err != nil {
 			t.Errorf("unexpected published file: %s", publishedFile)
 		}
 	})
+
+	t.Run("post static pages", func(t *testing.T) {
+		t.Log("Posting a static page without a custom path results in an error")
+		app.Reader = strings.NewReader("static\n")
+		if _, err := blogsync("post", "--page", blogID); err == nil {
+			t.Error("expected error did not occur")
+		}
+
+		t.Log("Posting a static page with a custom path saves the file in the specified location")
+		customPath := fmt.Sprintf("static-%s", time.Now().Format("20060102150405"))
+		app.Reader = strings.NewReader("static\n")
+		entryFile, err := blogsync("post", "--page", "--custom-path", customPath, blogID)
+		app.Reader = os.Stdin
+		if err != nil {
+			t.Fatal(err)
+		}
+		if entryFile != filepath.Join(dir, customPath+".md") {
+			t.Errorf("unexpected published file: %s", entryFile)
+		}
+
+		defer func() {
+			t.Log("remove the published entry")
+			if _, err := blogsync("remove", entryFile); err != nil {
+				t.Fatal(err)
+			}
+		}()
+	})
+
 }
 
 func appendFile(path string, content string) error {
