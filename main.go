@@ -111,13 +111,7 @@ var commandFetch = &cli.Command{
 			return err
 		}
 		for _, path := range c.Args().Slice() {
-			f, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer f.Close()
-
-			e, err := entryFromReader(f)
+			e, err := entryFromFile(path)
 			if err != nil {
 				return err
 			}
@@ -125,13 +119,16 @@ var commandFetch = &cli.Command{
 			if err != nil {
 				return err
 			}
-
 			bc := conf.Get(blogID)
 			if bc == nil {
 				return fmt.Errorf("cannot find blog for %s", path)
 			}
 			b := newBroker(bc, c.App.Writer)
-			if _, err := b.StoreFresh(e, path); err != nil {
+			re, err := asEntry(b.GetEntry(e.EditURL))
+			if err != nil {
+				return err
+			}
+			if _, err := b.StoreFresh(re, path); err != nil {
 				return err
 			}
 		}
