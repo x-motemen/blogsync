@@ -138,6 +138,11 @@ func TestBlogsync(t *testing.T) {
 		}
 		entryFile = draftFile
 
+		t.Log("Check if the draft is fetched and saved in the proper location")
+		if _, err := blogsync("fetch", entryFile); err != nil {
+			t.Error(err)
+		}
+
 		t.Log("When a draft is published, a URL is issued and the file is saved in the corresponding location")
 		publishedFile, err := blogsync("push", "--publish", entryFile)
 		if err != nil {
