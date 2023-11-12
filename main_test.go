@@ -210,6 +210,34 @@ test`), 0644); err != nil {
 			t.Errorf("unexpected published file: %s", publishedFile)
 		}
 	})
+
+	t.Run("post static pages", func(t *testing.T) {
+		t.Log("Posting a static page without a custom path results in an error")
+		app.Reader = strings.NewReader("static\n")
+		if _, err := blogsync("post", "--page", blogID); err == nil {
+			t.Error("expected error did not occur")
+		}
+
+		t.Log("Posting a static page with a custom path saves the file in the specified location")
+		customPath := fmt.Sprintf("static-%s", time.Now().Format("20060102150405"))
+		app.Reader = strings.NewReader("static\n")
+		entryFile, err := blogsync("post", "--page", "--custom-path", customPath, blogID)
+		app.Reader = os.Stdin
+		if err != nil {
+			t.Fatal(err)
+		}
+		if entryFile != filepath.Join(dir, customPath+".md") {
+			t.Errorf("unexpected published file: %s", entryFile)
+		}
+
+		defer func() {
+			t.Log("remove the published entry")
+			if _, err := blogsync("remove", entryFile); err != nil {
+				t.Fatal(err)
+			}
+		}()
+	})
+
 }
 
 func appendFile(path string, content string) error {
