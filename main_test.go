@@ -175,8 +175,12 @@ func TestBlogsync(t *testing.T) {
 		if err := os.Chtimes(entryFile, oldTime, oldTime); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := blogsync("fetch", entryFile); err != nil {
+		fetchedFile, err := blogsync("fetch", entryFile)
+		if err != nil {
 			t.Error(err)
+		}
+		if fetchedFile != entryFile {
+			t.Errorf("unexpected fetched file: %s", fetchedFile)
 		}
 
 		t.Log("When a draft is published, a URL is issued and the file is saved in the corresponding location")
