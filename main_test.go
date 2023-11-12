@@ -39,8 +39,12 @@ func TestBlogsync(t *testing.T) {
 		t.Skip("BLOGSYNC_TEST_BLOG not set")
 	}
 
+	pwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
 	dir := t.TempDir()
-	dir, err := filepath.EvalSymlinks(dir)
+	dir, err = filepath.EvalSymlinks(dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,9 +53,16 @@ func TestBlogsync(t *testing.T) {
 	os.Setenv("BLOGSYNC_WORKDIR", dir)
 	defer func() {
 		if ok {
-			os.Setenv("BLOGSYNC_WORKDIR", orig)
+			if err := os.Setenv("BLOGSYNC_WORKDIR", orig); err != nil {
+				t.Fatal(err)
+			}
 		} else {
-			os.Unsetenv("BLOGSYNC_WORKDIR")
+			if err := os.Unsetenv("BLOGSYNC_WORKDIR"); err != nil {
+				t.Fatal(err)
+			}
+		}
+		if err := os.Chdir(pwd); err != nil {
+			t.Fatal(err)
 		}
 	}()
 
@@ -156,6 +167,10 @@ func TestBlogsync(t *testing.T) {
 		entryFile = draftFile
 
 		t.Log("Check if the draft is fetched and saved in the proper location")
+		oldTime := time.Date(2006, time.January, 2, 15, 4, 5, 0, time.UTC)
+		if err := os.Chtimes(entryFile, oldTime, oldTime); err != nil {
+			t.Fatal(err)
+		}
 		if _, err := blogsync("fetch", entryFile); err != nil {
 			t.Error(err)
 		}
