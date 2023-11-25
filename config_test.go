@@ -18,63 +18,15 @@ var homeEnvName = func() string {
 
 func TestLoadConfigration(t *testing.T) {
 	setup := func(t *testing.T, envUsername string, envPassword string, localConf, globalConf *string) (
-		cleanup func() error, err error) {
+		string, error) {
 
 		tempdir := t.TempDir()
-		origPwd, err := os.Getwd()
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		fn := func(envKey, tmpVal string) (func() error, func() error) {
-			env, ok := os.LookupEnv(envKey)
-			return func() error {
-					if tmpVal != "" {
-						return os.Setenv(envKey, tmpVal)
-					}
-					return os.Unsetenv(envKey)
-				}, func() error {
-					if ok {
-						return os.Setenv(envKey, env)
-					}
-					return os.Unsetenv(envKey)
-				}
-		}
-
-		var swaps []func() error
-		var restores []func() error
-		for _, envKeyVal := range [][2]string{
+		for _, envKV := range [][2]string{
 			{homeEnvName, tempdir},
 			{"BLOGSYNC_USERNAME", envUsername},
 			{"BLOGSYNC_PASSWORD", envPassword}} {
 
-			envKey, tmpVal := envKeyVal[0], envKeyVal[1]
-			swap, restore := fn(envKey, tmpVal)
-			swaps = append(swaps, swap)
-			restores = append(restores, restore)
-		}
-
-		cleanup = func() error {
-			for _, restore := range restores {
-				if err := restore(); err != nil {
-					return err
-				}
-			}
-			return os.Chdir(origPwd)
-		}
-		defer func() {
-			if err != nil {
-				cleanup()
-			}
-		}()
-
-		if err := os.Chdir(tempdir); err != nil {
-			return nil, err
-		}
-		for _, swap := range swaps {
-			if err := swap(); err != nil {
-				return nil, err
-			}
+			t.Setenv(envKV[0], envKV[1])
 		}
 
 		if localConf != nil {
@@ -84,7 +36,7 @@ func TestLoadConfigration(t *testing.T) {
 			err := os.WriteFile(
 				filepath.Join(tempdir, "blogsync.yaml"), []byte(*localConf), 0755)
 			if err != nil {
-				return nil, err
+				return "", err
 			}
 		}
 
@@ -95,15 +47,14 @@ func TestLoadConfigration(t *testing.T) {
 			globalConfFile := filepath.Join(tempdir, ".config", "blogsync", "config.yaml")
 			err := os.MkdirAll(filepath.Dir(globalConfFile), 0755)
 			if err != nil {
-				return nil, err
+				return "", err
 			}
 			err = os.WriteFile(globalConfFile, []byte(*globalConf), 0755)
 			if err != nil {
-				return nil, err
+				return "", err
 			}
 		}
-
-		return cleanup, nil
+		return tempdir, nil
 	}
 
 	pstr := func(str string) *string {
@@ -371,15 +322,23 @@ func TestLoadConfigration(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			teardown, err := setup(t, tc.envUsername, tc.envPassword, tc.localConf, tc.globalConf)
+			dir, err := setup(t, tc.envUsername, tc.envPassword, tc.localConf, tc.globalConf)
 			if err != nil {
 				t.Fatal(err)
 			}
+			origPwd, err := os.Getwd()
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Chdir(dir); err != nil {
+				t.Fatal(err)
+			}
 			defer func() {
-				if err := teardown(); err != nil {
+				if err := os.Chdir(origPwd); err != nil {
 					t.Fatal(err)
 				}
 			}()
+
 			conf, err := loadConfiguration()
 			if err != nil {
 				t.Errorf("error should be nil but: %s", err)

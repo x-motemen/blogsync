@@ -48,19 +48,8 @@ func TestBlogsync(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	orig, ok := os.LookupEnv("BLOGSYNC_WORKDIR")
-	os.Setenv("BLOGSYNC_WORKDIR", dir)
+	t.Setenv("BLOGSYNC_WORKDIR", dir)
 	defer func() {
-		if ok {
-			if err := os.Setenv("BLOGSYNC_WORKDIR", orig); err != nil {
-				t.Fatal(err)
-			}
-		} else {
-			if err := os.Unsetenv("BLOGSYNC_WORKDIR"); err != nil {
-				t.Fatal(err)
-			}
-		}
 		if err := os.Chdir(pwd); err != nil {
 			t.Fatal(err)
 		}
