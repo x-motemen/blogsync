@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.20.2](https://github.com/x-motemen/blogsync/compare/v0.20.1...v0.20.2) - 2023-11-25
+- use t.Setenv in testing by @Songmu in https://github.com/x-motemen/blogsync/pull/151
+
 ## [v0.20.1](https://github.com/x-motemen/blogsync/compare/v0.20.0...v0.20.1) - 2023-11-12
 - change test blog for CI by @Songmu in https://github.com/x-motemen/blogsync/pull/144
 - [nit] refactoring by @Songmu in https://github.com/x-motemen/blogsync/pull/146
