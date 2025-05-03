@@ -358,34 +358,41 @@ func TestLoadConfigration(t *testing.T) {
 
 func TestEntryDirectory(t *testing.T) {
 	testCases := []struct {
-		name             string
-		entryDirectory   string
+		name              string
+		entryDirectory    *string
 		expectedDirectory string
+		local             bool
+		blogID            string
 	}{
 		{
-			name:             "default directory",
-			entryDirectory:   "",
+			name:              "default directory",
+			entryDirectory:    nil,
 			expectedDirectory: "/entry/",
 		},
 		{
-			name:             "custom directory",
-			entryDirectory:   "articles",
+			name:              "custom directory",
+			entryDirectory:    pstr("articles"),
 			expectedDirectory: "/articles/",
 		},
 		{
-			name:             "directory with leading slash",
-			entryDirectory:   "/articles",
+			name:              "directory with leading slash",
+			entryDirectory:    pstr("/articles"),
 			expectedDirectory: "/articles/",
 		},
 		{
-			name:             "directory with trailing slash",
-			entryDirectory:   "articles/",
+			name:              "directory with trailing slash",
+			entryDirectory:    pstr("articles/"),
 			expectedDirectory: "/articles/",
 		},
 		{
-			name:             "directory with both slashes",
-			entryDirectory:   "/articles/",
+			name:              "directory with both slashes",
+			entryDirectory:    pstr("/articles/"),
 			expectedDirectory: "/articles/",
+		},
+		{
+			name:              "empty directory explicitly set in local config",
+			entryDirectory:    pstr(""),
+			expectedDirectory: "",
 		},
 	}
 
@@ -393,6 +400,8 @@ func TestEntryDirectory(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			bc := &blogConfig{
 				EntryDirectory: tc.entryDirectory,
+				local:          tc.local,
+				BlogID:         tc.blogID,
 			}
 			dir := bc.entryDirectory()
 			if dir != tc.expectedDirectory {

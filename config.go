@@ -105,9 +105,9 @@ type blogConfig struct {
 	LocalRoot      string `yaml:"local_root"`
 	Username       string
 	Password       string
-	OmitDomain     *bool  `yaml:"omit_domain"`
-	Owner          string `yaml:"owner"`
-	EntryDirectory string `yaml:"entry_directory"`
+	OmitDomain     *bool   `yaml:"omit_domain"`
+	Owner          string  `yaml:"owner"`
+	EntryDirectory *string `yaml:"entry_directory"`
 	local          bool
 	rootURL        string
 }
@@ -121,11 +121,15 @@ func (bc *blogConfig) localRoot() string {
 }
 
 func (bc *blogConfig) entryDirectory() string {
-	if bc.EntryDirectory == "" {
+	if bc.EntryDirectory == nil {
 		return "/entry/"
 	}
-	// Ensure the directory starts and ends with a slash
-	dir := bc.EntryDirectory
+
+	if *bc.EntryDirectory == "" {
+		return ""
+	}
+
+	dir := *bc.EntryDirectory
 	if !strings.HasPrefix(dir, "/") {
 		dir = "/" + dir
 	}
@@ -246,7 +250,7 @@ func mergeBlogConfig(b1, b2 *blogConfig) *blogConfig {
 	if b1.OmitDomain == nil {
 		b1.OmitDomain = b2.OmitDomain
 	}
-	if b1.EntryDirectory == "" {
+	if b1.EntryDirectory == nil {
 		b1.EntryDirectory = b2.EntryDirectory
 	}
 	if !b1.local {

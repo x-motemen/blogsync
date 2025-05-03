@@ -42,6 +42,10 @@ func mustURLParse(s string) *url.URL {
 	return u
 }
 
+func pstr(s string) *string {
+	return &s
+}
+
 func TestFullContent(t *testing.T) {
 	testCases := []struct {
 		name string
@@ -211,14 +215,14 @@ func TestExtractEntryPath(t *testing.T) {
 		{
 			name:      "custom entry directory",
 			path:      "/path/to/articles/2012/12/18/post.md",
-			bc:        &blogConfig{EntryDirectory: "articles"},
+			bc:        &blogConfig{EntryDirectory: pstr("articles")},
 			subdir:    "/path/to",
 			entryPath: "2012/12/18/post",
 		},
 		{
 			name:      "with bc but default entry directory",
 			path:      "/path/to/entry/2012/12/18/post.md",
-			bc:        &blogConfig{EntryDirectory: ""},
+			bc:        &blogConfig{EntryDirectory: nil},
 			subdir:    "/path/to",
 			entryPath: "2012/12/18/post",
 		},
@@ -228,6 +232,13 @@ func TestExtractEntryPath(t *testing.T) {
 			bc:        nil,
 			subdir:    "",
 			entryPath: "",
+		},
+		{
+			name:      "empty directory",
+			path:      "/path/to/2012/12/18/post.md",
+			bc:        &blogConfig{EntryDirectory: pstr(""), local: true, BlogID: "blog.example.com"},
+			subdir:    "",
+			entryPath: "/path/to/2012/12/18/post",
 		},
 	}
 
