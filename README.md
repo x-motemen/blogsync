@@ -55,6 +55,7 @@ default:
     - `$local_root/$blogID/` 配下にエントリが格納されます。`omit_domain` 設定がされている場合はブログIDは含まれず、local\_root直下にエントリーが格納されます
 - `<blog>.omit_domain`: ブログエントリを格納するパスにブログIDを含めません。
 - `<blog>.owner`: 編集対象のブログオーナーが自身とは別のユーザーの場合、ブログオーナーを個別に設定できます。
+- `<blog>.entry_directory`: ブログエントリを格納するディレクトリ名を指定します。デフォルトは「/entry/」です。はてなブログで記事を配信するディレクトリを変更している場合に設定します。
 
 #### ブログオーナーが自身とは別の場合の設定
 
@@ -65,6 +66,17 @@ example.hatenablog.com:
   username: sample
   password: <API KEY>
   owner: <OWNER>
+```
+
+#### 記事配信ディレクトリを変更している場合の設定
+
+はてなブログの設定で記事配信ディレクトリを変更している場合は、以下のように設定します。
+
+```yaml
+example.hatenablog.com:
+  username: sample
+  password: <API KEY>
+  entry_directory: articles
 ```
 
 ### エントリをダウンロードする（blogsync pull）

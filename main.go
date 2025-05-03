@@ -201,7 +201,7 @@ var commandPush = &cli.Command{
 				// relative position from the entry directory is obtained as a custom path as below.
 				blogPath, _ := filepath.Rel(bc.localRoot(), path)
 				blogPath = "/" + filepath.ToSlash(blogPath)
-				_, entryPath := extractEntryPath(path)
+				_, entryPath := bc.extractEntryPath(path)
 				if entryPath == "" {
 					return fmt.Errorf("%q is not a blog entry", path)
 				}
@@ -226,7 +226,7 @@ var commandPush = &cli.Command{
 			blogPath, _ := filepath.Rel(bc.localRoot(), path)
 			blogPath = "/" + filepath.ToSlash(blogPath)
 
-			if _, entryPath := extractEntryPath(path); entryPath != "" {
+			if _, entryPath := bc.extractEntryPath(path); entryPath != "" {
 				if !isLikelyGivenPath(entryPath) && !strings.HasPrefix(entryPath, draftDir) {
 					entry.CustomPath = entryPath
 				}

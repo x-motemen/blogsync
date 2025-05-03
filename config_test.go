@@ -355,3 +355,49 @@ func TestLoadConfigration(t *testing.T) {
 		})
 	}
 }
+
+func TestEntryDirectory(t *testing.T) {
+	testCases := []struct {
+		name             string
+		entryDirectory   string
+		expectedDirectory string
+	}{
+		{
+			name:             "default directory",
+			entryDirectory:   "",
+			expectedDirectory: "/entry/",
+		},
+		{
+			name:             "custom directory",
+			entryDirectory:   "articles",
+			expectedDirectory: "/articles/",
+		},
+		{
+			name:             "directory with leading slash",
+			entryDirectory:   "/articles",
+			expectedDirectory: "/articles/",
+		},
+		{
+			name:             "directory with trailing slash",
+			entryDirectory:   "articles/",
+			expectedDirectory: "/articles/",
+		},
+		{
+			name:             "directory with both slashes",
+			entryDirectory:   "/articles/",
+			expectedDirectory: "/articles/",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			bc := &blogConfig{
+				EntryDirectory: tc.entryDirectory,
+			}
+			dir := bc.entryDirectory()
+			if dir != tc.expectedDirectory {
+				t.Errorf("entryDirectory: got %#v, want %#v", dir, tc.expectedDirectory)
+			}
+		})
+	}
+}

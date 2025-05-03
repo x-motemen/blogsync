@@ -101,14 +101,15 @@ func (c *config) localBlogIDs() []string {
 }
 
 type blogConfig struct {
-	BlogID     string `yaml:"-"`
-	LocalRoot  string `yaml:"local_root"`
-	Username   string
-	Password   string
-	OmitDomain *bool  `yaml:"omit_domain"`
-	Owner      string `yaml:"owner"`
-	local      bool
-	rootURL    string
+	BlogID         string `yaml:"-"`
+	LocalRoot      string `yaml:"local_root"`
+	Username       string
+	Password       string
+	OmitDomain     *bool  `yaml:"omit_domain"`
+	Owner          string `yaml:"owner"`
+	EntryDirectory string `yaml:"entry_directory"`
+	local          bool
+	rootURL        string
 }
 
 func (bc *blogConfig) localRoot() string {
@@ -117,6 +118,21 @@ func (bc *blogConfig) localRoot() string {
 		paths = append(paths, bc.BlogID)
 	}
 	return filepath.Join(paths...)
+}
+
+func (bc *blogConfig) entryDirectory() string {
+	if bc.EntryDirectory == "" {
+		return "/entry/"
+	}
+	// Ensure the directory starts and ends with a slash
+	dir := bc.EntryDirectory
+	if !strings.HasPrefix(dir, "/") {
+		dir = "/" + dir
+	}
+	if !strings.HasSuffix(dir, "/") {
+		dir = dir + "/"
+	}
+	return dir
 }
 
 func (bc *blogConfig) fetchRootURL() string {
@@ -229,6 +245,9 @@ func mergeBlogConfig(b1, b2 *blogConfig) *blogConfig {
 	}
 	if b1.OmitDomain == nil {
 		b1.OmitDomain = b2.OmitDomain
+	}
+	if b1.EntryDirectory == "" {
+		b1.EntryDirectory = b2.EntryDirectory
 	}
 	if !b1.local {
 		b1.local = b2.local
