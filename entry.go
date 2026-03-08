@@ -177,6 +177,7 @@ func entryFromAtom(e *atom.Entry) (*entry, error) {
 
 	// Set the updated to nil when the entry is still draft.
 	// But if the date is in the future, don't set to nil because it may be a reserved post.
+	// Also preserve the date if it's a scheduled post.
 	updated := e.Updated
 	if updated != nil && isDraft && !isScheduled && !time.Now().Before(*updated) {
 		updated = nil
@@ -221,6 +222,7 @@ func entryFromReader(source io.Reader) (*entry, error) {
 		}
 		// Set the updated to nil when the entry is still draft.
 		// But if the date is in the future, don't set to nil because it may be a reserved post.
+		// Also preserve the date if it's a scheduled post.
 		if eh.IsDraft && !eh.IsScheduled && eh.Date != nil && !time.Now().Before(*eh.Date) {
 			eh.Date = nil
 		}
