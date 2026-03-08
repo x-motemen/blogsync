@@ -24,14 +24,15 @@ type entryURL struct {
 }
 
 type entryHeader struct {
-	Title      string     `yaml:"Title"`
-	Category   []string   `yaml:"Category,omitempty"`
-	Date       *time.Time `yaml:"Date,omitempty"`
-	URL        *entryURL  `yaml:"URL,omitempty"`
-	EditURL    string     `yaml:"EditURL"`
-	PreviewURL string     `yaml:"PreviewURL,omitempty"`
-	IsDraft    bool       `yaml:"Draft,omitempty"`
-	CustomPath string     `yaml:"CustomPath,omitempty"`
+	Title       string     `yaml:"Title"`
+	Category    []string   `yaml:"Category,omitempty"`
+	Date        *time.Time `yaml:"Date,omitempty"`
+	URL         *entryURL  `yaml:"URL,omitempty"`
+	EditURL     string     `yaml:"EditURL"`
+	PreviewURL  string     `yaml:"PreviewURL,omitempty"`
+	IsDraft     bool       `yaml:"Draft,omitempty"`
+	IsScheduled bool       `yaml:"Scheduled,omitempty"`
+	CustomPath  string     `yaml:"CustomPath,omitempty"`
 }
 
 func (eu *entryURL) MarshalYAML() (interface{}, error) {
@@ -118,10 +119,14 @@ func (e *entry) atom() *atom.Entry {
 		atomEntry.Updated = e.Date
 	}
 
-	if e.IsDraft {
-		atomEntry.Control = &atom.Control{
-			Draft:   "yes",
-			Preview: "yes",
+	if e.IsDraft || e.IsScheduled {
+		atomEntry.Control = &atom.Control{}
+		if e.IsDraft {
+			atomEntry.Control.Draft = "yes"
+			atomEntry.Control.Preview = "yes"
+		}
+		if e.IsScheduled {
+			atomEntry.Control.Scheduled = "yes"
 		}
 	}
 
@@ -160,26 +165,33 @@ func entryFromAtom(e *atom.Entry) (*entry, error) {
 	}
 
 	var isDraft bool
-	if e.Control != nil && e.Control.Draft == "yes" {
-		isDraft = true
+	var isScheduled bool
+	if e.Control != nil {
+		if e.Control.Draft == "yes" {
+			isDraft = true
+		}
+		if e.Control.Scheduled == "yes" {
+			isScheduled = true
+		}
 	}
 
 	// Set the updated to nil when the entry is still draft.
 	// But if the date is in the future, don't set to nil because it may be a reserved post.
 	updated := e.Updated
-	if updated != nil && isDraft && !time.Now().Before(*updated) {
+	if updated != nil && isDraft && !isScheduled && !time.Now().Before(*updated) {
 		updated = nil
 	}
 
 	return &entry{
 		entryHeader: &entryHeader{
-			URL:        &entryURL{u},
-			EditURL:    editLink.Href,
-			PreviewURL: previewLink,
-			Title:      e.Title,
-			Category:   categories,
-			Date:       updated,
-			IsDraft:    isDraft,
+			URL:         &entryURL{u},
+			EditURL:     editLink.Href,
+			PreviewURL:  previewLink,
+			Title:       e.Title,
+			Category:    categories,
+			Date:        updated,
+			IsDraft:     isDraft,
+			IsScheduled: isScheduled,
 		},
 		LastModified: e.Edited,
 		Content:      e.Content.Content,
@@ -209,7 +221,7 @@ func entryFromReader(source io.Reader) (*entry, error) {
 		}
 		// Set the updated to nil when the entry is still draft.
 		// But if the date is in the future, don't set to nil because it may be a reserved post.
-		if eh.IsDraft && eh.Date != nil && !time.Now().Before(*eh.Date) {
+		if eh.IsDraft && !eh.IsScheduled && eh.Date != nil && !time.Now().Before(*eh.Date) {
 			eh.Date = nil
 		}
 		content = c[2]

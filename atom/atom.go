@@ -57,8 +57,9 @@ type Category struct {
 
 // Control represents atom control
 type Control struct {
-	Draft   string `xml:"http://www.w3.org/2007/app draft"`
-	Preview string `xml:"http://www.w3.org/2007/app preview"`
+	Draft     string `xml:"http://www.w3.org/2007/app draft"`
+	Preview   string `xml:"http://www.w3.org/2007/app preview"`
+	Scheduled string `xml:"http://www.hatena.ne.jp/info/xmlns#hatenablog scheduled,omitempty"`
 }
 
 // Parse parses an atom xml from r and returns Feed

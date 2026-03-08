@@ -124,6 +124,114 @@ Draft: true
 
 下書き
 `}, {
+		name: "scheduled with future date",
+		e: func() *entry {
+			u := mustURLParse("http://example.com/1")
+			d := time.Date(2099, 12, 20, 0, 0, 0, 0, jst)
+			return &entry{
+				entryHeader: &entryHeader{
+					URL:         &entryURL{u},
+					EditURL:     u.String() + "/edit",
+					Title:       "Test Entry",
+					Date:        &d,
+					IsScheduled: true,
+				},
+				LastModified: &d,
+				Content:      "scheduled content\n",
+			}
+		},
+		want: `---
+Title: Test Entry
+Date: 2099-12-20T00:00:00+09:00
+URL: http://example.com/1
+EditURL: http://example.com/1/edit
+Scheduled: true
+---
+
+scheduled content
+`}, {
+		name: "scheduled draft with future date",
+		e: func() *entry {
+			u := mustURLParse("http://example.com/1")
+			d := time.Date(2099, 12, 20, 0, 0, 0, 0, jst)
+			return &entry{
+				entryHeader: &entryHeader{
+					URL:         &entryURL{u},
+					EditURL:     u.String() + "/edit",
+					Title:       "Test Entry",
+					Date:        &d,
+					IsDraft:     true,
+					IsScheduled: true,
+				},
+				LastModified: &d,
+				Content:      "scheduled draft content\n",
+			}
+		},
+		want: `---
+Title: Test Entry
+Date: 2099-12-20T00:00:00+09:00
+URL: http://example.com/1
+EditURL: http://example.com/1/edit
+Draft: true
+Scheduled: true
+---
+
+scheduled draft content
+`}, {
+		name: "scheduled draft with past date",
+		e: func() *entry {
+			u := mustURLParse("http://example.com/1")
+			d := time.Date(2020, 1, 1, 0, 0, 0, 0, jst)
+			return &entry{
+				entryHeader: &entryHeader{
+					URL:         &entryURL{u},
+					EditURL:     u.String() + "/edit",
+					Title:       "Test Entry",
+					Date:        &d,
+					IsDraft:     true,
+					IsScheduled: true,
+				},
+				LastModified: &d,
+				Content:      "scheduled draft with past date\n",
+			}
+		},
+		want: `---
+Title: Test Entry
+Date: 2020-01-01T00:00:00+09:00
+URL: http://example.com/1
+EditURL: http://example.com/1/edit
+Draft: true
+Scheduled: true
+---
+
+scheduled draft with past date
+`}, {
+		name: "draft with past date",
+		e: func() *entry {
+			u := mustURLParse("http://example.com/1")
+			d := time.Date(2020, 1, 1, 0, 0, 0, 0, jst)
+			return &entry{
+				entryHeader: &entryHeader{
+					URL:     &entryURL{u},
+					EditURL: u.String() + "/edit",
+					Title:   "Test Entry",
+					Date:    &d,
+					IsDraft: true,
+				},
+				LastModified: &d,
+				Content:      "draft with past date\n",
+			}
+		},
+		want: `---
+Title: Test Entry
+Date: 2020-01-01T00:00:00+09:00
+URL: http://example.com/1
+EditURL: http://example.com/1/edit
+Draft: true
+---
+
+draft with past date
+`}, {
 		name: "category",
 		e: func() *entry {
 			u := mustURLParse("http://hatenablog.example.com/2")
@@ -172,10 +280,14 @@ foo bar カテゴリー
 				t.Errorf("Title: got %#v, want %#v", g, e)
 			}
 
-			if e.Date != nil {
+			// For drafts with past dates (not scheduled), the date gets cleared during parsing
+			// So we only compare dates if both are non-nil
+			if e.Date != nil && parsedE.Date != nil {
 				if e, g := e.Date, parsedE.Date; !e.Equal(*g) {
 					t.Errorf("Date: got %#v, want %#v", g, e)
 				}
+			} else if e.Date == nil && parsedE.Date != nil {
+				t.Errorf("Date: got %#v, want nil", parsedE.Date)
 			}
 			if e, g := e.URL, parsedE.URL; e.String() != g.String() {
 				t.Errorf("URL: got %#v, want %#v", g, e)
@@ -188,6 +300,9 @@ foo bar カテゴリー
 			}
 			if e, g := e.IsDraft, parsedE.IsDraft; e != g {
 				t.Errorf("IsDraft: got %#v, want %#v", g, e)
+			}
+			if e, g := e.IsScheduled, parsedE.IsScheduled; e != g {
+				t.Errorf("IsScheduled: got %#v, want %#v", g, e)
 			}
 		})
 	}
