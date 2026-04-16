@@ -31,7 +31,7 @@ jobs:
     - name: test
       run: go test -coverprofile coverage.out -covermode atomic ./...
       env:
-        BLOGSYNC_TEST_BLOG: blogsynctest.hatenablog.com
+        BLOGSYNC_TEST_BLOG: ${{ matrix.os == 'macOS-latest' && 'blogsynctest.hatenablog.com' || '' }}
         BLOGSYNC_USERNAME: Songmu
         BLOGSYNC_PASSWORD: ${{ secrets.BLOGSYNC_SONGMU_PASSWORD }}
     - name: Send coverage
