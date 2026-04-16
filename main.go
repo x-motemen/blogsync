@@ -229,7 +229,7 @@ var commandPush = &cli.Command{
 			if _, entryPath := bc.extractEntryPath(path); entryPath != "" {
 				if !strings.HasPrefix(entryPath, draftDir) {
 					if entry.CustomPath != "" && entry.CustomPath != entryPath {
-						logf("warn", "CustomPath in frontmatter (%s) differs from file path (%s), using file path",
+						logf("warn", "frontmatter CustomPath (%s) is overridden by file path (%s) and will be cleared",
 							entry.CustomPath, entryPath)
 					}
 					entry.CustomPath = entryPath
