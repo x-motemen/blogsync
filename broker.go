@@ -191,7 +191,7 @@ func (b *broker) PutEntry(e *entry) error {
 	}
 	// Log URL change for published entries
 	if !newEntry.IsDraft && e.URL != nil && newEntry.URL != nil && e.URL.Path != newEntry.URL.Path {
-		logf("warn", "URL changed: %s -> %s", e.URL.Path, newEntry.URL.Path)
+		logf("store", "URL changed: %s -> %s", e.URL.Path, newEntry.URL.Path)
 	}
 	// Preserve local path for drafts stored outside _draft/
 	if e.localPath != "" && newEntry.IsDraft && newEntry.isBlogEntry() {
