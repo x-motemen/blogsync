@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.21.0](https://github.com/x-motemen/blogsync/compare/v0.20.1...v0.21.0) - 2026-04-16
+- use t.Setenv in testing by @Songmu in https://github.com/x-motemen/blogsync/pull/151
+- use TEST_BLOG only on mac by @Songmu in https://github.com/x-motemen/blogsync/pull/160
+- 予約投稿対応 by @theoremoon in https://github.com/x-motemen/blogsync/pull/159
+- 記事を配信するディレクトリをentry_directoryとして設定項目に追加する by @theoremoon in https://github.com/x-motemen/blogsync/pull/157
+- Mitigate time skew in time comparisons by @Songmu in https://github.com/x-motemen/blogsync/pull/162
+- CI/CD maintenance by @Songmu in https://github.com/x-motemen/blogsync/pull/163
+
 ## [v0.20.1](https://github.com/x-motemen/blogsync/compare/v0.20.0...v0.20.1) - 2023-11-12
 - change test blog for CI by @Songmu in https://github.com/x-motemen/blogsync/pull/144
 - [nit] refactoring by @Songmu in https://github.com/x-motemen/blogsync/pull/146
