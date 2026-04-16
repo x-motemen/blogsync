@@ -215,8 +215,6 @@ var commandPush = &cli.Command{
 				// The entry directory is not always at the top of the localRoot, such as
 				// in the case of using subdirectory feature in BlogMedia. Therefore, the
 				// relative position from the entry directory is obtained as a custom path as below.
-				blogPath, _ := filepath.Rel(bc.localRoot(), path)
-				blogPath = "/" + filepath.ToSlash(blogPath)
 				_, entryPath := bc.extractEntryPath(path)
 				if entryPath == "" {
 					return fmt.Errorf("%q is not a blog entry", path)
@@ -229,6 +227,7 @@ var commandPush = &cli.Command{
 				}
 				continue
 			}
+
 			blogID, err := entry.blogID()
 			if err != nil {
 				return err
@@ -238,9 +237,6 @@ var commandPush = &cli.Command{
 			if bc == nil {
 				return fmt.Errorf("cannot find blog for %s", path)
 			}
-
-			blogPath, _ := filepath.Rel(bc.localRoot(), path)
-			blogPath = "/" + filepath.ToSlash(blogPath)
 
 			if _, entryPath := bc.extractEntryPath(path); entryPath != "" {
 				if !strings.HasPrefix(entryPath, draftDir) {
