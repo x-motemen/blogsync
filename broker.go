@@ -169,7 +169,7 @@ func (b *broker) UploadFresh(e *entry) (bool, error) {
 		return false, err
 	}
 
-	if e.LastModified.After(*re.LastModified) == false {
+	if !newerWithAllowance(*e.LastModified, *re.LastModified) {
 		return false, nil
 	}
 
