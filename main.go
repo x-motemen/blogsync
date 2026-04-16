@@ -227,8 +227,10 @@ var commandPush = &cli.Command{
 			blogPath = "/" + filepath.ToSlash(blogPath)
 
 			if _, entryPath := bc.extractEntryPath(path); entryPath != "" {
-				if !isLikelyGivenPath(entryPath) && !strings.HasPrefix(entryPath, draftDir) {
-					entry.CustomPath = entryPath
+				if !strings.HasPrefix(entryPath, draftDir) {
+					if entry.IsDraft || !isLikelyGivenPath(entryPath) {
+						entry.CustomPath = entryPath
+					}
 				}
 			}
 			_, err = newBroker(bc, c.App.Writer).UploadFresh(entry)
