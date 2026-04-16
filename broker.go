@@ -132,17 +132,11 @@ func (b *broker) StoreFresh(e *entry, path string) (bool, error) {
 func (b *broker) Store(e *entry, path, origPath string) error {
 	logf("store", "%s", path)
 
-	if e.IsDraft && e.isBlogEntry() {
-		_, entryPath := b.blogConfig.extractEntryPath(e.URL.Path)
-		if entryPath == "" {
-			return fmt.Errorf("invalid path: %s", e.URL.Path)
-		}
-		// Only clear temporary URL for entries stored in _draft/
-		if isLikelyGivenPath(entryPath) {
-			_, destEntryPath := b.blogConfig.extractEntryPath(path)
-			if strings.HasPrefix(destEntryPath, draftDir) {
-				e.URL = nil
-			}
+	if e.IsDraft && e.isBlogEntry() && e.URL != nil {
+		// Clear temporary URL for entries stored in _draft/
+		_, destEntryPath := b.blogConfig.extractEntryPath(path)
+		if strings.HasPrefix(destEntryPath, draftDir) {
+			e.URL = nil
 		}
 	}
 
