@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"strings"
@@ -318,6 +319,7 @@ func modTime(fpath string) (time.Time, error) {
 }
 
 func (bc *blogConfig) extractEntryPath(p string) (subdir string, entryPath string) {
+	p = filepath.ToSlash(p)
 	entryDir := bc.entryDirectory()
 	if entryDir == "" {
 		entryPath = strings.TrimSuffix(p, entryExt)

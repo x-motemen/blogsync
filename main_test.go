@@ -241,6 +241,43 @@ test`), 0644); err != nil {
 		}
 	})
 
+	t.Run("draft outside _draft with auto-assigned-like path", func(t *testing.T) {
+		t.Log("A draft file placed outside _draft/ with an auto-assigned-like path should keep its location")
+		now := time.Now()
+		autoDir := filepath.Join(dir, "entry", now.Format("2006"), now.Format("01"), now.Format("02"))
+		if err := os.MkdirAll(autoDir, 0755); err != nil {
+			t.Fatal(err)
+		}
+		autoPath := filepath.Join(autoDir, now.Format("150405")+".md")
+		if err := os.WriteFile(autoPath, []byte("---\nDraft: true\n---\ndraft outside _draft\n"), 0644); err != nil {
+			t.Fatal(err)
+		}
+		entryFile, err := blogsync("push", autoPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer func() {
+			if _, err := blogsync("remove", entryFile); err != nil {
+				t.Fatal(err)
+			}
+		}()
+		if entryFile != autoPath {
+			t.Errorf("draft outside _draft/ should keep its path. got: %s, want: %s", entryFile, autoPath)
+		}
+
+		t.Log("Pushing the same draft again should still keep the file in place")
+		if err := appendFile(entryFile, "updated\n"); err != nil {
+			t.Fatal(err)
+		}
+		pushedFile, err := blogsync("push", entryFile)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if pushedFile != entryFile {
+			t.Errorf("second push should keep path. got: %s, want: %s", pushedFile, entryFile)
+		}
+	})
+
 	t.Run("post static pages", func(t *testing.T) {
 		t.Log("Posting a static page without a custom path results in an error")
 		app.Reader = strings.NewReader("static\n")

@@ -132,12 +132,10 @@ func (b *broker) StoreFresh(e *entry, path string) (bool, error) {
 func (b *broker) Store(e *entry, path, origPath string) error {
 	logf("store", "%s", path)
 
-	if e.IsDraft && e.isBlogEntry() {
-		_, entryPath := b.blogConfig.extractEntryPath(e.URL.Path)
-		if entryPath == "" {
-			return fmt.Errorf("invalid path: %s", e.URL.Path)
-		}
-		if isLikelyGivenPath(entryPath) {
+	if e.IsDraft && e.isBlogEntry() && e.URL != nil {
+		// Clear temporary URL for entries stored in _draft/
+		_, destEntryPath := b.blogConfig.extractEntryPath(path)
+		if strings.HasPrefix(destEntryPath, draftDir) {
 			e.URL = nil
 		}
 	}
@@ -181,6 +179,13 @@ func (b *broker) PutEntry(e *entry) error {
 	if err != nil {
 		return err
 	}
+	// Preserve local path for drafts stored outside _draft/
+	if e.localPath != "" && newEntry.IsDraft && newEntry.isBlogEntry() {
+		_, entryPath := b.blogConfig.extractEntryPath(e.localPath)
+		if entryPath != "" && !strings.HasPrefix(entryPath, draftDir) {
+			newEntry.localPath = e.localPath
+		}
+	}
 	return b.Store(newEntry, b.LocalPath(newEntry), b.LocalPath(e))
 }
 
@@ -194,6 +199,13 @@ func (b *broker) PostEntry(e *entry, isPage bool) error {
 	newEntry, err := asEntry(b.Client.PostEntry(endPoint, e.atom()))
 	if err != nil {
 		return err
+	}
+	// Preserve local path for drafts stored outside _draft/
+	if e.localPath != "" && newEntry.IsDraft && newEntry.isBlogEntry() {
+		_, entryPath := b.blogConfig.extractEntryPath(e.localPath)
+		if entryPath != "" && !strings.HasPrefix(entryPath, draftDir) {
+			newEntry.localPath = e.localPath
+		}
 	}
 	return b.Store(newEntry, b.LocalPath(newEntry), "")
 }
