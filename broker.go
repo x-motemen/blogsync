@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"net/http"
@@ -34,6 +35,56 @@ func newBroker(bc *blogConfig, w io.Writer) *broker {
 		blogConfig: bc,
 		writer:     w,
 	}
+}
+
+// editURLFromFile extracts the EditURL from a file's frontmatter without
+// fully parsing the entry. Returns "" if not found.
+func editURLFromFile(fpath string) string {
+	f, err := os.Open(fpath)
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	inFrontmatter := false
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "---" {
+			if inFrontmatter {
+				return ""
+			}
+			inFrontmatter = true
+			continue
+		}
+		if !inFrontmatter {
+			return ""
+		}
+		if strings.HasPrefix(line, "EditURL:") {
+			return strings.TrimSpace(strings.TrimPrefix(line, "EditURL:"))
+		}
+	}
+	return ""
+}
+
+// buildLocalEntryMap walks the local root and builds a map of EditURL to file path
+// for all entry files.
+func (b *broker) buildLocalEntryMap() map[string]string {
+	m := map[string]string{}
+	root := b.localRoot()
+	filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
+		}
+		if !strings.HasSuffix(path, entryExt) {
+			return nil
+		}
+		if editURL := editURLFromFile(path); editURL != "" {
+			m[editURL] = path
+		}
+		return nil
+	})
+	return m
 }
 
 func (b *broker) FetchRemoteEntries(published, drafts bool) ([]*entry, error) {
