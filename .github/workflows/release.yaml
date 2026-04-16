@@ -3,6 +3,11 @@ on:
   push:
     tags:
     - "v[0-9]+.[0-9]+.[0-9]+"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (e.g. v0.20.0)"
+        required: true
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -13,7 +18,9 @@ jobs:
     - name: checkout
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
+        ref: ${{ inputs.tag || github.ref_name }}
         persist-credentials: false
     - uses: ./.github/actions/release
       with:
+        tag: ${{ inputs.tag || github.ref_name }}
         token: ${{ secrets.GITHUB_TOKEN }}
