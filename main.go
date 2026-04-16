@@ -79,6 +79,7 @@ var commandPull = &cli.Command{
 			}
 
 			b := newBroker(blogConfig, c.App.Writer)
+			localEntryMap := b.buildLocalEntryMap()
 			remoteEntries, err := b.FetchRemoteEntries(
 				!c.Bool("only-drafts"), !c.Bool("no-drafts"))
 			if err != nil {
@@ -87,9 +88,24 @@ var commandPull = &cli.Command{
 
 			for _, re := range remoteEntries {
 				path := b.LocalPath(re)
-				_, err := b.StoreFresh(re, path)
-				if err != nil {
-					return err
+				if oldPath, ok := localEntryMap[re.EditURL]; ok && oldPath != path {
+					// Entry has been renamed locally
+					localMtime, _ := modTime(oldPath)
+					if localMtime.After(*re.LastModified) {
+						logf("warn", "local file is newer, skipping remote: %s", oldPath)
+						continue
+					}
+					logf("store", "renamed: %s -> %s", oldPath, path)
+					if _, err := b.StoreFresh(re, path); err != nil {
+						return err
+					}
+					if err := os.Remove(oldPath); err != nil && !os.IsNotExist(err) {
+						return err
+					}
+				} else {
+					if _, err := b.StoreFresh(re, path); err != nil {
+						return err
+					}
 				}
 			}
 		}
