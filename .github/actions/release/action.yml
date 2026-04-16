@@ -16,10 +16,15 @@ runs:
       go-version-file: go.mod
   - name: release
     run: |
-      make crossbuild upload
+      make crossbuild
     shell: bash
     env:
       GITHUB_TOKEN: ${{ inputs.token }}
+  - uses: tcnksm/ghr@766f869eacbbb086e8860cf0f0192dda6e8e67e1 # v0.18.3
+    with:
+      tag: ${{ inputs.tag }}
+      token: ${{ inputs.token }}
+      path: "dist"
   - uses: haya14busa/action-update-semver@7d2c558640ea49e798d46539536190aff8c18715 # v1.5.1
     with:
       major_version_tag_only: true
