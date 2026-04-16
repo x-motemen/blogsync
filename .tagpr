@@ -2,3 +2,4 @@
 	vPrefix = true
 	releaseBranch = master
 	versionFile = version.go,action.yml
+	release = draft
