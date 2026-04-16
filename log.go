@@ -14,6 +14,7 @@ func init() {
 		Prefixes: colorine.Prefixes{
 			"http":  colorine.Verbose,
 			"store": colorine.Info,
+			"warn":  colorine.Warn,
 			"error": colorine.Error,
 			"":      colorine.Verbose,
 		}}

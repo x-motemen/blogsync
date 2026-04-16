@@ -167,6 +167,16 @@ func (b *broker) UploadFresh(e *entry) (bool, error) {
 		return false, err
 	}
 
+	// Force upload when CustomPath differs from current URL path
+	if e.CustomPath != "" && re.URL != nil {
+		_, currentEntryPath := b.blogConfig.extractEntryPath(re.URL.Path)
+		if currentEntryPath != e.CustomPath {
+			return true, b.PutEntry(e)
+		}
+		// CustomPath matches current URL — clear it to avoid unnecessary API update
+		e.CustomPath = ""
+	}
+
 	if !newerWithAllowance(*e.LastModified, *re.LastModified) {
 		return false, nil
 	}
@@ -178,6 +188,10 @@ func (b *broker) PutEntry(e *entry) error {
 	newEntry, err := asEntry(b.Client.PutEntry(e.EditURL, e.atom()))
 	if err != nil {
 		return err
+	}
+	// Log URL change for published entries
+	if !newEntry.IsDraft && e.URL != nil && newEntry.URL != nil && e.URL.Path != newEntry.URL.Path {
+		logf("store", "URL changed: %s -> %s", e.URL.Path, newEntry.URL.Path)
 	}
 	// Preserve local path for drafts stored outside _draft/
 	if e.localPath != "" && newEntry.IsDraft && newEntry.isBlogEntry() {
