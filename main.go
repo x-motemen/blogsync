@@ -228,9 +228,11 @@ var commandPush = &cli.Command{
 
 			if _, entryPath := bc.extractEntryPath(path); entryPath != "" {
 				if !strings.HasPrefix(entryPath, draftDir) {
-					if entry.IsDraft || !isLikelyGivenPath(entryPath) {
-						entry.CustomPath = entryPath
+					if entry.CustomPath != "" && entry.CustomPath != entryPath {
+						logf("warn", "CustomPath in frontmatter (%s) differs from file path (%s), using file path",
+							entry.CustomPath, entryPath)
 					}
+					entry.CustomPath = entryPath
 				}
 			}
 			_, err = newBroker(bc, c.App.Writer).UploadFresh(entry)
