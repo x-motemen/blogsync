@@ -99,7 +99,7 @@ func (b *broker) LocalPath(e *entry) string {
 	localPath := e.URL.Path
 
 	if e.IsDraft && e.isBlogEntry() {
-		subdir, entryPath := b.blogConfig.extractEntryPath(e.URL.Path)
+		subdir, entryPath := extractEntryPath(e.URL.Path)
 		if entryPath == "" {
 			return ""
 		}
@@ -108,7 +108,7 @@ func (b *broker) LocalPath(e *entry) string {
 			//   https://blog.hatena.ne.jp/Songmu/songmu.hatenadiary.org/atom/entry/6801883189050452361
 			paths := strings.Split(e.EditURL, "/")
 			if len(paths) == 8 {
-				localPath = subdir + b.blogConfig.entryDirectory() + draftDir + paths[7] // path[7] is entryID
+				localPath = subdir + "/entry/" + draftDir + paths[7] // path[7] is entryID
 			}
 		}
 	}
@@ -133,7 +133,7 @@ func (b *broker) Store(e *entry, path, origPath string) error {
 	logf("store", "%s", path)
 
 	if e.IsDraft && e.isBlogEntry() {
-		_, entryPath := b.blogConfig.extractEntryPath(e.URL.Path)
+		_, entryPath := extractEntryPath(e.URL.Path)
 		if entryPath == "" {
 			return fmt.Errorf("invalid path: %s", e.URL.Path)
 		}
