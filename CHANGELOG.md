@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.21.1](https://github.com/x-motemen/blogsync/compare/v0.21.0...v0.21.1) - 2026-04-16
+- add documents about env values by @Songmu in https://github.com/x-motemen/blogsync/pull/164
+- Treat drafts outside _draft/ as having custom paths by @Songmu in https://github.com/x-motemen/blogsync/pull/166
+- Prioritize file path for CustomPath, force upload on path change by @Songmu in https://github.com/x-motemen/blogsync/pull/167
+- Detect renamed files during pull and avoid duplicates by @Songmu in https://github.com/x-motemen/blogsync/pull/168
+- Use ghr action for release uploads and add workflow_dispatch by @Songmu in https://github.com/x-motemen/blogsync/pull/169
+
 ## [v0.21.0](https://github.com/x-motemen/blogsync/compare/v0.20.1...v0.21.0) - 2026-04-16
 - use t.Setenv in testing by @Songmu in https://github.com/x-motemen/blogsync/pull/151
 - use TEST_BLOG only on mac by @Songmu in https://github.com/x-motemen/blogsync/pull/160
