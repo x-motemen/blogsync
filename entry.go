@@ -317,8 +317,14 @@ func modTime(fpath string) (time.Time, error) {
 	return ti, nil
 }
 
-func extractEntryPath(p string) (subdir string, entryPath string) {
-	stuffs := strings.SplitN(p, "/entry/", 2)
+func (bc *blogConfig) extractEntryPath(p string) (subdir string, entryPath string) {
+	entryDir := bc.entryDirectory()
+	if entryDir == "" {
+		entryPath = strings.TrimSuffix(p, entryExt)
+		return "", entryPath
+	}
+
+	stuffs := strings.SplitN(p, entryDir, 2)
 	if len(stuffs) != 2 {
 		return "", ""
 	}

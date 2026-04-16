@@ -182,7 +182,8 @@ func TestBlogsync(t *testing.T) {
 		}
 		entryFile = publishedFile
 
-		_, entryPath := extractEntryPath(entryFile)
+		defaultBc := &blogConfig{}
+		_, entryPath := defaultBc.extractEntryPath(entryFile)
 		if !isLikelyGivenPath(entryPath) {
 			t.Errorf("unexpected published file: %s", entryFile)
 		}

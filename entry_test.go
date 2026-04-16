@@ -42,6 +42,10 @@ func mustURLParse(s string) *url.URL {
 	return u
 }
 
+func pstr(s string) *string {
+	return &s
+}
+
 func TestFullContent(t *testing.T) {
 	testCases := []struct {
 		name string
@@ -303,6 +307,70 @@ foo bar カテゴリー
 			}
 			if e, g := e.IsScheduled, parsedE.IsScheduled; e != g {
 				t.Errorf("IsScheduled: got %#v, want %#v", g, e)
+			}
+		})
+	}
+}
+
+func TestExtractEntryPath(t *testing.T) {
+	testCases := []struct {
+		name      string
+		path      string
+		bc        *blogConfig
+		subdir    string
+		entryPath string
+	}{
+		{
+			name:      "default entry directory",
+			path:      "/path/to/entry/2012/12/18/post.md",
+			bc:        nil,
+			subdir:    "/path/to",
+			entryPath: "2012/12/18/post",
+		},
+		{
+			name:      "custom entry directory",
+			path:      "/path/to/articles/2012/12/18/post.md",
+			bc:        &blogConfig{EntryDirectory: pstr("articles")},
+			subdir:    "/path/to",
+			entryPath: "2012/12/18/post",
+		},
+		{
+			name:      "with bc but default entry directory",
+			path:      "/path/to/entry/2012/12/18/post.md",
+			bc:        &blogConfig{EntryDirectory: nil},
+			subdir:    "/path/to",
+			entryPath: "2012/12/18/post",
+		},
+		{
+			name:      "invalid path",
+			path:      "/path/to/invalid/path.md",
+			bc:        nil,
+			subdir:    "",
+			entryPath: "",
+		},
+		{
+			name:      "empty directory",
+			path:      "/path/to/2012/12/18/post.md",
+			bc:        &blogConfig{EntryDirectory: pstr(""), local: true, BlogID: "blog.example.com"},
+			subdir:    "",
+			entryPath: "/path/to/2012/12/18/post",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var subdir, entryPath string
+			if tc.bc != nil {
+				subdir, entryPath = tc.bc.extractEntryPath(tc.path)
+			} else {
+				defaultBc := &blogConfig{}
+				subdir, entryPath = defaultBc.extractEntryPath(tc.path)
+			}
+			if subdir != tc.subdir {
+				t.Errorf("subdir: got %#v, want %#v", subdir, tc.subdir)
+			}
+			if entryPath != tc.entryPath {
+				t.Errorf("entryPath: got %#v, want %#v", entryPath, tc.entryPath)
 			}
 		})
 	}
